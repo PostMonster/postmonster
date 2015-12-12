@@ -22,6 +22,7 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QtDebug>
 #include <QMimeData>
+#include <QPainter>
 
 #include "arrow.h"
 #include "startitem.h"
@@ -38,6 +39,11 @@ void DiagramScene::setMode(Mode mode, PostMonster::ToolPluginInterface *tool)
     m_mode = mode;
     m_tool = tool;
 }
+
+/*void DiagramScene::drawBackground(QPainter *painter, const QRectF &rect)
+{
+    painter->drawTiledPixmap(rect, QPixmap(":/icons/diagram/background"));
+}*/
 
 void DiagramScene::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
 {

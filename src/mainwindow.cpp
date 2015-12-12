@@ -49,10 +49,10 @@ MainWindow::MainWindow(QWidget *parent) :
     saveButton->setPopupMode(QToolButton::MenuButtonPopup);
     saveButton->addAction(ui->actionSaveAs);
 
-    connect(ui->actionNew, SIGNAL(triggered(bool)), ui->editPage, SLOT(newProject()));
-    connect(ui->actionOpen, SIGNAL(triggered(bool)), this, SLOT(loadProject()));
-    connect(ui->actionSave, SIGNAL(triggered(bool)), this, SLOT(saveProject()));
-    connect(ui->actionSaveAs, SIGNAL(triggered(bool)), this, SLOT(saveProjectAs()));
+    connect(ui->actionNew,    SIGNAL(triggered(bool)), ui->editPage, SLOT(newProject()));
+    connect(ui->actionOpen,   SIGNAL(triggered(bool)), this,         SLOT(loadProject()));
+    connect(ui->actionSave,   SIGNAL(triggered(bool)), this,         SLOT(saveProject()));
+    connect(ui->actionSaveAs, SIGNAL(triggered(bool)), this,         SLOT(saveProjectAs()));
 
     selectAction(ui->actionEdit);
 

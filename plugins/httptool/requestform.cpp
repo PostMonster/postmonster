@@ -20,8 +20,6 @@
 #include "requestform.h"
 #include "ui_requestform.h"
 
-#include "helpers.h"
-
 #include <QMessageBox>
 
 RequestForm::RequestForm(QWidget *parent) :

@@ -22,8 +22,6 @@
 
 #include <QTextCodec>
 
-#include "helpers.h"
-
 ResultForm::ResultForm(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ResultForm), m_request(0), m_response(0)

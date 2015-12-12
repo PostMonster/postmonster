@@ -41,8 +41,8 @@ PluginsDialog::PluginsDialog(QWidget *parent) :
 
         if (!info.isEmpty()) {
             QTableWidgetItem *library = new QTableWidgetItem(fileName);
-            QTableWidgetItem *name = new QTableWidgetItem(info.value("name").toString());
-            QTableWidgetItem *descr = new QTableWidgetItem(info.value("description").toString());
+            QTableWidgetItem *name    = new QTableWidgetItem(info.value("name").toString());
+            QTableWidgetItem *descr   = new QTableWidgetItem(info.value("description").toString());
             QTableWidgetItem *version = new QTableWidgetItem(info.value("version").toString());
 
             library->setCheckState(Qt::Checked);

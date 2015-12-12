@@ -18,7 +18,6 @@
  */
  
 #include "httptoolplugin.h"
-#include "helpers.h"
 
 #include <QColor>
 #include <QBrush>
