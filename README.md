@@ -1,5 +1,4 @@
-# PostMonster
-## Universal HTTP automation tool
+## PostMonster, universal HTTP automation tool
 
 Software for constructing, capturing, editing and running dynamic
 HTTP requests connected between each other by user logic.
