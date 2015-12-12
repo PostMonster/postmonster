@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="200.14285"
+   height="90"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="httpitem.svg"
+   inkscape:export-filename="/home/polter/Development/QtCreator/juicyposter/tools/httptool/icons/httpitem.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
+  <defs
+     id="defs4">
+    <linearGradient
+       id="linearGradient3784">
+      <stop
+         id="stop3794"
+         offset="0"
+         style="stop-color:#000000;stop-opacity:1;" />
+      <stop
+         style="stop-color:#000000;stop-opacity:1;"
+         offset="0.30000001"
+         id="stop3798" />
+      <stop
+         style="stop-color:#000000;stop-opacity:0;"
+         offset="1"
+         id="stop3788" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3784"
+       id="linearGradient3792"
+       x1="188.18593"
+       y1="270"
+       x2="397.37656"
+       y2="270"
+       gradientUnits="userSpaceOnUse"
+       spreadMethod="pad"
+       gradientTransform="matrix(0.98041484,0,0,1,5.4913834,-4.4975064)" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="5.6568542"
+     inkscape:cx="25.754883"
+     inkscape:cy="62.761416"
+     inkscape:document-units="px"
+     inkscape:current-layer="g3825"
+     showgrid="false"
+     inkscape:window-width="1877"
+     inkscape:window-height="1200"
+     inkscape:window-x="43"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-192.78572,-241.00503)">
+    <rect
+       style="fill:#e9ddaf;fill-opacity:1;stroke:none"
+       id="rect2985-7"
+       width="200"
+       height="90"
+       x="192.78572"
+       y="241.00504"
+       ry="7.1851172" />
+    <rect
+       style="fill:#e9ddaf;stroke:#000000;stroke-width:1.50000000000000000;stroke-miterlimit:4;stroke-opacity:0.23529412;stroke-dasharray:none;fill-opacity:0"
+       id="rect2985"
+       width="197.16895"
+       height="87.026093"
+       x="194.27267"
+       y="242.49199"
+       ry="6.9476962" />
+    <path
+       style="fill:none;stroke:url(#linearGradient3792);stroke-width:1.00507736;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:0.2;stroke-dasharray:none"
+       d="m 195.04082,265.50249 194.9953,0"
+       id="path3774"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-opacity:1;opacity:0.4"
+       d="m 201.31888,243.13004 183.05869,0 c 3.55011,0 6.40815,2.91194 6.40815,6.52902 l 0,15.34597 -195.875,0 0,-15.34597 c 0,-3.61708 2.85804,-6.52902 6.40816,-6.52902 z"
+       id="rect2989"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="sssccss" />
+    <g
+       id="g3825"
+       transform="matrix(0.21721732,0,0,0.21725964,86.658215,168.56575)"
+       inkscape:export-filename="/home/polter/Development/QtCreator/juicyposter/tools/httptool/icons/httptool.png"
+       inkscape:export-xdpi="33.353428"
+       inkscape:export-ydpi="33.353428">
+      <path
+         id="rect3766-7"
+         style="fill:#336699;fill-opacity:1;stroke:#336699;stroke-width:1.82182526999999994;stroke-miterlimit:4;stroke-opacity:1"
+         d="m 561.72549,361.83118 27.22288,16.33 -27.22288,14.99995 z m -40.01115,8.85482 43.67377,0 0,13.62109 -43.67377,0 z"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccccccccc" />
+      <path
+         inkscape:connector-curvature="0"
+         d="m 548.93722,397.83118 -27.22288,16.33 27.22288,14.99995 z m 40.01115,8.85413 -43.67377,0 0,13.62109 43.67377,0 z"
+         style="fill:#666666;fill-opacity:1;stroke:#666666;stroke-width:1.82182526999999994;stroke-miterlimit:4;stroke-opacity:1"
+         id="rect3766-7-0"
+         sodipodi:nodetypes="ccccccccc" />
+    </g>
+  </g>
+</svg>

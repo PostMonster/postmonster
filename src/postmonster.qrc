@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file alias="record">icons/record.svg</file>
+        <file alias="record-dim">icons/record-dim.svg</file>
+        <file alias="forward">icons/forward.svg</file>
+        <file alias="back">icons/back.svg</file>
+        <file alias="refresh">icons/refresh.svg</file>
+        <file alias="debug">icons/debug.svg</file>
+        <file alias="debug-step">icons/debug-step.svg</file>
+    </qresource>
+    <qresource prefix="/icons/diagram">
+        <file alias="item-start">icons/item-start.png</file>
+    </qresource>
+</RCC>
