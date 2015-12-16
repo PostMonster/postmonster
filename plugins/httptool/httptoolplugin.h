@@ -21,6 +21,7 @@
 #define HTTPTOOLPLUGIN_H
 
 #include <QtPlugin>
+#include <QtScript/QScriptEngine>
 #include <QNetworkCookieJar>
 
 #include <postmonster.h>
@@ -42,7 +43,8 @@ public:
         m_request.cookies.clear();
     }
 
-    TaskStatus work(QJsonObject *data);
+    TaskStatus work(QJsonObject &result, const QJsonObject &environment,
+                    QScriptEngine &scriptEngine);
     TaskInterface *clone() const;
 
     QPixmap itemPixmap() const;
@@ -52,7 +54,7 @@ public:
     const HttpRequest *constRequest() const { return &m_request; }
 
 private:
-    void updateEnvironment(QJsonObject *data);
+    void updateResult(QJsonObject &data);
 
     HttpRequest m_request;
     HttpResponse m_response;

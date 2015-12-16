@@ -25,18 +25,15 @@
 #include "diagram/taskitem.h"
 #include "diagram/arrow.h"
 
-QScriptEngine *WorkEngine::m_scriptEngine = 0;
-QJsonObject WorkEngine::m_env;
-
 WorkEngine::WorkEngine(QObject *parent)
     : QObject(parent), m_item(0),
       m_plugins(PluginRegistry::instance()), m_status(PostMonster::Default)
 {
-    if (!WorkEngine::m_scriptEngine)
-        WorkEngine::m_scriptEngine = new QScriptEngine();
+
 }
 
-QByteArray WorkEngine::evalScript(const QByteArray &input) {
+QByteArray WorkEngine::evalScript(const QByteArray &input, const QJsonObject &environment,
+                                  QScriptEngine &engine) {
     QByteArray result = input;
     int pos = 0, start = 0, delta = 0;
 
@@ -62,11 +59,11 @@ QByteArray WorkEngine::evalScript(const QByteArray &input) {
 
         if (brackets.isEmpty()) {
             qDebug() << "VAR=" << input.mid(start, pos - start - 1);
-            QJsonDocument doc(m_env);
-            QScriptValue env = m_scriptEngine->evaluate("[" + doc.toJson() + "]");
+            QJsonDocument doc(environment);
+            QScriptValue env = engine.evaluate("[" + doc.toJson() + "]");
 
-            m_scriptEngine->globalObject().setProperty("Env", env.property(0));
-            QScriptValue value = m_scriptEngine->evaluate(input.mid(start, pos - start - 1));
+            engine.globalObject().setProperty("Env", env.property(0));
+            QScriptValue value = engine.evaluate(input.mid(start, pos - start - 1));
 
             if (value.isString() || value.isNumber() || value.isDate() || value.isBool()) {
                 QByteArray str = value.toString().toUtf8(); //TODO utf8???
@@ -96,7 +93,7 @@ PostMonster::TaskStatus WorkEngine::step() {
         QJsonObject jsonTool, jsonTask;
 
         PostMonster::TaskInterface *task = taskItem->task()->clone();
-        result = task->work(&jsonTask);
+        result = task->work(jsonTask, m_env, m_scriptEngine);
 
         jsonTool = m_env.contains(toolName) ? m_env.value(toolName).toObject() : QJsonObject();
         jsonTool.insert(taskName, jsonTask);

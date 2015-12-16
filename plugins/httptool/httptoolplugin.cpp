@@ -192,20 +192,21 @@ TaskInterface *HttpTask::clone() const
     return new HttpTask(const_cast<HttpTask *>(this)->tool(), m_api, m_request);
 }
 
-TaskStatus HttpTask::work(QJsonObject *data)
+TaskStatus HttpTask::work(QJsonObject &result, const QJsonObject &environment,
+                          QScriptEngine &scriptEngine)
 {
     const APIFunctions &api = m_api;
 
-    m_request.url = api.evalScript(m_request.url.toUtf8());
-    m_request.body = api.evalScript(m_request.body);
+    m_request.url = api.evalScript(m_request.url.toUtf8(), environment, scriptEngine);
+    m_request.body = api.evalScript(m_request.body, environment, scriptEngine);
 
     for (QList<QNetworkReply::RawHeaderPair>::iterator i = m_request.headers.begin(),
          end = m_request.headers.end(); i != end; ++i)
-        (*i).second = api.evalScript((*i).second);
+        (*i).second = api.evalScript((*i).second, environment, scriptEngine);
 
     for (QList<QNetworkCookie>::iterator i = m_request.cookies.begin(),
          end = m_request.cookies.end(); i != end; ++i)
-        (*i).setValue(api.evalScript((*i).value()));
+        (*i).setValue(api.evalScript((*i).value(), environment, scriptEngine));
 
     qDebug() << "BODY: " << m_request.body;
 
@@ -242,7 +243,7 @@ TaskStatus HttpTask::work(QJsonObject *data)
     m_response.cookies = reply->header(QNetworkRequest::SetCookieHeader).
             value< QList<QNetworkCookie> >();
 
-    updateEnvironment(data);
+    updateResult(result);
 
     if (status == 200)
         return Ok;
@@ -250,14 +251,14 @@ TaskStatus HttpTask::work(QJsonObject *data)
         return Fail;
 }
 
-void HttpTask::updateEnvironment(QJsonObject *data)
+void HttpTask::updateResult(QJsonObject &data)
 {
     QJsonObject jsonHeaders;
     foreach (QNetworkReply::RawHeaderPair header, m_response.headers)
         jsonHeaders.insert(header.first, QString(header.second));
 
     if (!jsonHeaders.isEmpty())
-        data->insert("headers", jsonHeaders);
+        data.insert("headers", jsonHeaders);
 
     QJsonObject jsonCookies;
     const QNetworkAccessManager *nam = static_cast<HttpToolPlugin *>(tool())->m_nam;
@@ -279,12 +280,12 @@ void HttpTask::updateEnvironment(QJsonObject *data)
         jsonCookies.insert(cookie.name(), jsonCookie);
     }
     if (!jsonCookies.isEmpty())
-        data->insert("cookies", jsonCookies);
+        data.insert("cookies", jsonCookies);
 
-    data->insert("status", m_response.status);
+    data.insert("status", m_response.status);
 
     if (!m_response.body.isEmpty())
-        data->insert("body", QString("base64:") + m_response.body.toBase64());
+        data.insert("body", QString("base64:") + m_response.body.toBase64());
 }
 
 QJsonObject HttpToolPlugin::serializeTask(const TaskInterface *task)

@@ -27,6 +27,8 @@
 #include <QNetworkReply>
 #include <QNetworkCookie>
 
+#include <QtScript/QScriptEngine>
+
 namespace PostMonster
 {
 
@@ -68,7 +70,9 @@ struct APIFunctions
     QJsonObject (*serializeResponse)(const PostMonster::HttpResponse *response);
     PostMonster::HttpResponse (*deserializeResponse)(const QJsonObject &jsonResponse);
 
-    QByteArray (*evalScript)(const QByteArray &input);
+    QByteArray (*evalScript)(const QByteArray &input,
+                             const QJsonObject &environment,
+                             QScriptEngine &scriptEngine);
 };
 
 class PluginInterface

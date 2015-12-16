@@ -42,7 +42,8 @@ public:
     PostMonster::TaskStatus step();
     PostMonster::TaskInterface *task(const QString &toolId, const QString &taskId) const;
 
-    static QByteArray evalScript(const QByteArray &input);
+    static QByteArray evalScript(const QByteArray &input, const QJsonObject &environment,
+                                 QScriptEngine &engine);
 
 private:
     DiagramItem *m_item;
@@ -50,8 +51,8 @@ private:
     PostMonster::TaskStatus m_status;
     QHash< QPair<QString, QString>, PostMonster::TaskInterface * > m_tasks;
 
-    static QJsonObject m_env;
-    static QScriptEngine *m_scriptEngine;
+    QJsonObject m_env;
+    QScriptEngine m_scriptEngine;
 };
 
 #endif // WORKENGINE_H

@@ -136,9 +136,29 @@ void RecordForm::requestFinished(QNetworkReply *reply, const QByteArray &request
         return;
 
     HttpRequest *request = new HttpRequest();
-    request->method = "GET";//reply->operation();
     request->url = reply->url().url();
     request->body = requestData;
+
+    switch (reply->operation()) {
+    case QNetworkAccessManager::HeadOperation:
+        request->method = "HEAD";
+        break;
+    case QNetworkAccessManager::GetOperation:
+        request->method = "GET";
+        break;
+    case QNetworkAccessManager::PutOperation:
+        request->method = "PUT";
+        break;
+    case QNetworkAccessManager::PostOperation:
+        request->method = "POST";
+        break;
+    case QNetworkAccessManager::DeleteOperation:
+        request->method = "DELETE";
+        break;
+    case QNetworkAccessManager::CustomOperation:
+        request->method = "CUSTOM";
+        break;
+    }
 
     HttpResponse *response = new HttpResponse();
     response->status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();

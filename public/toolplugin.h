@@ -27,6 +27,7 @@
 #include <QWidget>
 #include <QPixmap>
 #include <QJsonObject>
+#include <QtScript/QScriptEngine>
 
 namespace PostMonster
 {
@@ -75,7 +76,8 @@ public:
     }
     virtual ~TaskInterface() {}
 
-    virtual TaskStatus work(QJsonObject *data) = 0;
+    virtual TaskStatus work(QJsonObject &result, const QJsonObject &environment,
+                            QScriptEngine &scriptEngine) = 0;
     virtual TaskInterface *clone() const = 0;
 
     virtual QPixmap itemPixmap() const = 0;
