@@ -177,7 +177,7 @@ void RequestsForm::add(HttpRequest *request, HttpResponse *response)
     RequestsModel *model = qobject_cast<RequestsModel *> (m_proxyModel.sourceModel());
     if (!model) return;
 
-    model->add(request, response);
+    model->add(request, response, m_useAllRequests);
     if (model->rowCount() > 0) {
         //ui->requestsTable->resizeColumnToContents(RequestsModel::Type);
         ui->requestsTable->selectRow(model->rowCount() - 1);
@@ -216,6 +216,8 @@ void RequestsForm::updateResponse()
 
 void RequestsForm::toggleAllRequests(bool used)
 {
+    m_useAllRequests = used;
+
     int count = m_proxyModel.rowCount();
     for (int i = 0; i < count; ++i)
         m_proxyModel.setData(m_proxyModel.index(i, RequestsModel::Used), used);

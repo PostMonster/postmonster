@@ -152,6 +152,7 @@ bool RequestsModel::removeRows(int row, int count, const QModelIndex &)
         HttpResponse *response = m_requests[row].second;
 
         m_requests.removeAt(row);
+        m_used.remove(row);
 
         delete request;
         delete response;

@@ -62,6 +62,7 @@ protected slots:
 private:
     PostMonster::HttpToolPluginInterface *m_httpTool;
     Ui::RequestsForm *ui;
+    bool m_useAllRequests;
 };
 
 #endif // REQUESTSFORM_H
