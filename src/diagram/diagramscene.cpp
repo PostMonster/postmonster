@@ -170,8 +170,8 @@ void DiagramScene::destroyItem(QGraphicsItem *item)
             DiagramItem *di = qgraphicsitem_cast<DiagramItem *>(i);
             if (!di) continue;
 
-            for (QList<Arrow *>::const_iterator j = di->arrows()->begin(),
-                 end = di->arrows()->end(); j != end; ++j)
+            for (QList<Arrow *>::const_iterator j = di->arrows()->constBegin(),
+                 end = di->arrows()->constEnd(); j != end; ++j)
                 if ((*j)->endItem() == item)
                     arrows[(*j)] = di;
 
@@ -237,9 +237,11 @@ void DiagramScene::insertArrow(DiagramItem *start, DiagramItem *end)
 {
     Arrow *arrow = new Arrow(m_lineStatus, start, end);
 
-    for (QListIterator<Arrow *> i(*end->arrows()); i.hasNext(); ) {
-        Arrow *a = i.next();
-        if (a->status() == m_lineStatus && a->endItem() == start) {
+    // If there is and opposite line with the same status,
+    // make new line transparent, otherwise the line will look bold
+    for (QList<Arrow *>::const_iterator i = end->arrows()->constBegin(),
+         e = end->arrows()->constEnd(); i != e; ++i) {
+        if ((*i)->status() == m_lineStatus && (*i)->endItem() == start) {
             arrow->setPen(QPen(Qt::transparent));
             break;
         }

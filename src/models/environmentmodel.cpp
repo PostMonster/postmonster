@@ -117,7 +117,7 @@ QVariant EnvironmentModel::data(const QModelIndex &index, int role) const
 
         if (index.column() == Value) {
             if (item->value().startsWith("base64:"))
-                return "BASE64";
+                return "[ base64 encoded ]";
 
             return item->value();
         }
