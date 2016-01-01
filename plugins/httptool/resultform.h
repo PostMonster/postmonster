@@ -39,8 +39,7 @@ public:
     void updateData(const HttpRequest *request, const HttpResponse *response);
 
 private slots:
-    void requestEncodingChanged(const QString &encoding);
-    void responseEncodingChanged(const QString &encoding);
+    void encodingChanged(const QString &encoding);
     void renderData();
 
 private:

@@ -183,6 +183,7 @@ TaskStatus HttpTask::work(const QJsonObject &environment, QJsonObject &toolSecti
     HttpRequest request;
     request.method = m_request.method;
     request.url = api.evalScript(m_request.url, environment, scriptEngine);
+    request.body = m_request.body;
     //request.body = api.evalScript(m_request.body, environment, scriptEngine);
 
     for (QList<QNetworkReply::RawHeaderPair>::iterator i = m_request.headers.begin(),

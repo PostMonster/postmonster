@@ -64,32 +64,27 @@ ResultForm::ResultForm(QWidget *parent) :
     connect(ui->requestRadio, SIGNAL(toggled(bool)), this, SLOT(renderData()));
     connect(ui->responseRadio, SIGNAL(toggled(bool)), this, SLOT(renderData()));
 
-    connect(ui->requestTabWidget, SIGNAL(currentChanged(int)), this, SLOT(renderData()));
-    connect(ui->responseTabWidget, SIGNAL(currentChanged(int)), this, SLOT(renderData()));
+    connect(ui->tabWidget, SIGNAL(currentChanged(int)), this, SLOT(renderData()));
 
-    connect(ui->requestEncodingCBox, SIGNAL(currentTextChanged(QString)),
-            this, SLOT(requestEncodingChanged(QString)));
-
+    connect(ui->encodingCBox, SIGNAL(currentTextChanged(QString)),
+            this, SLOT(encodingChanged(QString)));
 }
 
-void ResultForm::requestEncodingChanged(const QString &encoding)
+void ResultForm::encodingChanged(const QString &encoding)
 {
     QTextCodec *codec = QTextCodec::codecForName(encoding.isEmpty() ? "Latin1" : encoding.toLatin1());
-    if (codec) {
-        ui->requestEncodingCBox->setStyleSheet("");
-        ui->requestBodyText->setPlainText(codec->toUnicode(m_request->body));
-    } else
-        ui->requestEncodingCBox->setStyleSheet("QComboBox:editable:!on { background: #FF7777; color: white }");
-}
+    QComboBox *comboBox = qobject_cast<QComboBox *>(sender());
 
-void ResultForm::responseEncodingChanged(const QString &encoding)
-{
-    QTextCodec *codec = QTextCodec::codecForName(encoding.isEmpty() ? "Latin1" : encoding.toLatin1());
     if (codec) {
-        ui->responseEncodingCBox->setStyleSheet("");
-        ui->responseBodyText->setPlainText(codec->toUnicode(m_response->body));
-    } else
-        ui->responseEncodingCBox->setStyleSheet("QComboBox:editable:!on { background: #FF7777; color: white }");
+        if (comboBox)
+            comboBox->setStyleSheet("");
+
+        if (ui->requestRadio->isChecked())
+            ui->bodyText->setPlainText(codec->toUnicode(m_request->body));
+        else
+            ui->bodyText->setPlainText(codec->toUnicode(m_response->body));
+    } else if (comboBox)
+       comboBox->setStyleSheet("QComboBox:editable:!on { background: #FF7777; color: white }");
 }
 
 void ResultForm::updateData(const HttpRequest *request, const HttpResponse *response)
@@ -102,175 +97,102 @@ void ResultForm::updateData(const HttpRequest *request, const HttpResponse *resp
 
 void ResultForm::renderData()
 {
+    const QList<QNetworkReply::RawHeaderPair> *headers = nullptr;
+    const QList<QNetworkCookie> *cookies = nullptr;
+    const QByteArray *body = nullptr;
+
     if (ui->requestRadio->isChecked()) {
-        const QList<QNetworkReply::RawHeaderPair> *requestHeaders = &m_request->headers;
-        const QList<QNetworkCookie> *requestCookies = &m_request->cookies;
-
-        ui->methodLabel->setText(m_request->method);
-        ui->urlEdit->setText(m_request->url);
-        ui->urlEdit->setCursorPosition(0);
-        ui->requestWidget->show();
-
-        ui->stackedWidget->setCurrentWidget(ui->requestPage);
-
-        ui->requestTabWidget->blockSignals(true);
-
-        if (requestHeaders->isEmpty()) {
-            ui->requestTabWidget->setTabEnabled(0, false);
-            ui->requestHeadersText->clear();
-        } else
-            ui->requestTabWidget->setTabEnabled(0, true);
-
-        if (ui->requestTabWidget->currentWidget() == ui->requestHeadersTab) {
-            QString html = "<table align='center'>";
-            foreach (QNetworkReply::RawHeaderPair header, *requestHeaders) {
-                html += QString("<tr><td align='right' nowrap><u>%1</u>:</td><td>%2</td></tr>").
-                        arg(QString(header.first)).arg(QString(header.second));
-            }
-            html += "</table>";
-            ui->requestHeadersText->setHtml(html);
-        }
-
-        if (requestCookies->isEmpty()) {
-            ui->requestTabWidget->setTabEnabled(1, false);
-            ui->requestCookiesText->clear();
-        } else
-            ui->requestTabWidget->setTabEnabled(1, true);
-
-        if (ui->requestTabWidget->currentWidget() == ui->requestCookiesTab) {
-            QString html = "<table align='center'>";
-            foreach (QNetworkCookie cookie, *requestCookies) {
-                QString name(cookie.name());
-                QString value(cookie.toRawForm().mid(name.length() + 1));
-                html += QString("<tr><td align='right' nowrap><u>%1</u>:</td><td>%2</td></tr>").
-                        arg(name).arg(value);
-            }
-            html += "</table>";
-            ui->requestCookiesText->setHtml(html);
-        }
-
-        if (m_request->body.isEmpty()) {
-            ui->requestTabWidget->setTabEnabled(2, false);
-            ui->requestBodyText->clear();
-        } else
-            ui->requestTabWidget->setTabEnabled(2, true);
-
-        if (ui->requestTabWidget->currentWidget() == ui->requestBodyTab) {
-            QString encoding;
-            foreach (QNetworkReply::RawHeaderPair header, *requestHeaders) {
-                if (QString(header.first).toLower() == "content-type"
-                        && header.second.startsWith("text/")) {
-                    QRegExp charsetRx("charset\\=([^;]+)", Qt::CaseInsensitive);
-                    if (charsetRx.indexIn(header.second) != -1) {
-                        QByteArray charset = charsetRx.cap(1).toLatin1();
-                        qDebug() << "CAP: " << charset;
-
-                        QRegExp encodingRx(charset, Qt::CaseInsensitive, QRegExp::Wildcard);
-                        int encodingIdx = encodings.indexOf(encodingRx);
-                        if (encodingIdx != -1)
-                            encoding = encodings[encodingIdx];
-                        else if (QTextCodec::codecForName(charset))
-                            encoding = charset;
-                    }
-                }
-            }
-
-            disconnect(ui->requestEncodingCBox, SIGNAL(currentTextChanged(QString)),
-                      this, SLOT(requestEncodingChanged(QString)));
-            ui->requestEncodingCBox->clear();
-            ui->requestEncodingCBox->insertItems(0, encodings);
-            ui->requestEncodingCBox->setCurrentText(encoding);
-            connect(ui->requestEncodingCBox, SIGNAL(currentTextChanged(QString)),
-                    this, SLOT(requestEncodingChanged(QString)));
-
-            requestEncodingChanged(encoding);
-        }
-
-        ui->requestTabWidget->blockSignals(false);
+        headers = &m_request->headers;
+        cookies = &m_request->cookies;
+        body = &m_request->body;
     } else if (ui->responseRadio->isChecked()) {
-        const QList<QNetworkReply::RawHeaderPair> *responseHeaders = &m_response->headers;
-        const QList<QNetworkCookie> *responseCookies = &m_response->cookies;
+        headers = &m_response->headers;
+        cookies = &m_response->cookies;
+        body = &m_response->body;
+    }
 
-        ui->requestWidget->hide();
-        ui->stackedWidget->setCurrentWidget(ui->responsePage);
+    Q_ASSERT(cookies && headers && body);
 
-        ui->responseTabWidget->blockSignals(true);
+    ui->methodLabel->setText(m_request->method);
+    ui->urlEdit->setText(m_request->url);
+    ui->urlEdit->setCursorPosition(0);
+    ui->requestWidget->show();
 
-        if (responseHeaders->isEmpty()) {
-            ui->responseTabWidget->setTabEnabled(0, false);
-            ui->responseHeadersText->clear();
-        } else
-            ui->responseTabWidget->setTabEnabled(0, true);
+    ui->tabWidget->blockSignals(true);
 
-        if (ui->responseTabWidget->currentWidget() == ui->responseHeadersTab) {
-            QString html = "<table align='center'>";
-            foreach (QNetworkReply::RawHeaderPair header, *responseHeaders) {
-                html += QString("<tr><td align='right' nowrap><u>%1</u>:</td><td>%2</td></tr>").
-                        arg(QString(header.first)).arg(QString(header.second));
-            }
+    if (headers->isEmpty()) {
+        ui->tabWidget->setTabEnabled(0, false);
+        ui->headersText->clear();
+    } else
+        ui->tabWidget->setTabEnabled(0, true);
 
-            html += "</table>";
-            ui->responseHeadersText->setHtml(html);
+    if (ui->tabWidget->currentWidget() == ui->headersTab) {
+        QString html = "<table align='center'>";
+        foreach (QNetworkReply::RawHeaderPair header, *headers) {
+            html += QString("<tr><td align='right' nowrap><u>%1</u>:</td><td>%2</td></tr>").
+                    arg(QString(header.first)).arg(QString(header.second));
         }
+        html += "</table>";
+        ui->headersText->setHtml(html);
+    }
 
-        if (responseCookies->isEmpty()) {
-            ui->responseTabWidget->setTabEnabled(1, false);
-            ui->responseCookiesText->clear();
-        } else
-            ui->responseTabWidget->setTabEnabled(1, true);
+    if (cookies->isEmpty()) {
+        ui->tabWidget->setTabEnabled(1, false);
+        ui->cookiesText->clear();
+    } else
+        ui->tabWidget->setTabEnabled(1, true);
 
-        if (ui->responseTabWidget->currentWidget() == ui->responseCookiesTab) {
-            QString html = "<table align='center'>";
-            foreach (QNetworkCookie cookie, *responseCookies) {
-                QString name(cookie.name());
-                QString value(cookie.toRawForm().mid(name.length() + 1));
-                html += QString("<tr><td align='right' nowrap><u>%1</u>:</td><td>%2</td></tr>").
-                        arg(name).arg(value);
-            }
-            html += "</table>";
-
-            ui->responseCookiesText->setHtml(html);
+    if (ui->tabWidget->currentWidget() == ui->cookiesTab) {
+        QString html = "<table align='center'>";
+        foreach (QNetworkCookie cookie, *cookies) {
+            QString name(cookie.name());
+            QString value(cookie.toRawForm().mid(name.length() + 1));
+            html += QString("<tr><td align='right' nowrap><u>%1</u>:</td><td>%2</td></tr>").
+                    arg(name).arg(value);
         }
+        html += "</table>";
+        ui->cookiesText->setHtml(html);
+    }
 
-        if (m_response->body.isEmpty()) {
-            ui->responseTabWidget->setTabEnabled(2, false);
-            ui->responseBodyText->clear();
-        } else
-            ui->responseTabWidget->setTabEnabled(2, true);
+    if (body->isEmpty()) {
+        ui->tabWidget->setTabEnabled(2, false);
+    } else
+        ui->tabWidget->setTabEnabled(2, true);
 
-        if (ui->responseTabWidget->currentWidget() == ui->responseBodyTab) {
-            QString encoding;
-            foreach (QNetworkReply::RawHeaderPair header, *responseHeaders) {
-                if (QString(header.first).toLower() == "content-type"
-                        && header.second.startsWith("text/")) {
-                    QRegExp charsetRx("charset\\=([^;]+)", Qt::CaseInsensitive);
-                    if (charsetRx.indexIn(header.second) != -1) {
-                        QByteArray charset = charsetRx.cap(1).toLatin1();
-                        qDebug() << "CAP: " << charset;
+    if (ui->tabWidget->currentWidget() == ui->bodyTab) {
+        QString encoding;
+        foreach (QNetworkReply::RawHeaderPair header, *headers) {
+            const QString &headerName = QString(header.first).toLower();
+            const QString &headerValue = QString(header.second).toLower();
 
-                        QRegExp encodingRx(charset, Qt::CaseInsensitive, QRegExp::Wildcard);
-                        int encodingIdx = encodings.indexOf(encodingRx);
-                        if (encodingIdx != -1)
-                            encoding = encodings[encodingIdx];
-                        else if (QTextCodec::codecForName(charset))
-                            encoding = charset;
-                    }
+            if (headerName == "content-type" &&
+                    (headerValue.startsWith("application/x-www-form-urlencoded;") ||
+                     headerValue.startsWith("multipart/form-data;") ||
+                     headerValue.startsWith("text/"))) {
+                QRegExp charsetRx("charset\\=([^;]+)", Qt::CaseInsensitive);
+                if (charsetRx.indexIn(headerValue) != -1) {
+                    QByteArray charset = charsetRx.cap(1).toLatin1();
+                    qDebug() << "CAP: " << charset;
+
+                    QRegExp encodingRx(charset, Qt::CaseInsensitive, QRegExp::Wildcard);
+                    int encodingIdx = encodings.indexOf(encodingRx);
+                    if (encodingIdx != -1)
+                        encoding = encodings[encodingIdx];
+                    else if (QTextCodec::codecForName(charset))
+                        encoding = charset;
                 }
             }
-
-            disconnect(ui->responseEncodingCBox, SIGNAL(currentTextChanged(QString)),
-                      this, SLOT(responseEncodingChanged(QString)));
-            ui->responseEncodingCBox->clear();
-            ui->responseEncodingCBox->insertItems(0, encodings);
-            ui->responseEncodingCBox->setCurrentText(encoding);
-            connect(ui->responseEncodingCBox, SIGNAL(currentTextChanged(QString)),
-                    this, SLOT(responseEncodingChanged(QString)));
-
-            responseEncodingChanged(encoding);
         }
 
-        ui->responseTabWidget->blockSignals(false);
+        ui->encodingCBox->blockSignals(true);
+        ui->encodingCBox->clear();
+        ui->encodingCBox->insertItems(0, encodings);
+        ui->encodingCBox->blockSignals(false);
+
+        ui->encodingCBox->setCurrentText(encoding);
     }
+
+    ui->tabWidget->blockSignals(false);
 }
 
 ResultForm::~ResultForm()
