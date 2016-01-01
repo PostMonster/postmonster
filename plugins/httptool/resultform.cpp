@@ -163,10 +163,10 @@ void ResultForm::renderData()
     } else
         ui->tabWidget->setTabEnabled(2, true);
 
-    QMimeDatabase mimeDatabase;
-
     if (ui->tabWidget->currentWidget() == ui->bodyTab) {
+        QMimeDatabase mimeDatabase;
         QString encoding;
+
         foreach (QNetworkReply::RawHeaderPair header, *headers) {
             const QString &headerName = QString(header.first).toLower();
             const QString &headerValue = QString(header.second).toLower();
