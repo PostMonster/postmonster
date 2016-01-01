@@ -113,7 +113,7 @@
       <enum>QTabWidget::East</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="headersTab">
       <attribute name="title">
@@ -202,7 +202,7 @@
           <number>4</number>
          </property>
          <property name="rightMargin">
-          <number>0</number>
+          <number>4</number>
          </property>
          <property name="bottomMargin">
           <number>0</number>
@@ -218,6 +218,9 @@
           <widget class="QComboBox" name="encodingCBox">
            <property name="editable">
             <bool>true</bool>
+           </property>
+           <property name="sizeAdjustPolicy">
+            <enum>QComboBox::AdjustToContents</enum>
            </property>
           </widget>
          </item>
@@ -239,7 +242,8 @@
        <item>
         <widget class="QPlainTextEdit" name="bodyText">
          <property name="styleSheet">
-          <string notr="true">border-top: 1px dotted grey</string>
+          <string notr="true">border-top: 1px dotted grey;
+border-bottom: 1px dotted grey;</string>
          </property>
          <property name="frameShape">
           <enum>QFrame::NoFrame</enum>
@@ -251,6 +255,18 @@
        </item>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <property name="spacing">
+          <number>4</number>
+         </property>
+         <property name="leftMargin">
+          <number>4</number>
+         </property>
+         <property name="rightMargin">
+          <number>4</number>
+         </property>
+         <property name="bottomMargin">
+          <number>4</number>
+         </property>
          <item>
           <widget class="QToolButton" name="toolButton_3">
            <property name="text">

@@ -102,10 +102,14 @@ void ResultForm::renderData()
     const QByteArray *body = nullptr;
 
     if (ui->requestRadio->isChecked()) {
+        ui->requestWidget->setHidden(false);
+
         headers = &m_request->headers;
         cookies = &m_request->cookies;
         body = &m_request->body;
     } else if (ui->responseRadio->isChecked()) {
+        ui->requestWidget->setHidden(true);
+
         headers = &m_response->headers;
         cookies = &m_response->cookies;
         body = &m_response->body;
@@ -116,7 +120,6 @@ void ResultForm::renderData()
     ui->methodLabel->setText(m_request->method);
     ui->urlEdit->setText(m_request->url);
     ui->urlEdit->setCursorPosition(0);
-    ui->requestWidget->show();
 
     ui->tabWidget->blockSignals(true);
 
