@@ -33,30 +33,32 @@ using namespace PostMonster;
 
 class RequestForm;
 class ResultForm;
-class CookiesForm;
 
 class HttpTask: public TaskInterface
 {
 public:
     HttpTask(ToolPluginInterface *tool, const APIFunctions &api, const HttpRequest &request)
         : TaskInterface(tool, api), m_request(request) {
-        m_request.cookies.clear();
     }
 
-    TaskStatus work(QJsonObject &result, const QJsonObject &environment,
-                    QScriptEngine &scriptEngine);
-    TaskInterface *clone() const;
+    HttpTask(ToolPluginInterface *tool, const APIFunctions &api,
+             const HttpRequest &request, const HttpResponse &response)
+        : TaskInterface(tool, api), m_request(request), m_response(response) {
+    }
+
+    TaskStatus work(const QJsonObject &environment, QJsonObject &toolSection,
+                    QScriptEngine &scriptEngine, TaskInterface **processed = 0);
 
     QPixmap itemPixmap() const;
     QPolygon itemShape() const { return itemPixmap().rect(); }
     HttpRequest *request() { return &m_request; }
     HttpResponse *response() { return &m_response; }
+    const HttpRequest *processedRequest() { return &m_processedRequest; }
     const HttpRequest *constRequest() const { return &m_request; }
 
 private:
-    void updateResult(QJsonObject &data);
-
     HttpRequest m_request;
+    HttpRequest m_processedRequest;
     HttpResponse m_response;
 };
 
@@ -74,7 +76,6 @@ public:
     const QPixmap &icon() const;
     QWidget *widget(TaskInterface *task);
     QWidget *resultWidget(TaskInterface *task);
-    QWidget *cookiesWidget();
     TaskInterface *createTask();
     void destroyTask(TaskInterface *task);
     QJsonObject serializeTask(const TaskInterface *task);
@@ -100,11 +101,8 @@ private:
     QPixmap m_icon;
     RequestForm *m_requestForm;
     ResultForm *m_resultForm;
-    CookiesForm *m_cookiesForm;
     QHash<const TaskInterface *, QString> m_names;
     QHash<const TaskInterface *, QUuid> m_uuids;
-    PublicCookieJar *m_cookieJar;
-    QNetworkAccessManager *m_nam;
     int m_maxnum;
 
     friend class HttpTask;

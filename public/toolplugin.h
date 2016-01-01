@@ -62,7 +62,6 @@ public:
     virtual TaskInterface *createTask(const HttpRequest &request) = 0;
     virtual QWidget *resultWidget(const HttpRequest *request,
                                   const HttpResponse *response) = 0;
-    virtual QWidget *cookiesWidget() = 0;
 };
 
 class TaskInterface: public QObject
@@ -76,9 +75,8 @@ public:
     }
     virtual ~TaskInterface() {}
 
-    virtual TaskStatus work(QJsonObject &result, const QJsonObject &environment,
-                            QScriptEngine &scriptEngine) = 0;
-    virtual TaskInterface *clone() const = 0;
+    virtual TaskStatus work(const QJsonObject &environment, QJsonObject &toolSection,
+                            QScriptEngine &scriptEngine, TaskInterface **processed = 0) = 0;
 
     virtual QPixmap itemPixmap() const = 0;
     virtual QPolygon itemShape() const = 0;

@@ -33,6 +33,7 @@ public:
     bool setCookiesFromUrl(const QList<QNetworkCookie> &cookieList, const QUrl &url);
 
     QList<QNetworkCookie> cookies() const;
+    void setCookies(const QList<QNetworkCookie> &cookies);
 
 signals:
     void cookiesModified();

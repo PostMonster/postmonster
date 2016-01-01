@@ -307,8 +307,6 @@ void EditForm::setRequestsModel(PostMonster::HttpToolPluginInterface *httpTool, 
     ui->requestsForm->setRequestsModel(model);
     ui->requestsForm->setHttpTool(httpTool);
 
-    ui->debugStackedWidget->addWidget(httpTool->cookiesWidget());
-
     connect(ui->environmentRadio, SIGNAL(toggled(bool)), this, SLOT(toggleDebugStackedWidget()));
     connect(ui->cookiesRadio, SIGNAL(toggled(bool)), this, SLOT(toggleDebugStackedWidget()));
 }
@@ -459,10 +457,7 @@ void EditForm::debugStep()
 
 void EditForm::toggleDebugStackedWidget()
 {
-    if (ui->cookiesRadio->isChecked())
-        ui->debugStackedWidget->setCurrentWidget(m_httpTool->cookiesWidget());
-    else
-        ui->debugStackedWidget->setCurrentWidget(ui->environmentPage);
+    ui->debugStackedWidget->setCurrentWidget(ui->environmentPage);
 }
 
 EditForm::~EditForm()

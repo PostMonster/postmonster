@@ -90,13 +90,13 @@ PostMonster::TaskStatus WorkEngine::step() {
 
         QString toolName = m_plugins.info(taskItem->task()->tool()).value("id").toString();
         QString taskName = taskItem->task()->name();
-        QJsonObject jsonTool, jsonTask;
+        QJsonObject jsonTool = m_env.contains(toolName) ? m_env.value(toolName).toObject() : QJsonObject();
 
-        PostMonster::TaskInterface *task = taskItem->task()->clone();
-        result = task->work(jsonTask, m_env, m_scriptEngine);
+        PostMonster::TaskInterface *processedTask;
+        result = taskItem->task()->work(m_env, jsonTool, m_scriptEngine, &processedTask);
 
-        jsonTool = m_env.contains(toolName) ? m_env.value(toolName).toObject() : QJsonObject();
-        jsonTool.insert(taskName, jsonTask);
+        //jsonTool.insert(taskName, jsonTask);
+        qDebug() << "WORKER TASKNAME=" << taskName;
         m_env.insert(toolName, jsonTool);
 
         QPair<QString, QString> taskKey(toolName, taskName);
@@ -104,7 +104,7 @@ PostMonster::TaskStatus WorkEngine::step() {
             delete m_tasks[taskKey];
             m_tasks.remove(taskKey);
         }
-        m_tasks.insert(taskKey, task);
+        m_tasks.insert(taskKey, processedTask);
 
         const Arrow *arrow = taskItem->arrow(result);
         if (arrow)

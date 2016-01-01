@@ -41,3 +41,8 @@ QList<QNetworkCookie> PublicCookieJar::cookies() const
 {
     return allCookies();
 }
+
+void PublicCookieJar::setCookies(const QList<QNetworkCookie> &cookies)
+{
+    setAllCookies(cookies);
+}
