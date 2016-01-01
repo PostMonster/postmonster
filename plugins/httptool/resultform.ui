@@ -235,16 +235,9 @@
              </item>
              <item>
               <widget class="QComboBox" name="requestEncodingCBox">
-               <item>
-                <property name="text">
-                 <string>UTF-8</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Windows-1251</string>
-                </property>
-               </item>
+               <property name="editable">
+                <bool>true</bool>
+               </property>
               </widget>
              </item>
              <item>
@@ -398,16 +391,9 @@
              </item>
              <item>
               <widget class="QComboBox" name="responseEncodingCBox">
-               <item>
-                <property name="text">
-                 <string>UTF-8</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Windows-1251</string>
-                </property>
-               </item>
+               <property name="editable">
+                <bool>true</bool>
+               </property>
               </widget>
              </item>
              <item>

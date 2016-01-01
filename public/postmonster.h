@@ -45,8 +45,11 @@ struct HttpRequest
     HttpRequest(): method("GET") {}
 
     QString url;
-    QByteArray body;
+
     QByteArray method;
+    QByteArray encoding;
+    QByteArray body;
+
     QList<QNetworkReply::RawHeaderPair> headers;
     QList<QNetworkCookie> cookies;
 };
@@ -70,9 +73,9 @@ struct APIFunctions
     QJsonObject (*serializeResponse)(const PostMonster::HttpResponse *response);
     PostMonster::HttpResponse (*deserializeResponse)(const QJsonObject &jsonResponse);
 
-    QByteArray (*evalScript)(const QByteArray &input,
-                             const QJsonObject &environment,
-                             QScriptEngine &scriptEngine);
+    QString (*evalScript)(const QString &input,
+                          const QJsonObject &environment,
+                          QScriptEngine &scriptEngine);
 };
 
 class PluginInterface

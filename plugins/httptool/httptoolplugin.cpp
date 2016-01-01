@@ -97,7 +97,6 @@ bool HttpToolPlugin::setTaskName(const TaskInterface *task, const QString &name)
     if (name.startsWith("_") || !m_names.contains(task) || m_names.values().contains(name))
         return false;
 
-    qDebug() << "SET NAME = " << name;
     m_names[task] = name;
     return true;
 }
@@ -183,13 +182,13 @@ TaskStatus HttpTask::work(const QJsonObject &environment, QJsonObject &toolSecti
 
     HttpRequest request;
     request.method = m_request.method;
-    request.url = api.evalScript(m_request.url.toUtf8(), environment, scriptEngine);
-    request.body = api.evalScript(m_request.body, environment, scriptEngine);
+    request.url = api.evalScript(m_request.url, environment, scriptEngine);
+    //request.body = api.evalScript(m_request.body, environment, scriptEngine);
 
     for (QList<QNetworkReply::RawHeaderPair>::iterator i = m_request.headers.begin(),
          end = m_request.headers.end(); i != end; ++i) {
         QNetworkReply::RawHeaderPair header = *i;
-        header.second = api.evalScript(header.second, environment, scriptEngine);
+        header.second = api.evalScript(QLatin1String(header.second), environment, scriptEngine).toLatin1();
 
         request.headers << header;
     }
@@ -197,7 +196,7 @@ TaskStatus HttpTask::work(const QJsonObject &environment, QJsonObject &toolSecti
     for (QList<QNetworkCookie>::iterator i = m_request.cookies.begin(),
          end = m_request.cookies.end(); i != end; ++i) {
         QNetworkCookie cookie = *i;
-        cookie.setValue(api.evalScript(cookie.value(), environment, scriptEngine));
+        cookie.setValue(api.evalScript(QLatin1String(cookie.value()), environment, scriptEngine).toLatin1());
 
         request.cookies << cookie;
     }

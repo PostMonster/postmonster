@@ -42,8 +42,8 @@ public:
     PostMonster::TaskStatus step();
     PostMonster::TaskInterface *task(const QString &toolId, const QString &taskId) const;
 
-    static QByteArray evalScript(const QByteArray &input, const QJsonObject &environment,
-                                 QScriptEngine &engine);
+    static QString evalScript(const QString &input, const QJsonObject &environment,
+                              QScriptEngine &engine);
 
 private:
     DiagramItem *m_item;

@@ -32,9 +32,9 @@ WorkEngine::WorkEngine(QObject *parent)
 
 }
 
-QByteArray WorkEngine::evalScript(const QByteArray &input, const QJsonObject &environment,
-                                  QScriptEngine &engine) {
-    QByteArray result = input;
+QString WorkEngine::evalScript(const QString &input, const QJsonObject &environment,
+                               QScriptEngine &engine) {
+    QString result = input;
     int pos = 0, start = 0, delta = 0;
 
     while ((pos = input.indexOf("${", pos)) != -1) {

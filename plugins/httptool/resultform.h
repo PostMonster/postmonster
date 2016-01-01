@@ -47,6 +47,7 @@ private:
     Ui::ResultForm *ui;
     const HttpRequest *m_request;
     const HttpResponse *m_response;
+    static const QStringList encodings;
 };
 
 #endif // RESULTFORM_H

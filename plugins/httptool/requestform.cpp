@@ -59,8 +59,11 @@ void RequestForm::updateTask()
 {
     if (!m_task) return;
 
-    if (!m_task->setName(ui->nameEdit->text()))
-        ui->nameEdit->undo();
+    if (!m_task->setName(ui->nameEdit->text())) {
+        int pos = ui->nameEdit->cursorPosition();
+        ui->nameEdit->setText(m_task->name());
+        ui->nameEdit->setCursorPosition(pos - 1);
+    }
 
     m_task->request()->url = ui->urlEdt->text();
     m_task->request()->body = ui->bodyEdit->toPlainText().toLatin1();
