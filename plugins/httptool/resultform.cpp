@@ -21,6 +21,7 @@
 #include "ui_resultform.h"
 
 #include <QTextCodec>
+#include <QMimeDatabase>
 
 const QStringList ResultForm::encodings
 {
@@ -162,28 +163,55 @@ void ResultForm::renderData()
     } else
         ui->tabWidget->setTabEnabled(2, true);
 
+    QMimeDatabase mimeDatabase;
+
     if (ui->tabWidget->currentWidget() == ui->bodyTab) {
         QString encoding;
         foreach (QNetworkReply::RawHeaderPair header, *headers) {
             const QString &headerName = QString(header.first).toLower();
             const QString &headerValue = QString(header.second).toLower();
 
-            if (headerName == "content-type" &&
-                    (headerValue.startsWith("application/x-www-form-urlencoded;") ||
-                     headerValue.startsWith("multipart/form-data;") ||
-                     headerValue.startsWith("text/"))) {
-                QRegExp charsetRx("charset\\=([^;]+)", Qt::CaseInsensitive);
-                if (charsetRx.indexIn(headerValue) != -1) {
-                    QByteArray charset = charsetRx.cap(1).toLatin1();
-                    qDebug() << "CAP: " << charset;
+            if (headerName == "content-type") {
+                QString contentType = headerValue.left(headerValue.indexOf(";"));
+                const QMimeType mimeType = mimeDatabase.mimeTypeForName(contentType);
 
-                    QRegExp encodingRx(charset, Qt::CaseInsensitive, QRegExp::Wildcard);
-                    int encodingIdx = encodings.indexOf(encodingRx);
-                    if (encodingIdx != -1)
-                        encoding = encodings[encodingIdx];
-                    else if (QTextCodec::codecForName(charset))
-                        encoding = charset;
+                if (mimeType.inherits("text/plain") ||
+                    contentType == "application/x-www-form-urlencoded" ||
+                    contentType == "multipart/form-data") {
+                    ui->stackedWidget->setCurrentWidget(ui->textDataPage);
+                    ui->encodingCBox->setHidden(false);
+
+                    QRegExp charsetRx("charset\\=([^;]+)", Qt::CaseInsensitive);
+                    if (charsetRx.indexIn(headerValue) != -1) {
+                        QByteArray charset = charsetRx.cap(1).toLatin1();
+
+                        QRegExp encodingRx(charset, Qt::CaseInsensitive, QRegExp::Wildcard);
+                        int encodingIdx = encodings.indexOf(encodingRx);
+                        if (encodingIdx != -1)
+                            encoding = encodings[encodingIdx];
+                        else if (QTextCodec::codecForName(charset))
+                            encoding = charset;
+                    }
+                } else if (contentType == "image/png" ||
+                           contentType == "image/jpeg" ||
+                           contentType == "image/gif" ||
+                           contentType == "image/bmp") {
+                    ui->stackedWidget->setCurrentWidget(ui->imageDataPage);
+                    ui->encodingCBox->setHidden(true);
+
+                    QPixmap preview;
+                    if (preview.loadFromData(*body)) {
+                        /*preview = preview.scaled(ui->imagePreviewLabel->width(),
+                                                 ui->imagePreviewLabel->height(),
+                                                 Qt::KeepAspectRatio, Qt::FastTransformation);*/
+                        ui->imagePreviewLabel->setPixmap(preview);
+                    }
+                } else if (!mimeType.isValid()) {
+                    contentType = "";
                 }
+
+                ui->mimeType->setText(contentType);
+                ui->mimeType->setCursorPosition(0);
             }
         }
 

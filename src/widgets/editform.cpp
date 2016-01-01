@@ -49,8 +49,7 @@ EditForm::EditForm(QWidget *parent) :
     ui->verticalSplitter->setStretchFactor(0, 5);
     ui->verticalSplitter->setStretchFactor(1, 3);
 
-    QList<int> sizes;
-    sizes << width() * 0.7 << width() * 0.3;
+    QList<int> sizes = { int(width() * 0.65), int(width() * 0.35) };
     ui->debugSplitter->setSizes(sizes);
 
     /*ui->cookiesTab->setProperty("nameFormat", ui->propertiesTabWidget->tabText(1));
