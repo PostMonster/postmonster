@@ -23,6 +23,7 @@
 #include <QtDebug>
 #include <QMimeData>
 #include <QPainter>
+#include <QTimer>
 
 #include "arrow.h"
 #include "startitem.h"
@@ -271,6 +272,7 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
     case InsertItem:
         item = new TaskItem(m_tool->createTask());
         insertItem(item, event->scenePos());
+        QTimer::singleShot(0, [item]() { item->setSelected(true); });
         break;
 
     case InsertLine:
@@ -322,6 +324,5 @@ void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent)
 
 void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)
 {
-
     QGraphicsScene::mouseReleaseEvent(mouseEvent);
 }

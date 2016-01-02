@@ -63,7 +63,6 @@ protected:
 
 protected slots:
     void drawLine();
-
     void drawOkLine();
     void drawFailLine();
 
