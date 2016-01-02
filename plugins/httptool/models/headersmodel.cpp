@@ -59,9 +59,8 @@ bool HeadersModel::setData(const QModelIndex &index, const QVariant &value, int 
         return false;
 
     if (index.column() == Name &&
-            !QTextCodec::codecForName("Latin1")->canEncode(value.toString())) {
+            !QTextCodec::codecForName("Latin1")->canEncode(value.toString()))
         return false;
-    }
 
     QNetworkReply::RawHeaderPair header = m_headers->at(index.row());
     QByteArray newValue = (index.column() == Name)

@@ -17,8 +17,8 @@
  * along with PostMonster.  If not, see <http://www.gnu.org/licenses/>.
  */
  
-#ifndef EnvironmentModel_H
-#define EnvironmentModel_H
+#ifndef ENVIRONMENTMODEL_H
+#define ENVIRONMENTMODEL_H
 
 #include <QAbstractItemModel>
 #include <QJsonDocument>
@@ -56,10 +56,10 @@ public:
     void setColor(const QModelIndex &index, const QColor &color);
 
 private:
-    JsonTreeItem *mRootItem;
-    QStringList mHeaders;
-    QHash<QJsonValue::Type, QIcon> mTypeIcons;
+    JsonTreeItem *m_rootItem;
+    QStringList m_headers;
+    QHash<QJsonValue::Type, QIcon> m_typeIcons;
     QHash<QModelIndex, QColor> m_colors;
 };
 
-#endif // EnvironmentModel_H
+#endif // ENVIRONMENTMODEL_H

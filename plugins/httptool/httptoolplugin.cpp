@@ -304,6 +304,8 @@ TaskStatus HttpTask::work(const QJsonObject &environment, QJsonObject &toolSecti
     response.cookies = reply->header(QNetworkRequest::SetCookieHeader).
             value< QList<QNetworkCookie> >();
 
+    delete reply;
+
     QJsonObject jsonResult;
     jsonResult.insert("status", status);
     if (!body.isEmpty())

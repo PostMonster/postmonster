@@ -16,25 +16,6 @@
  * You should have received a copy of the GNU General Public License
  * along with PostMonster.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
-/***********************************************
-    Copyright (C) 2014  Schutz Sacha
-    This file is part of EnvironmentModel (https://github.com/dridk/EnvironmentModel).
-
-    EnvironmentModel is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    EnvironmentModel is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with EnvironmentModel.  If not, see <http://www.gnu.org/licenses/>.
-
-**********************************************/
 
 #include "environmentmodel.h"
 
@@ -48,12 +29,12 @@
 EnvironmentModel::EnvironmentModel(QObject *parent) :
     QAbstractItemModel(parent)
 {
-    mRootItem = new JsonTreeItem;
+    m_rootItem = new JsonTreeItem;
 }
 
 EnvironmentModel::~EnvironmentModel()
 {
-    delete mRootItem;
+    delete m_rootItem;
 }
 
 bool EnvironmentModel::load(const QString &fileName)
@@ -78,23 +59,21 @@ bool EnvironmentModel::loadJson(const QByteArray &json)
 {
     QJsonDocument document = QJsonDocument::fromJson(json);
 
-    if (!document.isNull())
-    {
-        beginResetModel();
-        delete mRootItem;
-        mRootItem = JsonTreeItem::load(QJsonValue(document.object()));
-        endResetModel();
-
+    if (!document.isNull()) {
+        loadJson(document.object());
         return true;
     }
+
     return false;
 }
 
 bool EnvironmentModel::loadJson(const QJsonObject &json)
 {
     beginResetModel();
-    mRootItem = JsonTreeItem::load(QJsonValue(json));
+    delete m_rootItem;
+    m_rootItem = JsonTreeItem::load(QJsonValue(json));
     endResetModel();
+
     return true;
 }
 
@@ -104,25 +83,20 @@ QVariant EnvironmentModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
 
+    JsonTreeItem *item = static_cast<JsonTreeItem *>(index.internalPointer());
 
-    JsonTreeItem *item = static_cast<JsonTreeItem*>(index.internalPointer());
-
-
-    if ((role == Qt::DecorationRole) && (index.column() == 0)){
-
-        return mTypeIcons.value(item->type());
-    }
+    if ((role == Qt::DecorationRole) && (index.column() == 0))
+        return m_typeIcons.value(item->type());
 
     if (role == Qt::BackgroundColorRole && m_colors.contains(index))
         return m_colors[index];
 
-
     if (role == Qt::DisplayRole) {
-
-        if (index.column() == Name)
+        switch (index.column()) {
+        case Name:
             return item->key();
 
-        if (index.column() == Value) {
+        case Value:
             if (item->value().startsWith("base64:"))
                 return "[ base64 encoded ]";
 
@@ -130,10 +104,7 @@ QVariant EnvironmentModel::data(const QModelIndex &index, int role) const
         }
     }
 
-
-
     return QVariant();
-
 }
 
 QVariant EnvironmentModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -157,17 +128,18 @@ QModelIndex EnvironmentModel::index(int row, int column, const QModelIndex &pare
         return QModelIndex();
 
     JsonTreeItem *parentItem;
-
-    if (!parent.isValid())
-        parentItem = mRootItem;
-    else
+    if (!parent.isValid()) {
+        parentItem = m_rootItem;
+    } else {
         parentItem = static_cast<JsonTreeItem*>(parent.internalPointer());
+    }
 
     JsonTreeItem *childItem = parentItem->child(row);
-    if (childItem)
+    if (childItem) {
         return createIndex(row, column, childItem);
-    else
-        return QModelIndex();
+    }
+
+    return QModelIndex();
 }
 
 QModelIndex EnvironmentModel::parent(const QModelIndex &index) const
@@ -178,7 +150,7 @@ QModelIndex EnvironmentModel::parent(const QModelIndex &index) const
     JsonTreeItem *childItem = static_cast<JsonTreeItem*>(index.internalPointer());
     JsonTreeItem *parentItem = childItem->parent();
 
-    if (parentItem == mRootItem)
+    if (parentItem == m_rootItem)
         return QModelIndex();
 
     return createIndex(parentItem->row(), 0, parentItem);
@@ -190,10 +162,11 @@ int EnvironmentModel::rowCount(const QModelIndex &parent) const
     if (parent.column() > 0)
         return 0;
 
-    if (!parent.isValid())
-        parentItem = mRootItem;
-    else
+    if (!parent.isValid()) {
+        parentItem = m_rootItem;
+    } else {
         parentItem = static_cast<JsonTreeItem*>(parent.internalPointer());
+    }
 
     return parentItem->childCount();
 }
@@ -201,12 +174,12 @@ int EnvironmentModel::rowCount(const QModelIndex &parent) const
 int EnvironmentModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent)
-    return 2;
+    return _columnCount;
 }
 
 void EnvironmentModel::setIcon(const QJsonValue::Type &type, const QIcon &icon)
 {
-    mTypeIcons.insert(type,icon);
+    m_typeIcons.insert(type,icon);
 }
 
 void EnvironmentModel::setColor(const QModelIndex &index, const QColor &color)
