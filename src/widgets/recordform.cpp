@@ -196,8 +196,8 @@ void RecordForm::requestFinished(QNetworkReply *reply, const QByteArray &request
         request->headers << pair;
     }
 
-    request->cookies = reply->request().header(QNetworkRequest::CookieHeader).
-            value< QList<QNetworkCookie> >();
+    /*request->cookies = reply->request().header(QNetworkRequest::CookieHeader).
+            value< QList<QNetworkCookie> >();*/
 
     ui->requestsForm->add(request, response);
 }
