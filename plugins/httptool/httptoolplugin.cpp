@@ -197,7 +197,8 @@ TaskStatus HttpTask::work(const QJsonObject &environment, QJsonObject &toolSecti
     for (QList<QNetworkReply::RawHeaderPair>::iterator i = m_request.headers.begin(),
          end = m_request.headers.end(); i != end; ++i) {
         QNetworkReply::RawHeaderPair header = *i;
-        header.second = api.evalScript(QLatin1String(header.second), environment, scriptEngine).toLatin1();
+        header.second = api.evalScript(QLatin1String(header.second), environment,
+                                       scriptEngine).toLatin1();
 
         request.headers << header;
     }
@@ -205,7 +206,8 @@ TaskStatus HttpTask::work(const QJsonObject &environment, QJsonObject &toolSecti
     for (QList<QNetworkCookie>::iterator i = m_request.cookies.begin(),
          end = m_request.cookies.end(); i != end; ++i) {
         QNetworkCookie cookie = *i;
-        cookie.setValue(api.evalScript(QLatin1String(cookie.value()), environment, scriptEngine).toLatin1());
+        cookie.setValue(api.evalScript(QLatin1String(cookie.value()), environment,
+                                       scriptEngine).toLatin1());
 
         request.cookies << cookie;
     }

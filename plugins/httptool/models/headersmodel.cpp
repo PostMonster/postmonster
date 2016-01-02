@@ -19,6 +19,8 @@
  
 #include "models/headersmodel.h"
 
+#include <QTextCodec>
+
 HeadersModel::HeadersModel(QObject *parent) :
     QAbstractTableModel(parent),
     m_headers(0)
@@ -41,10 +43,10 @@ QVariant HeadersModel::data(const QModelIndex &index, int role) const
         const QNetworkReply::RawHeaderPair *header = &m_headers->at(index.row());
         switch (index.column()) {
         case Name:
-            return header->first;
+            return QUrl::fromPercentEncoding(header->first);
 
         case Value:
-            return header->second;
+            return QUrl::fromPercentEncoding(header->second);
         }
     }
 
@@ -53,20 +55,25 @@ QVariant HeadersModel::data(const QModelIndex &index, int role) const
 
 bool HeadersModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if (!index.isValid() ||
-            index.row() > rowCount() - 1 || index.column() >= _columnCount)
+    if (role != Qt::EditRole || !index.isValid() || index.row() > rowCount() - 1)
         return false;
 
-    if (role != Qt::EditRole)
+    if (index.column() == Name &&
+            !QTextCodec::codecForName("Latin1")->canEncode(value.toString())) {
         return false;
+    }
 
     QNetworkReply::RawHeaderPair header = m_headers->at(index.row());
-    QByteArray newValue = value.toByteArray();
+    QByteArray newValue = (index.column() == Name)
+            ? value.toByteArray() : QUrl::toPercentEncoding(value.toString());
+
     switch (index.column()) {
     case Name:
-        foreach (QNetworkReply::RawHeaderPair pair, *m_headers)
-            if (!QString(pair.first).compare(newValue, Qt::CaseInsensitive))
+        foreach (QNetworkReply::RawHeaderPair pair, *m_headers) {
+            const QString &name = QLatin1String(pair.first);
+            if (!name.compare(newValue, Qt::CaseInsensitive))
                 return false;
+        }
 
         header.first = newValue;
         break;
@@ -78,6 +85,7 @@ bool HeadersModel::setData(const QModelIndex &index, const QVariant &value, int 
     default:
         return false;
     }
+
     m_headers->replace(index.row(), header);
 
     return true;

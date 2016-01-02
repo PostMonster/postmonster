@@ -33,8 +33,7 @@ CookiesModel::~CookiesModel()
 
 QVariant CookiesModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() ||
-            index.row() > rowCount() - 1 || index.column() >= _columnCount)
+    if (!index.isValid() || index.row() > rowCount() - 1)
         return QVariant();
 
     if (role == Qt::DisplayRole || role == Qt::EditRole) {
@@ -44,10 +43,10 @@ QVariant CookiesModel::data(const QModelIndex &index, int role) const
             return cookie->domain();
 
         case Name:
-            return cookie->name();
+            return QUrl::fromPercentEncoding(cookie->name());
 
         case Value:
-            return cookie->value();
+            return QUrl::fromPercentEncoding(cookie->value());
         }
     }
 
@@ -56,26 +55,25 @@ QVariant CookiesModel::data(const QModelIndex &index, int role) const
 
 bool CookiesModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if (!index.isValid() ||
-            index.row() > rowCount() - 1 || index.column() >= _columnCount)
-        return false;
-
-    if (role != Qt::EditRole)
+    if (role != Qt::EditRole || !index.isValid() || index.row() > rowCount() - 1)
         return false;
 
     QNetworkCookie cookie = m_cookies->at(index.row());
-    QByteArray newValue = value.toByteArray();
+    QByteArray newValue = QUrl::toPercentEncoding(value.toByteArray());
+
     switch (index.column()) {
     case Name:
-        foreach (QNetworkCookie c, *m_cookies)
-            if (!QString(c.name()).compare(newValue, Qt::CaseInsensitive))
+        foreach (QNetworkCookie c, *m_cookies) {
+            const QString &name = QLatin1String(c.name());
+            if (!name.compare(newValue, Qt::CaseInsensitive))
                 return false;
+        }
 
         cookie.setName(newValue);
         break;
 
     case Domain:
-        cookie.setDomain(value.toString());
+        cookie.setDomain(newValue);
         break;
 
     case Value:
@@ -85,6 +83,7 @@ bool CookiesModel::setData(const QModelIndex &index, const QVariant &value, int 
     default:
         return false;
     }
+
     m_cookies->replace(index.row(), cookie);
 
     return true;
