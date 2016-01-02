@@ -135,7 +135,7 @@ void ResultForm::renderData()
 
     if (ui->tabWidget->currentWidget() == ui->bodyTab) {
         QMimeDatabase mimeDatabase;
-        QString encoding;
+        QByteArray encoding;
 
         foreach (QNetworkReply::RawHeaderPair header, *headers) {
             const QString &headerName = QString(header.first).toLower();
@@ -158,8 +158,8 @@ void ResultForm::renderData()
                         QRegExp encodingRx(charset, Qt::CaseInsensitive, QRegExp::Wildcard);
                         int encodingIdx = m_encodings->indexOf(encodingRx);
                         if (encodingIdx != -1)
-                            encoding = m_encodings->at(encodingIdx);
-                        else if (QTextCodec::codecForName(charset))
+                            encoding = m_encodings->at(encodingIdx).toLatin1();
+                        else// if (QTextCodec::codecForName(charset))
                             encoding = charset;
                     }
                 } else if (contentType == "image/png" ||
@@ -187,7 +187,7 @@ void ResultForm::renderData()
         ui->encodingCBox->insertItems(0, *m_encodings);
         ui->encodingCBox->blockSignals(false);
 
-        if (encoding.isEmpty())
+        if (!QTextCodec::codecForName(encoding))
             ui->encodingCBox->setCurrentText("ISO-8859-1");
         else
             ui->encodingCBox->setCurrentText(encoding);

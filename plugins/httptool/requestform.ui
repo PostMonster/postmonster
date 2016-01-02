@@ -202,7 +202,14 @@
           </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="encodingCBox"/>
+          <widget class="QComboBox" name="encodingCBox">
+           <property name="editable">
+            <bool>true</bool>
+           </property>
+           <property name="sizeAdjustPolicy">
+            <enum>QComboBox::AdjustToContents</enum>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>

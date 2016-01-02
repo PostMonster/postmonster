@@ -48,7 +48,6 @@ protected slots:
     void addHeader();
     void removeCookies();
     void removeHeaders();
-    void encodingChanged(const QString &encoding);
 
 private:
     Ui::RequestForm *ui;
