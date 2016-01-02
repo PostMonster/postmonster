@@ -204,6 +204,8 @@ void EditForm::loadProject(const QString &fileName)
     m_fileName = fileName;
     initScene();
 
+    resetEnvironment();
+
     QJsonArray items = project.value("items").toArray();
     QHash< QUuid, QHash<PostMonster::TaskStatus, QUuid> > parsedArrows;
     QHash< QUuid, DiagramItem * > parsedItems;
