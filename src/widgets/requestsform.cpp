@@ -31,8 +31,7 @@ RequestsForm::RequestsForm(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    QList<int> sizes;
-    sizes << width() * 0.65 << width() * 0.35;
+    QList<int> sizes = { int(width() * 0.65), int(width() * 0.35) };
     ui->splitter->setSizes(sizes);
 
     CheckBoxHeader *header = new CheckBoxHeader(RequestsModel::Used,

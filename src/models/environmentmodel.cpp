@@ -51,6 +51,11 @@ EnvironmentModel::EnvironmentModel(QObject *parent) :
     mRootItem = new JsonTreeItem;
 }
 
+EnvironmentModel::~EnvironmentModel()
+{
+    delete mRootItem;
+}
+
 bool EnvironmentModel::load(const QString &fileName)
 {
     QFile file(fileName);
@@ -76,8 +81,10 @@ bool EnvironmentModel::loadJson(const QByteArray &json)
     if (!document.isNull())
     {
         beginResetModel();
+        delete mRootItem;
         mRootItem = JsonTreeItem::load(QJsonValue(document.object()));
         endResetModel();
+
         return true;
     }
     return false;

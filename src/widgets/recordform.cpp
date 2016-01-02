@@ -166,7 +166,8 @@ void RecordForm::requestFinished(QNetworkReply *reply, const QByteArray &request
     response->body = replyData;
 
     foreach (QNetworkReply::RawHeaderPair pair, reply->rawHeaderPairs()) {
-        if (!QString(pair.first).compare("cookie", Qt::CaseInsensitive))
+        const QString &headerName = QLatin1String(pair.first);
+        if (!headerName.compare("cookie", Qt::CaseInsensitive))
             continue;
 
         response->headers << pair;

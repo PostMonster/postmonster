@@ -32,6 +32,11 @@ WorkEngine::WorkEngine(QObject *parent)
 
 }
 
+WorkEngine::~WorkEngine()
+{
+    qDeleteAll(m_tasks.values());
+}
+
 QString WorkEngine::evalScript(const QString &input, const QJsonObject &environment,
                                QScriptEngine &engine) {
     QString result = input;
@@ -124,6 +129,8 @@ const QJsonObject *WorkEngine::environment()
 void WorkEngine::resetEnvironment()
 {
     m_env = QJsonObject();
+
+    qDeleteAll(m_tasks.values());
     m_tasks.clear();
 }
 

@@ -40,6 +40,8 @@ public:
     };
 
     explicit EnvironmentModel(QObject *parent = 0);
+    ~EnvironmentModel();
+
     bool load(const QString& fileName);
     bool load(QIODevice * device);
     bool loadJson(const QByteArray& json);

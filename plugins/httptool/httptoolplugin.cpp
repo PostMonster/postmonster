@@ -377,10 +377,7 @@ TaskInterface *HttpToolPlugin::deserializeTask(const QJsonObject &data)
 
 QList<TaskStatus> HttpToolPlugin::statuses()
 {
-    QList<TaskStatus> statuses;
-    statuses << Ok << Fail;
-
-    return statuses;
+    return { Ok, Fail };
 }
 
 const QString &HttpToolPlugin::taskName(const TaskInterface *task)
