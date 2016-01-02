@@ -37,6 +37,14 @@ EnvironmentModel::~EnvironmentModel()
     delete m_rootItem;
 }
 
+void EnvironmentModel::clear()
+{
+    beginResetModel();
+    delete m_rootItem;
+    m_rootItem = new JsonTreeItem;
+    endResetModel();
+}
+
 bool EnvironmentModel::load(const QString &fileName)
 {
     QFile file(fileName);

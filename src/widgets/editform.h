@@ -55,6 +55,20 @@ public slots:
     void openRequests();
     void updateRequestParams();
 
+protected slots:
+    void itemSelected();
+    void insertHttpItem(int requestRow, QPointF scenePos);
+
+    void environmentSelected(const QModelIndex &newIndex, const QModelIndex &oldIndex);
+    void fitEnvColumns();
+    void resetEnvironment();
+
+    void toggleDebugStackedWidget();
+
+    void resetMode(QAction *except = 0);
+    void actionTriggered();
+    void debugStep();
+
 private:
     void initScene();
 
@@ -67,19 +81,6 @@ private:
     QString m_fileName;
     WorkEngine m_engine;
     PostMonster::HttpToolPluginInterface *m_httpTool;
-
-private slots:
-    void itemSelected();
-    void insertHttpItem(int requestRow, QPointF scenePos);
-
-    void envItemSelected(const QModelIndex &newIndex, const QModelIndex &oldIndex);
-    void fitEnvColumns();
-
-    void toggleDebugStackedWidget();
-
-    void resetMode(QAction *except = 0);
-    void actionTriggered();
-    void debugStep();
 };
 
 #endif // EDITFORM_H

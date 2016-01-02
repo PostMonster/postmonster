@@ -72,7 +72,7 @@ EditForm::EditForm(QWidget *parent) :
     connect(ui->environmentTree, SIGNAL(expanded(QModelIndex)), this, SLOT(fitEnvColumns()));
     connect(ui->environmentTree, SIGNAL(collapsed(QModelIndex)), this, SLOT(fitEnvColumns()));
     connect(ui->environmentTree->selectionModel(), SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
-            this, SLOT(envItemSelected(QModelIndex, QModelIndex)));
+            this, SLOT(environmentSelected(QModelIndex, QModelIndex)));
 
     newProject();
 }
@@ -99,10 +99,24 @@ void EditForm::initScene()
     ui->graphicsView->setScene(m_scene);
 }
 
+void EditForm::resetEnvironment()
+{
+    for (int i = 1; i < ui->resultStackedWidget->count(); i++)
+        ui->resultStackedWidget->removeWidget(ui->resultStackedWidget->widget(i));
+
+    m_envModel.clear();
+    m_engine.reset();
+}
+
 void EditForm::newProject()
 {
     initScene();
     m_scene->insertItem(new StartItem());
+
+    if (m_requestsModel)
+        m_requestsModel->clear();
+
+    resetEnvironment();
 }
 
 void EditForm::saveProject(const QString &fileName)
@@ -351,7 +365,7 @@ void EditForm::updateRequestParams()
     if (ui->tabWidget->currentWidget() == ui->requestsTab)
         ui->requestsForm->updateResponse();
     else if (ui->tabWidget->currentWidget() == ui->debugTab)
-        envItemSelected(ui->environmentTree->selectionModel()->currentIndex(),
+        environmentSelected(ui->environmentTree->selectionModel()->currentIndex(),
                         QModelIndex());
 }
 
@@ -383,7 +397,7 @@ void EditForm::fitEnvColumns()
     ui->environmentTree->resizeColumnToContents(0);
 }
 
-void EditForm::envItemSelected(const QModelIndex &newIndex, const QModelIndex &oldIndex)
+void EditForm::environmentSelected(const QModelIndex &newIndex, const QModelIndex &oldIndex)
 {
     Q_UNUSED(oldIndex)
 

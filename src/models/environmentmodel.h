@@ -42,8 +42,9 @@ public:
     explicit EnvironmentModel(QObject *parent = 0);
     ~EnvironmentModel();
 
+    void clear();
     bool load(const QString& fileName);
-    bool load(QIODevice * device);
+    bool load(QIODevice *device);
     bool loadJson(const QByteArray& json);
     bool loadJson(const QJsonObject& json);
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;

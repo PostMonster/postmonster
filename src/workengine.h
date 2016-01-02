@@ -37,7 +37,7 @@ public:
     explicit WorkEngine(QObject *parent = 0);
     ~WorkEngine();
 
-    void resetEnvironment();
+    void reset();
     const QJsonObject *environment();
     void setActiveItem(DiagramItem *item);
     DiagramItem *activeItem();

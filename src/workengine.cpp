@@ -126,7 +126,7 @@ const QJsonObject *WorkEngine::environment()
     return &m_env;
 }
 
-void WorkEngine::resetEnvironment()
+void WorkEngine::reset()
 {
     m_env = QJsonObject();
 
