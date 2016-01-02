@@ -57,7 +57,7 @@ void DiagramItem::toFront()
     QList<QGraphicsItem *> overlapItems = collidingItems();
 
     qreal zValue = 0;
-    foreach (QGraphicsItem *item, overlapItems) {
+    foreach (const QGraphicsItem *item, overlapItems) {
         if (item->zValue() >= zValue)
             zValue = item->zValue() + 0.1;
     }
@@ -69,7 +69,7 @@ void DiagramItem::toBack()
     QList<QGraphicsItem *> overlapItems = collidingItems();
 
     qreal zValue = 0;
-    foreach (QGraphicsItem *item, overlapItems) {
+    foreach (const QGraphicsItem *item, overlapItems) {
         if (item->zValue() <= zValue)
             zValue = item->zValue() - 0.1;
     }
@@ -107,7 +107,7 @@ void DiagramItem::removeArrow(PostMonster::TaskStatus status)
 
 const Arrow *DiagramItem::arrow(PostMonster::TaskStatus status)
 {
-    foreach (Arrow *arrow, m_arrows)
+    foreach (const Arrow *arrow, m_arrows)
         if (arrow->status() == status)
             return arrow;
 

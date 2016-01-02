@@ -92,7 +92,7 @@ void MainWindow::updateOpenMenu()
             openButton->removeAction(action);
     }
 
-    foreach (QString filePath, recentFiles) {
+    foreach (const QString &filePath, recentFiles) {
         QFileInfo fileInfo(filePath);
 
         QAction *action = new QAction(fileInfo.fileName(), openButton);
@@ -162,8 +162,10 @@ void MainWindow::openPlugins()
 
 void MainWindow::selectAction(QAction *except)
 {
-    foreach (QAction *action, ui->toolBar->actions())
-        if (action != except) action->setChecked(false);
+    foreach (QAction *action, ui->toolBar->actions()) {
+        if (action != except)
+            action->setChecked(false);
+    }
 
     except->setChecked(true);
 }

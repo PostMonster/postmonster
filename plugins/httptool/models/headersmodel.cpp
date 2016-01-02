@@ -68,7 +68,7 @@ bool HeadersModel::setData(const QModelIndex &index, const QVariant &value, int 
 
     switch (index.column()) {
     case Name:
-        foreach (QNetworkReply::RawHeaderPair pair, *m_headers) {
+        foreach (const QNetworkReply::RawHeaderPair &pair, *m_headers) {
             const QString &name = QLatin1String(pair.first);
             if (!name.compare(newValue, Qt::CaseInsensitive))
                 return false;
@@ -153,7 +153,7 @@ Qt::ItemFlags HeadersModel::flags(const QModelIndex &index) const
 
 void HeadersModel::add(const QNetworkReply::RawHeaderPair &header)
 {
-    foreach (QNetworkReply::RawHeaderPair pair, *m_headers)
+    foreach (const QNetworkReply::RawHeaderPair &pair, *m_headers)
         if (!QString(pair.first).compare(header.first, Qt::CaseInsensitive))
             return;
 

@@ -102,7 +102,7 @@ void ResultForm::renderData()
 
     if (ui->tabWidget->currentWidget() == ui->headersTab) {
         QString html = "<table align='center'>";
-        foreach (QNetworkReply::RawHeaderPair header, *headers) {
+        foreach (const QNetworkReply::RawHeaderPair &header, *headers) {
             html += QString("<tr><td align='right' nowrap><u>%1</u>:</td><td>%2</td></tr>").
                     arg(QString(header.first)).arg(QString(header.second));
         }
@@ -118,7 +118,7 @@ void ResultForm::renderData()
 
     if (ui->tabWidget->currentWidget() == ui->cookiesTab) {
         QString html = "<table align='center'>";
-        foreach (QNetworkCookie cookie, *cookies) {
+        foreach (const QNetworkCookie &cookie, *cookies) {
             QString name(cookie.name());
             QString value(cookie.toRawForm().mid(name.length() + 1));
             html += QString("<tr><td align='right' nowrap><u>%1</u>:</td><td>%2</td></tr>").
@@ -137,7 +137,7 @@ void ResultForm::renderData()
         QMimeDatabase mimeDatabase;
         QByteArray encoding;
 
-        foreach (QNetworkReply::RawHeaderPair header, *headers) {
+        foreach (const QNetworkReply::RawHeaderPair &header, *headers) {
             const QString &headerName = QString(header.first).toLower();
             const QString &headerValue = QString(header.second).toLower();
 

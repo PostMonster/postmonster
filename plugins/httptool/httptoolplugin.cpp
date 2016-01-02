@@ -266,11 +266,11 @@ TaskStatus HttpTask::work(const QJsonObject &environment, QJsonObject &toolSecti
 
     HttpResponse response;
     QJsonObject jsonHeaders, jsonCookies;
-    foreach (QNetworkReply::RawHeaderPair header, reply->rawHeaderPairs()) {
+    foreach (const QNetworkReply::RawHeaderPair &header, reply->rawHeaderPairs()) {
         if (!QString(header.first).compare("set-cookie", Qt::CaseInsensitive)) {
             QList<QNetworkCookie> cookies = QNetworkCookie::parseCookies(header.second);
 
-            foreach (QNetworkCookie cookie, cookies) {
+            foreach (const QNetworkCookie &cookie, cookies) {
                 QJsonObject jsonCookie;
 
                 if (cookie.expirationDate().isValid())
@@ -316,7 +316,7 @@ TaskStatus HttpTask::work(const QJsonObject &environment, QJsonObject &toolSecti
         jsonResult.insert("headers", jsonHeaders);
     toolSection.insert(name(), jsonResult);
 
-    foreach (QNetworkCookie cookie, cookieJar.cookiesForUrl(networkRequest.url())) {
+    foreach (const QNetworkCookie &cookie, cookieJar.cookiesForUrl(networkRequest.url())) {
         QJsonObject jsonCookie;
 
         if (cookie.expirationDate().isValid())

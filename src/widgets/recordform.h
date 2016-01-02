@@ -54,7 +54,6 @@ private:
 
 private slots:
     void browserLoad();
-    void pageChanged();
     void requestFinished(QNetworkReply *reply,
                          const QByteArray &requestData, const QByteArray &replyData);
     void startRecord();

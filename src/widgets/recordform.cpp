@@ -42,15 +42,9 @@ RecordForm::RecordForm(QWidget *parent) :
     connect(ui->forwardButton, SIGNAL(clicked()), ui->webView, SLOT(forward()));
     connect(ui->reloadButton, SIGNAL(clicked()), ui->webView, SLOT(reload()));
 
-    /*connect(ui->webView->page()->networkAccessManager(),
-            SIGNAL(finished(QNetworkReply *)),
-            this,
-            SLOT(requestFinished(QNetworkReply *)));*/
-
     ui->webView->page()->setNetworkAccessManager(&m_networkSniffer);
     connect(&m_networkSniffer, SIGNAL(replyReceived(QNetworkReply *, QByteArray, QByteArray)),
             this, SLOT(requestFinished(QNetworkReply *, QByteArray, QByteArray)));
-    //connect(ui->webView->page(), SIGNAL(contentsChanged()), this, SLOT(pageChanged()));
 
     ui->urlEdit->setWebView(ui->webView);
 
@@ -116,21 +110,6 @@ void RecordForm::blinkRecordButton()
     }
 }
 
-void RecordForm::pageChanged()
-{
-    userInput.clear();
-    foreach (QWebElement input,
-             ui->webView->page()->mainFrame()->findAllElements("input")) {
-        if (input.attribute("type", "text") == "hidden") continue;
-
-        QString realValue = input.evaluateJavaScript("this.value").toString();
-        QString defaultValue = input.attribute("value", "");
-
-        if (realValue.compare(defaultValue))
-            userInput << realValue;
-    }
-}
-
 void RecordForm::requestFinished(QNetworkReply *reply, const QByteArray &requestData, const QByteArray &replyData)
 {
     if (!m_recording || reply->url().host().isEmpty())
@@ -165,7 +144,7 @@ void RecordForm::requestFinished(QNetworkReply *reply, const QByteArray &request
     response->status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
     response->body = replyData;
 
-    foreach (QNetworkReply::RawHeaderPair pair, reply->rawHeaderPairs()) {
+    foreach (const QNetworkReply::RawHeaderPair &pair, reply->rawHeaderPairs()) {
         const QString &headerName = QLatin1String(pair.first);
         if (!headerName.compare("cookie", Qt::CaseInsensitive))
             continue;
@@ -179,7 +158,7 @@ void RecordForm::requestFinished(QNetworkReply *reply, const QByteArray &request
     response->cookies = reply->header(QNetworkRequest::SetCookieHeader).
             value< QList<QNetworkCookie> >();
 
-    foreach (QByteArray name, reply->request().rawHeaderList()) {
+    foreach (const QByteArray &name, reply->request().rawHeaderList()) {
         QPair<QByteArray, QByteArray> pair;
         pair.first = name;
         pair.second = reply->request().rawHeader(name);

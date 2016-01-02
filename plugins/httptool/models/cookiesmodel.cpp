@@ -63,7 +63,7 @@ bool CookiesModel::setData(const QModelIndex &index, const QVariant &value, int 
 
     switch (index.column()) {
     case Name:
-        foreach (QNetworkCookie c, *m_cookies) {
+        foreach (const QNetworkCookie &c, *m_cookies) {
             const QString &name = QLatin1String(c.name());
             if (!name.compare(newValue, Qt::CaseInsensitive))
                 return false;
@@ -160,7 +160,7 @@ void CookiesModel::clear()
 
 void CookiesModel::add(const QNetworkCookie &cookie)
 {
-    foreach (QNetworkCookie c, *m_cookies)
+    foreach (const QNetworkCookie &c, *m_cookies)
         if (!QString(c.name()).compare(cookie.name(), Qt::CaseInsensitive))
             return;
 

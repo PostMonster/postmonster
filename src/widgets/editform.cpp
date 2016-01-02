@@ -375,8 +375,10 @@ void EditForm::resetMode(QAction *except)
 {
     m_scene->setMode(DiagramScene::MoveItem);
 
-    foreach (QAction *action, m_toolbar.actions())
-        if (action != except) action->setChecked(false);
+    foreach (QAction *action, m_toolbar.actions()) {
+        if (action != except)
+            action->setChecked(false);
+    }
 }
 
 void EditForm::insertHttpItem(int requestRow, QPointF scenePos)

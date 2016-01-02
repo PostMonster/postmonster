@@ -35,7 +35,7 @@ PluginsDialog::PluginsDialog(QWidget *parent) :
     pluginsDir.cd("plugins");
 
     int i = 0;
-    foreach (QString fileName, pluginsDir.entryList(QDir::Files)) {
+    foreach (const QString &fileName, pluginsDir.entryList(QDir::Files)) {
         QPluginLoader loader(pluginsDir.absoluteFilePath(fileName));
         QJsonObject info = loader.metaData().value("MetaData").toObject();
 

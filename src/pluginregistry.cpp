@@ -39,7 +39,7 @@ void PluginRegistry::loadPlugins(const PostMonster::APIFunctions &api)
 
     // Load static plugins
     QMap<QObject *, QJsonObject> plugins;
-    foreach (QStaticPlugin plugin, QPluginLoader::staticPlugins())
+    foreach (const QStaticPlugin &plugin, QPluginLoader::staticPlugins())
         plugins[plugin.instance()] = plugin.metaData();
 
     // Load dynamic plugins
