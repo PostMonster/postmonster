@@ -220,13 +220,11 @@ TaskStatus HttpTask::work(const QJsonObject &environment, QJsonObject &toolSecti
     QBuffer buffer(&request.body);
     buffer.open(QIODevice::ReadOnly);
 
-    PublicCookieJar *cookieJar = new PublicCookieJar();
-    cookieJar->setCookiesFromUrl(request.cookies, networkRequest.url());
-
     QJsonObject jsonCookieJar;
     if (toolSection.contains("_cookies"))
         jsonCookieJar = toolSection.value("_cookies").toObject();
 
+    QList<QNetworkCookie> cookies;
     foreach (const QString &domain, jsonCookieJar.keys()) {
         QNetworkCookie cookie;
         cookie.setDomain(domain);
@@ -247,22 +245,27 @@ TaskStatus HttpTask::work(const QJsonObject &environment, QJsonObject &toolSecti
             cookie.setName(name.toLatin1());
             cookie.setValue(jsonCookie.value("value").toString().toLatin1());
 
-            cookieJar->insertCookie(cookie);
+            cookies << cookie;
         }
     }
 
-    QNetworkAccessManager *nam = new QNetworkAccessManager();
-    nam->setCookieJar(cookieJar);
+    QNetworkCookieJar cookieJar;
+    cookieJar.setCookiesFromUrl(cookies, networkRequest.url());
+    cookieJar.setCookiesFromUrl(request.cookies, networkRequest.url());
 
-    QNetworkReply *reply = nam->sendCustomRequest(networkRequest, request.method, &buffer);
+    request.cookies = cookieJar.cookiesForUrl(networkRequest.url());
+
+    QNetworkAccessManager nam;
+    nam.setCookieJar(&cookieJar);
+    cookieJar.setParent(nullptr);
+
+    QNetworkReply *reply = nam.sendCustomRequest(networkRequest, request.method, &buffer);
     QEventLoop eventLoop;
     QObject::connect(reply, SIGNAL(finished()), &eventLoop, SLOT(quit()));
     eventLoop.exec();
 
     HttpResponse response;
-
-    QJsonObject jsonCookies, jsonHeaders;
-    response.headers = QList<QNetworkReply::RawHeaderPair>();
+    QJsonObject jsonHeaders, jsonCookies;
     foreach (QNetworkReply::RawHeaderPair header, reply->rawHeaderPairs()) {
         if (!QString(header.first).compare("set-cookie", Qt::CaseInsensitive)) {
             QList<QNetworkCookie> cookies = QNetworkCookie::parseCookies(header.second);
@@ -309,10 +312,9 @@ TaskStatus HttpTask::work(const QJsonObject &environment, QJsonObject &toolSecti
         jsonResult.insert("cookies", jsonCookies);
     if (!jsonHeaders.isEmpty())
         jsonResult.insert("headers", jsonHeaders);
-
     toolSection.insert(name(), jsonResult);
 
-    foreach (QNetworkCookie cookie, cookieJar->cookies()) {
+    foreach (QNetworkCookie cookie, cookieJar.cookiesForUrl(networkRequest.url())) {
         QJsonObject jsonCookie;
 
         if (cookie.expirationDate().isValid())
@@ -334,9 +336,6 @@ TaskStatus HttpTask::work(const QJsonObject &environment, QJsonObject &toolSecti
         jsonCookieJar.insert(cookie.domain(), jsonCookieDomain);
     }
     toolSection.insert("_cookies", jsonCookieJar);
-
-    delete cookieJar;
-    delete nam;
 
     if (processed) {
         *processed = new HttpTask(tool(), m_api, request, response);
