@@ -40,7 +40,7 @@ public:
     explicit RequestForm(QWidget *parent = 0);
     ~RequestForm();
 
-    void updateData(HttpTask *task);
+    void updateData(HttpTask *task, const QStringList &encodings = QStringList());
 
 protected slots:
     void updateTask();
@@ -48,6 +48,7 @@ protected slots:
     void addHeader();
     void removeCookies();
     void removeHeaders();
+    void encodingChanged(const QString &encoding);
 
 private:
     Ui::RequestForm *ui;

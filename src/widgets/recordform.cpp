@@ -23,6 +23,7 @@
 #include <QWebFrame>
 #include <QWebElementCollection>
 #include <QTimer>
+#include <QTextCodec>
 
 using namespace PostMonster;
 
@@ -182,11 +183,19 @@ void RecordForm::requestFinished(QNetworkReply *reply, const QByteArray &request
         pair.first = name;
         pair.second = reply->request().rawHeader(name);
 
-        if (!QString(pair.first).compare("cookie", Qt::CaseInsensitive))
+        const QString &headerName = QString(pair.first).toLower();
+        if (headerName == "cookie") {
             continue;
+        } else if (headerName == "content-type") {
+            QRegExp charsetRx("charset\\=([^;]+)", Qt::CaseInsensitive);
+            if (charsetRx.indexIn(pair.second) != -1) {
+                request->encoding = charsetRx.cap(1).toLatin1();
+            }
+        }
 
         request->headers << pair;
     }
+
     request->cookies = reply->request().header(QNetworkRequest::CookieHeader).
             value< QList<QNetworkCookie> >();
 

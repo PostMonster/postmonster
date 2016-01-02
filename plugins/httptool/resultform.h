@@ -36,9 +36,10 @@ public:
     explicit ResultForm(QWidget *parent = 0);
     ~ResultForm();
 
-    void updateData(const HttpRequest *request, const HttpResponse *response);
+    void updateData(const HttpRequest *request, const HttpResponse *response,
+                    const QStringList &encodings = QStringList());
 
-private slots:
+protected slots:
     void encodingChanged(const QString &encoding);
     void renderData();
 
@@ -46,7 +47,7 @@ private:
     Ui::ResultForm *ui;
     const HttpRequest *m_request;
     const HttpResponse *m_response;
-    static const QStringList m_encodings;
+    const QStringList *m_encodings;
 };
 
 #endif // RESULTFORM_H

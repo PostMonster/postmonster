@@ -47,6 +47,7 @@ struct HttpRequest
     QString url;
 
     QByteArray method;
+    QByteArray encoding;
     QByteArray body;
 
     QList<QNetworkReply::RawHeaderPair> headers;
@@ -76,6 +77,8 @@ struct APIFunctions
     QString (*evalScript)(const QString &input,
                           const QJsonObject &environment,
                           QScriptEngine &scriptEngine);
+
+    const QStringList &(*defaultEncodings)();
 };
 
 class PluginInterface

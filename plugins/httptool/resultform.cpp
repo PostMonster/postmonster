@@ -23,39 +23,6 @@
 #include <QTextCodec>
 #include <QMimeDatabase>
 
-const QStringList ResultForm::m_encodings
-{
-    "IBM866",
-    "ISO-8859-1",
-    "ISO-8859-2",
-    "ISO-8859-3",
-    "ISO-8859-4",
-    "ISO-8859-5",
-    "ISO-8859-6",
-    "ISO-8859-7",
-    "ISO-8859-8",
-    "ISO-8859-9",
-    "ISO-8859-10",
-    "ISO-8859-11",
-    "ISO-8859-13",
-    "ISO-8859-14",
-    "ISO-8859-15",
-    "ISO-8859-16",
-    "Windows-1250",
-    "Windows-1251",
-    "Windows-1252",
-    "Windows-1253",
-    "Windows-1254",
-    "Windows-1255",
-    "Windows-1256",
-    "Windows-1257",
-    "Windows-1258",
-    "KOI8-R",
-    "KOI8-U",
-    "UTF-8",
-    "UTF-16"
-};
-
 ResultForm::ResultForm(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ResultForm), m_request(0), m_response(0)
@@ -73,7 +40,7 @@ ResultForm::ResultForm(QWidget *parent) :
 
 void ResultForm::encodingChanged(const QString &encoding)
 {
-    QTextCodec *codec = QTextCodec::codecForName(encoding.isEmpty() ? "Latin1" : encoding.toLatin1());
+    QTextCodec *codec = QTextCodec::codecForName(encoding.toLatin1());
     QComboBox *comboBox = qobject_cast<QComboBox *>(sender());
 
     if (codec) {
@@ -89,10 +56,12 @@ void ResultForm::encodingChanged(const QString &encoding)
        comboBox->setStyleSheet("QComboBox:editable:!on { background: #FF7777; color: white }");
 }
 
-void ResultForm::updateData(const HttpRequest *request, const HttpResponse *response)
+void ResultForm::updateData(const HttpRequest *request, const HttpResponse *response,
+                            const QStringList &encodings)
 {
     m_request = request;
     m_response = response;
+    m_encodings = &encodings;
 
     renderData();
 }
@@ -187,9 +156,9 @@ void ResultForm::renderData()
                         QByteArray charset = charsetRx.cap(1).toLatin1();
 
                         QRegExp encodingRx(charset, Qt::CaseInsensitive, QRegExp::Wildcard);
-                        int encodingIdx = m_encodings.indexOf(encodingRx);
+                        int encodingIdx = m_encodings->indexOf(encodingRx);
                         if (encodingIdx != -1)
-                            encoding = m_encodings[encodingIdx];
+                            encoding = m_encodings->at(encodingIdx);
                         else if (QTextCodec::codecForName(charset))
                             encoding = charset;
                     }
@@ -202,9 +171,6 @@ void ResultForm::renderData()
 
                     QPixmap preview;
                     if (preview.loadFromData(*body)) {
-                        /*preview = preview.scaled(ui->imagePreviewLabel->width(),
-                                                 ui->imagePreviewLabel->height(),
-                                                 Qt::KeepAspectRatio, Qt::FastTransformation);*/
                         ui->imagePreviewLabel->setPixmap(preview);
                     }
                 } else if (!mimeType.isValid()) {
@@ -218,10 +184,13 @@ void ResultForm::renderData()
 
         ui->encodingCBox->blockSignals(true);
         ui->encodingCBox->clear();
-        ui->encodingCBox->insertItems(0, m_encodings);
+        ui->encodingCBox->insertItems(0, *m_encodings);
         ui->encodingCBox->blockSignals(false);
 
-        ui->encodingCBox->setCurrentText(encoding);
+        if (encoding.isEmpty())
+            ui->encodingCBox->setCurrentText("ISO-8859-1");
+        else
+            ui->encodingCBox->setCurrentText(encoding);
     }
 
     ui->tabWidget->blockSignals(false);

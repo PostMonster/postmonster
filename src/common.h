@@ -31,6 +31,11 @@ public:
 
     static QJsonObject serializeResponse(const PostMonster::HttpResponse *response);
     static PostMonster::HttpResponse deserializeResponse(const QJsonObject &jsonResponse);
+
+    static const QStringList &encodings();
+
+private:
+    static const QStringList m_encodings;
 };
 
 #endif // COMMON_H

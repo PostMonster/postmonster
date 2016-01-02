@@ -20,7 +20,7 @@
 #include "requestform.h"
 #include "ui_requestform.h"
 
-#include <QMessageBox>
+#include <QTextCodec>
 
 RequestForm::RequestForm(QWidget *parent) :
     QWidget(parent),
@@ -66,8 +66,12 @@ void RequestForm::updateTask()
     }
 
     m_task->request()->url = ui->urlEdt->text();
-    m_task->request()->body = ui->bodyEdit->toPlainText().toLatin1();
     m_task->request()->method = ui->methodCombo->currentText().toLatin1();
+
+    QTextCodec *codec = QTextCodec::codecForName(ui->encodingCBox->currentText().toLatin1());
+    if (codec) {
+        m_task->request()->body = codec->fromUnicode(ui->bodyEdit->toPlainText());
+    }
 
     emit m_task->dataChanged();
 }
@@ -85,7 +89,7 @@ void RequestForm::addHeader()
 }
 
 
-void RequestForm::updateData(HttpTask *task)
+void RequestForm::updateData(HttpTask *task, const QStringList &encodings)
 {
     m_task = 0;
 
@@ -111,8 +115,42 @@ void RequestForm::updateData(HttpTask *task)
 
     ui->urlEdt->setCursorPosition(0);
 
+    ui->encodingCBox->blockSignals(true);
+    ui->encodingCBox->clear();
+    ui->encodingCBox->insertItems(0, encodings);
+    ui->encodingCBox->blockSignals(false);
+
+    QString encoding;
+    QRegExp encodingRx(task->request()->encoding, Qt::CaseInsensitive, QRegExp::Wildcard);
+    int encodingIdx = encodings.indexOf(encodingRx);
+    if (encodingIdx != -1)
+        encoding = encodings[encodingIdx];
+    else if (QTextCodec::codecForName(task->request()->encoding))
+        encoding = task->request()->encoding;
+
+    if (encoding.isEmpty()) {
+        ui->encodingCBox->setCurrentText("ISO-8859-1");
+    } else {
+        ui->encodingCBox->setCurrentText(encoding);
+    }
+
     m_task = task;
 }
+
+void RequestForm::encodingChanged(const QString &encoding)
+{
+    QTextCodec *codec = QTextCodec::codecForName(encoding.toLatin1());
+    QComboBox *comboBox = qobject_cast<QComboBox *>(sender());
+
+    if (codec) {
+        if (comboBox)
+            comboBox->setStyleSheet("");
+
+        ui->bodyEdit->setPlainText(codec->toUnicode(m_task->request()->body));
+    } else if (comboBox)
+       comboBox->setStyleSheet("QComboBox:editable:!on { background: #FF7777; color: white }");
+}
+
 
 void RequestForm::removeHeaders()
 {
