@@ -63,7 +63,6 @@ QString WorkEngine::evalScript(const QString &input, const QJsonObject &environm
         }
 
         if (brackets.isEmpty()) {
-            qDebug() << "VAR=" << input.mid(start, pos - start - 1);
             QJsonDocument doc(environment);
             QScriptValue env = engine.evaluate("[" + doc.toJson() + "]");
 
@@ -79,7 +78,6 @@ QString WorkEngine::evalScript(const QString &input, const QJsonObject &environm
         }
     }
 
-    qDebug() << result;
     return result;
 }
 
@@ -100,8 +98,6 @@ PostMonster::TaskStatus WorkEngine::step() {
         PostMonster::TaskInterface *processedTask;
         result = taskItem->task()->work(m_env, jsonTool, m_scriptEngine, &processedTask);
 
-        //jsonTool.insert(taskName, jsonTask);
-        qDebug() << "WORKER TASKNAME=" << taskName;
         m_env.insert(toolName, jsonTool);
 
         QPair<QString, QString> taskKey(toolName, taskName);
