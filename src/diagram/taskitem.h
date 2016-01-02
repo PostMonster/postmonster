@@ -30,6 +30,7 @@ class TaskItem : public DiagramItem, public QGraphicsPixmapItem
 public:
     TaskItem(PostMonster::TaskInterface *task, QGraphicsItem *parent = 0);
     QRectF boundingRect() const;
+    QPainterPath shape() const;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                QWidget *widget = 0);
     PostMonster::TaskInterface *task() { return m_task; }

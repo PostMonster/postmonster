@@ -34,6 +34,11 @@ QRectF TaskItem::boundingRect() const
     return QGraphicsPixmapItem::boundingRect();
 }
 
+QPainterPath TaskItem::shape() const
+{
+    return m_task->itemShape();
+}
+
 void TaskItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     setPixmap(m_task->itemPixmap());

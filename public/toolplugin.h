@@ -79,7 +79,7 @@ public:
                             QScriptEngine &scriptEngine, TaskInterface **processed = 0) = 0;
 
     virtual QPixmap itemPixmap() const = 0;
-    virtual QPolygon itemShape() const = 0;
+    virtual QPainterPath itemShape() const = 0;
 
     const QUuid &uuid() const
     {

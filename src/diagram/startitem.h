@@ -29,6 +29,7 @@ class StartItem : public DiagramItem, QGraphicsPixmapItem
 public:
     StartItem(QGraphicsItem *parent = 0);
     QRectF boundingRect() const;
+    QPainterPath shape() const;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                QWidget *widget = 0);
     DiagramType diagramType() const { return DiagramItem::TypeStart; }

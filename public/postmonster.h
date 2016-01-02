@@ -47,7 +47,6 @@ struct HttpRequest
     QString url;
 
     QByteArray method;
-    QByteArray encoding;
     QByteArray body;
 
     QList<QNetworkReply::RawHeaderPair> headers;
@@ -58,9 +57,10 @@ struct HttpResponse
 {
     HttpResponse(): status(0) {}
 
-    QString mimeType;
     int status;
+    QByteArray mimeType;
     QByteArray body;
+
     QList<QNetworkReply::RawHeaderPair> headers;
     QList<QNetworkCookie> cookies;
 };

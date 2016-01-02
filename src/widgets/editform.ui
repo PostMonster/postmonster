@@ -147,6 +147,12 @@
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
+          <property name="handleWidth">
+           <number>6</number>
+          </property>
+          <property name="childrenCollapsible">
+           <bool>false</bool>
+          </property>
           <widget class="QWidget" name="verticalLayoutWidget">
            <layout class="QVBoxLayout" name="verticalLayout_5">
             <property name="spacing">

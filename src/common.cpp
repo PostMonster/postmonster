@@ -69,14 +69,14 @@ QJsonObject Common::serializeResponse(const PostMonster::HttpResponse *response)
     QJsonObject jsonResponse;
     QJsonArray jsonHeaders;
 
-    jsonResponse.insert("mimeType", response->mimeType);
+    jsonResponse.insert("mimeType", QLatin1String(response->mimeType));
     jsonResponse.insert("status", response->status);
-    jsonResponse.insert("body", QString(response->body.toBase64()));
+    jsonResponse.insert("body", QLatin1String(response->body.toBase64()));
 
     foreach (QNetworkReply::RawHeaderPair header, response->headers) {
         QJsonObject tmp;
-        tmp.insert("name", QString(header.first));
-        tmp.insert("value", QString(header.second));
+        tmp.insert("name", QLatin1String(header.first));
+        tmp.insert("value", QLatin1String(header.second));
 
         jsonHeaders << tmp;
     }
@@ -89,7 +89,7 @@ PostMonster::HttpResponse Common::deserializeResponse(const QJsonObject &jsonRes
 {
     PostMonster::HttpResponse response;
 
-    response.mimeType = jsonResponse.value("mimeType").toString();
+    response.mimeType = jsonResponse.value("mimeType").toString().toLatin1();
     response.status = jsonResponse.value("status").toInt();
 
     QByteArray body;

@@ -50,7 +50,11 @@ public:
                     QScriptEngine &scriptEngine, TaskInterface **processed = 0);
 
     QPixmap itemPixmap() const;
-    QPolygon itemShape() const { return itemPixmap().rect(); }
+    QPainterPath itemShape() const {
+        QPainterPath path;
+        path.addRoundRect(itemPixmap().rect(), 10, 10);
+        return path;
+    }
     HttpRequest *request() { return &m_request; }
     HttpResponse *response() { return &m_response; }
     const HttpRequest *processedRequest() { return &m_processedRequest; }

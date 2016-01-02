@@ -23,7 +23,7 @@
 #include <QTextCodec>
 #include <QMimeDatabase>
 
-const QStringList ResultForm::encodings
+const QStringList ResultForm::m_encodings
 {
     "IBM866",
     "ISO-8859-1",
@@ -80,10 +80,11 @@ void ResultForm::encodingChanged(const QString &encoding)
         if (comboBox)
             comboBox->setStyleSheet("");
 
-        if (ui->requestRadio->isChecked())
+        if (ui->requestRadio->isChecked()) {
             ui->bodyText->setPlainText(codec->toUnicode(m_request->body));
-        else
+        } else if (ui->responseRadio->isChecked()) {
             ui->bodyText->setPlainText(codec->toUnicode(m_response->body));
+        }
     } else if (comboBox)
        comboBox->setStyleSheet("QComboBox:editable:!on { background: #FF7777; color: white }");
 }
@@ -186,9 +187,9 @@ void ResultForm::renderData()
                         QByteArray charset = charsetRx.cap(1).toLatin1();
 
                         QRegExp encodingRx(charset, Qt::CaseInsensitive, QRegExp::Wildcard);
-                        int encodingIdx = encodings.indexOf(encodingRx);
+                        int encodingIdx = m_encodings.indexOf(encodingRx);
                         if (encodingIdx != -1)
-                            encoding = encodings[encodingIdx];
+                            encoding = m_encodings[encodingIdx];
                         else if (QTextCodec::codecForName(charset))
                             encoding = charset;
                     }
@@ -217,7 +218,7 @@ void ResultForm::renderData()
 
         ui->encodingCBox->blockSignals(true);
         ui->encodingCBox->clear();
-        ui->encodingCBox->insertItems(0, encodings);
+        ui->encodingCBox->insertItems(0, m_encodings);
         ui->encodingCBox->blockSignals(false);
 
         ui->encodingCBox->setCurrentText(encoding);

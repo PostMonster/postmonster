@@ -33,6 +33,13 @@ QRectF StartItem::boundingRect() const
     return QGraphicsPixmapItem::boundingRect();
 }
 
+QPainterPath StartItem::shape() const
+{
+    QPainterPath path;
+    path.addEllipse(boundingRect());
+    return path;
+}
+
 void StartItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     QGraphicsPixmapItem::paint(painter, option, widget);
