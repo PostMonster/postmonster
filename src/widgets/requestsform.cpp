@@ -26,7 +26,7 @@
 using namespace PostMonster;
 
 RequestsForm::RequestsForm(QWidget *parent) :
-    QWidget(parent), m_httpTool(0),
+    QWidget(parent), m_httpTool(0), m_useAllRequests(false),
     ui(new Ui::RequestsForm)
 {
     ui->setupUi(this);

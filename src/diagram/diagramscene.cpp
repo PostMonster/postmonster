@@ -41,11 +41,6 @@ void DiagramScene::setMode(Mode mode, PostMonster::ToolPluginInterface *tool)
     m_tool = tool;
 }
 
-/*void DiagramScene::drawBackground(QPainter *painter, const QRectF &rect)
-{
-    painter->drawTiledPixmap(rect, QPixmap(":/icons/diagram/background"));
-}*/
-
 void DiagramScene::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
 {
     event->acceptProposedAction();
@@ -146,6 +141,7 @@ void DiagramScene::insertItem(DiagramItem *item, QPointF scenePos)
     case DiagramItem::TypeStart:
         menu->addAction(tr("Connect"), this, SLOT(drawLine()));
         menu->addAction(tr("Disconnect"), this, SLOT(disconnectSelected()));
+        break;
     }
 
     menu->addSeparator();
@@ -153,10 +149,17 @@ void DiagramScene::insertItem(DiagramItem *item, QPointF scenePos)
     menu->addAction(tr("To back"), this, SLOT(selectedToBack()));
 
     item->setMenu(menu);
+    /*item->hide();
+
+    QTimer::singleShot(0, [this, item, scenePos]() {
+        clearSelection();
+
+        item->setPos(scenePos);
+        item->show();
+        item->setSelected(true);
+    });*/
+
     addItem(item);
-
-    item->setPos(scenePos);
-
     emit itemInserted(item);
 }
 
@@ -271,9 +274,12 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
     switch (m_mode) {
     case InsertItem:
         item = new TaskItem(m_tool->createTask());
+        item->setPos(event->scenePos());
+        item->setSelected(true);
+
+        clearSelection();
         insertItem(item, event->scenePos());
-        QTimer::singleShot(0, [item]() { item->setSelected(true); });
-        break;
+        return;
 
     case InsertLine:
         if (m_line != 0 && m_mode == InsertLine) {
@@ -309,7 +315,7 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
             emit clickedOnBackground();
     }
 
-    QGraphicsScene::mousePressEvent(event);
+    return QGraphicsScene::mousePressEvent(event);
 }
 
 void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent)

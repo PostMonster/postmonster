@@ -36,6 +36,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QVariantMap>
+#include <QTimer>
 
 using namespace PostMonster;
 
@@ -51,12 +52,6 @@ EditForm::EditForm(QWidget *parent) :
 
     QList<int> sizes = { int(width() * 0.65), int(width() * 0.35) };
     ui->debugSplitter->setSizes(sizes);
-
-    /*ui->cookiesTab->setProperty("nameFormat", ui->propertiesTabWidget->tabText(1));
-    ui->propertiesTabWidget->setTabText(1, ui->propertiesTabWidget->tabText(1).arg(0));*/
-
-    /*connect(ui->httpModeButton, SIGNAL(clicked()), this, SLOT(httpModeToggled()));
-    connect(ui->moveModeButton, SIGNAL(clicked()), this, SLOT(moveModeToggled()));*/
 
     connect(ui->pushButton, SIGNAL(clicked()), this, SLOT(debugStep()));
 
@@ -74,7 +69,7 @@ EditForm::EditForm(QWidget *parent) :
     connect(ui->environmentTree->selectionModel(), SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
             this, SLOT(environmentSelected(QModelIndex, QModelIndex)));
 
-    newProject();
+    QMetaObject::invokeMethod(this, "newProject", Qt::QueuedConnection);
 }
 
 void EditForm::openRequests()
@@ -111,7 +106,16 @@ void EditForm::resetEnvironment()
 void EditForm::newProject()
 {
     initScene();
-    m_scene->insertItem(new StartItem());
+
+    DiagramItem *item = new StartItem();
+    QPointF pos = QPointF(ui->graphicsView->width() / 2.0 - item->boundingRect().width() / 2.0,
+                          ui->graphicsView->height() / 2.0 - item->boundingRect().height() / 2.0);
+
+    m_scene->setSceneRect(0, 0,
+                          pos.x() + item->boundingRect().width(),
+                          pos.y() + item->boundingRect().height());
+    m_scene->insertItem(item, pos);
+    item->setPos(pos);
 
     if (m_requestsModel)
         m_requestsModel->clear();
@@ -264,6 +268,7 @@ void EditForm::loadProject(const QString &fileName)
         parsedItems[uuid] = item;
 
         item->setUuid(uuid);
+        item->setPos(pos);
         m_scene->insertItem(item, pos);
     }
 
@@ -307,7 +312,7 @@ void EditForm::actionTriggered()
     QAction *action = qobject_cast<QAction *>(sender());
     PostMonster::ToolPluginInterface *tool = qobject_cast<PostMonster::ToolPluginInterface *>(action->parent());
 
-    if (!tool) return;
+    if (!tool || !m_scene) return;
 
     resetMode(action);
     if (action->isChecked())
@@ -390,8 +395,12 @@ void EditForm::insertHttpItem(int requestRow, QPointF scenePos)
 
     if (tool) {
         TaskInterface *task = tool->createTask(*request);
-        TaskItem *item = new TaskItem(task);
+        DiagramItem *item = new TaskItem(task);
 
+        item->setPos(scenePos);
+        item->setSelected(true);
+
+        m_scene->clearSelection();
         m_scene->insertItem(item, scenePos);
     }
 }

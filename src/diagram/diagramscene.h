@@ -53,7 +53,6 @@ signals:
     void requestDropped(int requestRow, QPointF scenePos);
 
 protected:
-    //void drawBackground(QPainter *painter, const QRectF &rect) Q_DECL_OVERRIDE;
     void mousePressEvent(QGraphicsSceneMouseEvent *event) Q_DECL_OVERRIDE;
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event) Q_DECL_OVERRIDE;
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) Q_DECL_OVERRIDE;
