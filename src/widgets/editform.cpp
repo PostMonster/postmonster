@@ -69,7 +69,9 @@ EditForm::EditForm(QWidget *parent) :
     connect(ui->environmentTree->selectionModel(), SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
             this, SLOT(environmentSelected(QModelIndex, QModelIndex)));
 
-    QMetaObject::invokeMethod(this, "newProject", Qt::QueuedConnection);
+    newProject();
+    //QMetaObject::invokeMethod(this, "newProject", Qt::QueuedConnection);
+    //QTimer::singleShot(100, this, SLOT(newProject()));
 }
 
 void EditForm::openRequests()
@@ -91,6 +93,7 @@ void EditForm::initScene()
     connect(m_scene, SIGNAL(requestDropped(int, QPointF)), this, SLOT(insertHttpItem(int, QPointF)));
 
     m_scene->setMode(DiagramScene::MoveItem);
+
     ui->graphicsView->setScene(m_scene);
 }
 
@@ -108,14 +111,19 @@ void EditForm::newProject()
     initScene();
 
     DiagramItem *item = new StartItem();
-    QPointF pos = QPointF(ui->graphicsView->width() / 2.0 - item->boundingRect().width() / 2.0,
-                          ui->graphicsView->height() / 2.0 - item->boundingRect().height() / 2.0);
+    m_scene->insertItem(item, QPointF());
 
-    m_scene->setSceneRect(0, 0,
-                          pos.x() + item->boundingRect().width(),
-                          pos.y() + item->boundingRect().height());
-    m_scene->insertItem(item, pos);
-    item->setPos(pos);
+    // This is workaround for the QGraphicsScene behaviour when inserting the first item.
+    // If we set center position immediately, scene rect will just translate its
+    // coordinates to this position, and on the screen it will be at top left corner.
+    // So we insert item at default position (0, 0) and on next event loop iteration
+    // move it to the QGraphicsView center, so it will be displayed at viewport center.
+    QTimer::singleShot(0, [this, item]() {
+        QPointF pos = QPointF(ui->graphicsView->width() / 2.0 - item->boundingRect().width() / 2.0,
+                              ui->graphicsView->height() / 2.0 - item->boundingRect().height() / 2.0);
+
+        item->setPos(pos);
+    });
 
     if (m_requestsModel)
         m_requestsModel->clear();
