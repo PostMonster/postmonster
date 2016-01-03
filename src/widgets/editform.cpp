@@ -69,9 +69,9 @@ EditForm::EditForm(QWidget *parent) :
     connect(ui->environmentTree->selectionModel(), SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
             this, SLOT(environmentSelected(QModelIndex, QModelIndex)));
 
+    ui->graphicsView->scale(logicalDpiX() / 96.0, logicalDpiY() / 96.0);
+
     newProject();
-    //QMetaObject::invokeMethod(this, "newProject", Qt::QueuedConnection);
-    //QTimer::singleShot(100, this, SLOT(newProject()));
 }
 
 void EditForm::openRequests()
@@ -111,7 +111,7 @@ void EditForm::newProject()
     initScene();
 
     DiagramItem *item = new StartItem();
-    m_scene->insertItem(item, QPointF());
+    m_scene->insertItem(item);
 
     // This is workaround for the QGraphicsScene behaviour when inserting the first item.
     // If we set center position immediately, scene rect will just translate its
@@ -121,6 +121,8 @@ void EditForm::newProject()
     QTimer::singleShot(0, [this, item]() {
         QPointF pos = QPointF(ui->graphicsView->width() / 2.0 - item->boundingRect().width() / 2.0,
                               ui->graphicsView->height() / 2.0 - item->boundingRect().height() / 2.0);
+        pos.setX(pos.x() * 96.0 / logicalDpiX());
+        pos.setY(pos.y() * 96.0 / logicalDpiY());
 
         item->setPos(pos);
     });
@@ -276,8 +278,9 @@ void EditForm::loadProject(const QString &fileName)
         parsedItems[uuid] = item;
 
         item->setUuid(uuid);
-        item->setPos(pos);
-        m_scene->insertItem(item, pos);
+        m_scene->insertItem(item);
+
+        QTimer::singleShot(0, [item, pos]() { item->setPos(pos); });
     }
 
     for (QHash< QUuid, QHash<PostMonster::TaskStatus, QUuid> >::iterator i = parsedArrows.begin(),
@@ -409,7 +412,7 @@ void EditForm::insertHttpItem(int requestRow, QPointF scenePos)
         item->setSelected(true);
 
         m_scene->clearSelection();
-        m_scene->insertItem(item, scenePos);
+        m_scene->insertItem(item);
     }
 }
 

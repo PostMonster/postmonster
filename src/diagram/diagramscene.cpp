@@ -113,7 +113,7 @@ void DiagramScene::removeFailLine()
     }
 }
 
-void DiagramScene::insertItem(DiagramItem *item, QPointF scenePos)
+void DiagramScene::insertItem(DiagramItem *item)
 {
     QMenu *menu = new QMenu;
     QMenu *connectMenu, *disconnectMenu;
@@ -278,7 +278,7 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
         item->setSelected(true);
 
         clearSelection();
-        insertItem(item, event->scenePos());
+        insertItem(item);
         return;
 
     case InsertLine:

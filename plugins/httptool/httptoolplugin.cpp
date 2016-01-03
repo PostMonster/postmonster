@@ -159,7 +159,10 @@ QPixmap HttpTask::itemPixmap() const
 
     QPainter painter(&pixmap);
     painter.setPen(QPen(Qt::black));
-    painter.setFont(QFont("sans", 10, QFont::Bold));
+
+    QFont font("sans", -1, QFont::Bold);
+    font.setPixelSize(14);
+    painter.setFont(font);
 
     QFontMetrics fm(painter.font());
     int textWidth = fm.width(m_request.method);
@@ -168,7 +171,9 @@ QPixmap HttpTask::itemPixmap() const
                      Qt::AlignLeft | Qt::AlignVCenter,
                      m_request.method);
 
-    painter.setFont(QFont("sans", 8));
+    font.setPixelSize(10);
+    font.setBold(false);
+    painter.setFont(font);
     painter.drawText(QRectF(30 + textWidth + 5, 5,
                             pixmap.width() - textWidth - 45, 18),
                      Qt::AlignLeft | Qt::AlignVCenter,

@@ -37,7 +37,7 @@ public:
 
     explicit DiagramScene(QObject *parent = 0);
 
-    void insertItem(DiagramItem *item, QPointF scenePos = QPointF());
+    void insertItem(DiagramItem *item);
     void insertArrow(DiagramItem *start, DiagramItem *end);
     void insertArrow(PostMonster::TaskStatus status, DiagramItem *start, DiagramItem *end);
 
