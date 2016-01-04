@@ -38,12 +38,14 @@ class HttpTask: public TaskInterface
 {
 public:
     HttpTask(ToolPluginInterface *tool, const APIFunctions &api, const HttpRequest &request)
-        : TaskInterface(tool, api), m_request(request) {
+        : TaskInterface(tool, api), m_request(request), m_pixmapScale(1)
+    {
     }
 
     HttpTask(ToolPluginInterface *tool, const APIFunctions &api,
              const HttpRequest &request, const HttpResponse &response)
-        : TaskInterface(tool, api), m_request(request), m_response(response) {
+        : TaskInterface(tool, api), m_request(request), m_response(response), m_pixmapScale(1)
+    {
     }
 
     TaskStatus work(const QJsonObject &environment, QJsonObject &toolSection,
@@ -64,6 +66,7 @@ private:
     HttpRequest m_request;
     HttpRequest m_processedRequest;
     HttpResponse m_response;
+    qreal m_pixmapScale;
 };
 
 class HttpToolPlugin: public QObject, public HttpToolPluginInterface

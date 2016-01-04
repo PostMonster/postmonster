@@ -26,6 +26,7 @@
 #include <QPolygon>
 #include <QWidget>
 #include <QPixmap>
+#include <QGraphicsItem>
 #include <QJsonObject>
 #include <QtScript/QScriptEngine>
 

@@ -25,6 +25,7 @@
 #include <QPainter>
 #include <QTimer>
 
+#include "common.h"
 #include "arrow.h"
 #include "startitem.h"
 #include "taskitem.h"

@@ -18,6 +18,7 @@
  */
  
 #include "arrow.h"
+#include "taskitem.h"
 
 #include <math.h>
 
@@ -82,51 +83,41 @@ void Arrow::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *
 
     painter->setBrush(m_color);
 
-    QLineF centerLine(m_startItem->pos() + m_startItem->boundingRect().center(),
-                      m_endItem->pos() + m_endItem->boundingRect().center());
+    QLineF centerLine(m_startItem->pos() + m_startItem->boundingRect().center() * m_startItem->scale(),
+                      m_endItem->pos() + m_endItem->boundingRect().center() * m_endItem->scale());
 
     int deltaX = qAbs(m_startItem->pos().x() - m_endItem->pos().x());
     int deltaY = qAbs(m_startItem->pos().y() - m_endItem->pos().y());
+    QPointF pointDeltaX = QPointF(m_startItem->boundingRect().width() / 4, 0) * m_startItem->scale();
+    QPointF pointDeltaY = QPointF(0, m_startItem->boundingRect().height() / 4) * m_startItem->scale();
     switch (m_status) {
     case PostMonster::Ok:
     case PostMonster::True:
         if (deltaX < deltaY)
-            centerLine = QLineF(
-                centerLine.p1() + QPointF(m_startItem->boundingRect().width() / 4, 0),
-                centerLine.p2() + QPointF(m_startItem->boundingRect().width() / 4, 0)
-            );
+            centerLine = QLineF(centerLine.p1() + pointDeltaX, centerLine.p2() + pointDeltaX);
         else
-            centerLine = QLineF(
-                centerLine.p1() - QPointF(0, m_startItem->boundingRect().height() / 4),
-                centerLine.p2() - QPointF(0, m_startItem->boundingRect().height() / 4)
-            );
+            centerLine = QLineF(centerLine.p1() - pointDeltaY, centerLine.p2() - pointDeltaY);
         break;
 
     case PostMonster::Fail:
     case PostMonster::False:
         if (deltaX < deltaY)
-            centerLine = QLineF(
-                centerLine.p1() - QPointF(m_startItem->boundingRect().width() / 4, 0),
-                centerLine.p2() - QPointF(m_startItem->boundingRect().width() / 4, 0)
-            );
+            centerLine = QLineF(centerLine.p1() - pointDeltaX, centerLine.p2() - pointDeltaX);
         else
-            centerLine = QLineF(
-                centerLine.p1() + QPointF(0, m_startItem->boundingRect().height() / 4),
-                centerLine.p2() + QPointF(0, m_startItem->boundingRect().height() / 4)
-            );
+            centerLine = QLineF(centerLine.p1() + pointDeltaY, centerLine.p2() + pointDeltaY);
         break;
 
     case PostMonster::Default:
         break;
     }
-    QPolygonF itemPolygon = m_endItem->shape().toFillPolygon();
 
+    QPolygonF itemPolygon = m_endItem->shape().toFillPolygon();
     QPointF p1 = itemPolygon.first() + m_endItem->pos();
     QPointF p2;
     QPointF startPoint, endPoint;
     QLineF polyLine;
     for (int i = 1; i < itemPolygon.count(); ++i) {
-        p2 = itemPolygon.at(i) + m_endItem->pos();
+        p2 = itemPolygon.at(i) * m_endItem->scale() + m_endItem->pos();
         polyLine = QLineF(p1, p2);
         QLineF::IntersectType intersectType =
             polyLine.intersect(centerLine, &endPoint);
@@ -138,7 +129,7 @@ void Arrow::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *
     itemPolygon = m_startItem->shape().toFillPolygon();
     p1 = itemPolygon.first() + m_startItem->pos();
     for (int i = 1; i < itemPolygon.count(); ++i) {
-        p2 = itemPolygon.at(i) + m_startItem->pos();
+        p2 = itemPolygon.at(i) * m_startItem->scale() + m_startItem->pos();
         polyLine = QLineF(p1, p2);
         QLineF::IntersectType intersectType =
             polyLine.intersect(centerLine, &startPoint);

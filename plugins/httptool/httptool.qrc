@@ -1,6 +1,6 @@
 <RCC>
     <qresource prefix="/icons">
         <file alias="httptool">icons/httptool.png</file>
-        <file alias="httpitem">icons/httpitem.png</file>
+        <file alias="httpitem">icons/httpitem.svg</file>
     </qresource>
 </RCC>

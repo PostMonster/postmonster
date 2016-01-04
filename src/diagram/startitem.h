@@ -20,11 +20,11 @@
 #ifndef STARTITEM_H
 #define STARTITEM_H
 
-#include <QGraphicsPixmapItem>
+#include <QtSvg/QGraphicsSvgItem>
 
 #include "diagramitem.h"
 
-class StartItem : public DiagramItem, QGraphicsPixmapItem
+class StartItem : public DiagramItem, QGraphicsSvgItem
 {
 public:
     StartItem(QGraphicsItem *parent = 0);

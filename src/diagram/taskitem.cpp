@@ -17,7 +17,9 @@
  * along with PostMonster.  If not, see <http://www.gnu.org/licenses/>.
  */
  
+#include "common.h"
 #include "taskitem.h"
+#include "diagramscene.h"
 
 #include <QtDebug>
 #include <QPainter>
@@ -27,6 +29,7 @@ TaskItem::TaskItem(PostMonster::TaskInterface *task, QGraphicsItem *parent)
     : DiagramItem(parent), QGraphicsPixmapItem(task->itemPixmap(), parent),
       m_task(task)
 {
+    DiagramItem::setScale(1 / Common::scale());
 }
 
 QRectF TaskItem::boundingRect() const

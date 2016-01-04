@@ -22,6 +22,7 @@ endif()
 # Project dependencies
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Network REQUIRED)
+find_package(Qt5Svg REQUIRED)
 
 file(GLOB_RECURSE httptool_SOURCES "*.cpp")
 file(GLOB_RECURSE httptool_UI "*.ui")
@@ -35,4 +36,4 @@ add_definitions(-DQT_STATICPLUGIN)
 include_directories(../../public)
 
 add_library(httptool STATIC ${httptool_SOURCES} ${httptool_UI_HEADERS} ${httptool_QRC_RCC})
-target_link_libraries(httptool Qt5::Widgets Qt5::Network)
+target_link_libraries(httptool Qt5::Widgets Qt5::Network Qt5::Svg)

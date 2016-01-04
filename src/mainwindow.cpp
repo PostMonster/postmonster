@@ -68,6 +68,7 @@ MainWindow::MainWindow(QWidget *parent) :
     api.serializeResponse   = Common::serializeResponse;
     api.deserializeResponse = Common::deserializeResponse;
     api.defaultEncodings    = Common::encodings;
+    api.screenScale         = Common::scale;
     m_plugins.loadPlugins(api);
 
     if (m_plugins.tool("http")) {

@@ -20,6 +20,8 @@
 #include "common.h"
 
 #include <QJsonArray>
+#include <QGuiApplication>
+#include <QScreen>
 
 const QStringList Common::m_encodings
 {
@@ -225,4 +227,9 @@ PostMonster::HttpResponse Common::deserializeResponse(const QJsonObject &jsonRes
     }
 
     return response;
+}
+
+const qreal Common::scale()
+{
+    return qApp->primaryScreen()->logicalDotsPerInch() / 96;
 }

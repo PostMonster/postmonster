@@ -123,9 +123,6 @@ void RecordForm::requestFinished(QNetworkReply *reply, const QByteArray &request
     case QNetworkAccessManager::HeadOperation:
         request->method = "HEAD";
         break;
-    case QNetworkAccessManager::GetOperation:
-        request->method = "GET";
-        break;
     case QNetworkAccessManager::PutOperation:
         request->method = "PUT";
         break;
@@ -135,8 +132,8 @@ void RecordForm::requestFinished(QNetworkReply *reply, const QByteArray &request
     case QNetworkAccessManager::DeleteOperation:
         request->method = "DELETE";
         break;
-    case QNetworkAccessManager::CustomOperation:
-        request->method = "CUSTOM";
+    default:
+        request->method = "GET";
         break;
     }
 

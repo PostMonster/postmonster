@@ -59,7 +59,6 @@ EditForm::EditForm(QWidget *parent) :
 
     m_toolbar.setOrientation(Qt::Vertical);
     m_toolbar.setIconSize(QSize(32, 32));
-    //m_toolbar.setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     ui->horizontalLayout->addWidget(&m_toolbar);
 
     m_envModel.setHeaderData(0, Qt::Horizontal, "Name", Qt::DisplayRole);
@@ -69,7 +68,7 @@ EditForm::EditForm(QWidget *parent) :
     connect(ui->environmentTree->selectionModel(), SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
             this, SLOT(environmentSelected(QModelIndex, QModelIndex)));
 
-    ui->graphicsView->scale(logicalDpiX() / 96.0, logicalDpiY() / 96.0);
+    ui->graphicsView->scale(Common::scale(), Common::scale());
 
     newProject();
 }
@@ -121,8 +120,8 @@ void EditForm::newProject()
     QTimer::singleShot(0, [this, item]() {
         QPointF pos = QPointF(ui->graphicsView->width() / 2.0 - item->boundingRect().width() / 2.0,
                               ui->graphicsView->height() / 2.0 - item->boundingRect().height() / 2.0);
-        pos.setX(pos.x() * 96.0 / logicalDpiX());
-        pos.setY(pos.y() * 96.0 / logicalDpiY());
+        pos.setX(pos.x() / Common::scale());
+        pos.setY(pos.y() / Common::scale());
 
         item->setPos(pos);
     });

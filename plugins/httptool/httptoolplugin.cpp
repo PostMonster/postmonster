@@ -23,6 +23,7 @@
 #include <QBrush>
 #include <QPixmap>
 #include <QPainter>
+#include <QtSvg/QSvgRenderer>
 
 #include <QNetworkCookie>
 #include <QBuffer>
@@ -155,27 +156,29 @@ HttpToolPlugin::~HttpToolPlugin()
 
 QPixmap HttpTask::itemPixmap() const
 {
-    QPixmap pixmap(":/icons/httpitem");
+    QSvgRenderer renderer(QLatin1String(":/icons/httpitem"));
+    const qreal s = m_api.screenScale();
+
+    QPixmap pixmap(renderer.viewBox().width() * s, renderer.viewBox().height() * s);
+    pixmap.fill(Qt::transparent);
 
     QPainter painter(&pixmap);
-    painter.setPen(QPen(Qt::black));
+    renderer.render(&painter);
 
-    QFont font("sans", -1, QFont::Bold);
-    font.setPixelSize(14);
-    painter.setFont(font);
+    painter.setPen(QPen(Qt::black));
+    painter.setFont(QFont("sans", 10, QFont::Bold));
 
     QFontMetrics fm(painter.font());
     int textWidth = fm.width(m_request.method);
+    int textHeight = fm.height();
 
-    painter.drawText(QRectF(30, 5, pixmap.width() - 5, 18),
+    painter.drawText(QRectF(25 * s, 5 * s, textWidth, textHeight),
                      Qt::AlignLeft | Qt::AlignVCenter,
                      m_request.method);
 
-    font.setPixelSize(10);
-    font.setBold(false);
-    painter.setFont(font);
-    painter.drawText(QRectF(30 + textWidth + 5, 5,
-                            pixmap.width() - textWidth - 45, 18),
+    painter.setFont(QFont("sans", 8));
+    painter.drawText(QRectF(30 * s + textWidth + 5 * s, 5 * s,
+                            pixmap.width() * s - textWidth - 45 * s, 18 * s),
                      Qt::AlignLeft | Qt::AlignVCenter,
                      QUrl(m_request.url).host());
 

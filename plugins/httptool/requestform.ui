@@ -109,11 +109,6 @@
          <string>DELETE</string>
         </property>
        </item>
-       <item>
-        <property name="text">
-         <string>CUSTOM</string>
-        </property>
-       </item>
       </widget>
      </item>
      <item>

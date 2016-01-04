@@ -24,13 +24,13 @@
 
 StartItem::StartItem(QGraphicsItem *parent)
     : DiagramItem(parent),
-      QGraphicsPixmapItem(QPixmap(":/icons/diagram/item-start"), parent)
+      QGraphicsSvgItem(":/icons/startitem", parent)
 {
 }
 
 QRectF StartItem::boundingRect() const
 {
-    return QGraphicsPixmapItem::boundingRect();
+    return QGraphicsSvgItem::boundingRect();
 }
 
 QPainterPath StartItem::shape() const
@@ -42,5 +42,5 @@ QPainterPath StartItem::shape() const
 
 void StartItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    QGraphicsPixmapItem::paint(painter, option, widget);
+    QGraphicsSvgItem::paint(painter, option, widget);
 }

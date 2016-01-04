@@ -20,6 +20,7 @@
 #include "requestsform.h"
 #include "ui_requestsform.h"
 
+#include "common.h"
 #include "checkboxheader.h"
 #include "checkboxdelegate.h"
 
@@ -158,7 +159,7 @@ void RequestsForm::setRequestsModel(RequestsModel *model)
             this, SLOT(updateFilters()), Qt::UniqueConnection);
 
     ui->requestsTable->resizeColumnsToContents();
-    ui->requestsTable->setColumnWidth(RequestsModel::Type, 110);
+    ui->requestsTable->setColumnWidth(RequestsModel::Type, 110 * Common::scale());
     ui->requestsTable->horizontalHeader()->setSectionResizeMode(RequestsModel::URL,
                                                                 QHeaderView::Stretch);
 
