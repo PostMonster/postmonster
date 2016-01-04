@@ -173,6 +173,8 @@ void Arrow::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *
         break;
     }
 
+    painter->setFont(QFont("sans", 8));
+
     QFontMetrics fm(painter->font());
     int textWidth = fm.width(text);
 
