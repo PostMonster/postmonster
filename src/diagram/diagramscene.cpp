@@ -333,3 +333,9 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)
 {
     QGraphicsScene::mouseReleaseEvent(mouseEvent);
 }
+
+void DiagramScene::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
+{
+    if (m_mode != InsertLine)
+        QGraphicsScene::contextMenuEvent(event);
+}
