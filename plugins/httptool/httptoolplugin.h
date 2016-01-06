@@ -36,6 +36,8 @@ class ResultForm;
 
 class HttpTask: public TaskInterface
 {
+    Q_OBJECT
+
 public:
     HttpTask(ToolPluginInterface *tool, const APIFunctions &api, const HttpRequest &request)
         : TaskInterface(tool, api), m_request(request), m_pixmapScale(1)

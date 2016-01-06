@@ -36,6 +36,7 @@ public:
     PostMonster::TaskInterface *task() { return m_task; }
     PostMonster::ToolPluginInterface *tool() { return m_task->tool(); }
     DiagramType diagramType() const { return DiagramItem::TypeTask; }
+    void updatePixmap();
 
 private:
     PostMonster::TaskInterface *m_task;

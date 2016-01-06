@@ -67,7 +67,7 @@ public:
 
 class TaskInterface: public QObject
 {
-Q_OBJECT
+    Q_OBJECT
 
 public:
     TaskInterface(ToolPluginInterface *tool, const APIFunctions &api)

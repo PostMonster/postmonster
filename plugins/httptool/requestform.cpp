@@ -83,13 +83,23 @@ void RequestForm::updateTask()
 void RequestForm::addCookie()
 {
     m_cookiesModel.add(QNetworkCookie());
-    //ui->cookiesTable->setCurrentIndex(m_cookiesModel.rowCount() - 1);
-    ui->cookiesTable->selectRow(m_cookiesModel.rowCount() - 1);
+    const int row = m_cookiesModel.rowCount() - 1;
+
+    ui->cookiesTable->selectRow(row);
+    ui->cookiesTable->edit(m_cookiesModel.index(row, CookiesModel::Name));
+
+    emit m_task->dataChanged();
 }
 
 void RequestForm::addHeader()
 {
     m_headersModel.add(QNetworkReply::RawHeaderPair());
+    const int row = m_headersModel.rowCount() - 1;
+
+    ui->headersTable->selectRow(row);
+    ui->headersTable->edit(m_headersModel.index(row, HeadersModel::Name));
+
+    emit m_task->dataChanged();
 }
 
 
@@ -107,10 +117,6 @@ void RequestForm::updateData(HttpTask *task, const QStringList &encodings)
 
     m_cookiesModel.setCookies(cookies);
     ui->cookiesTable->resizeColumnToContents(CookiesModel::Name);
-
-    /*ui->propertiesTabWidget->setTabText(
-                1, ui->cookiesTab->property("nameFormat").toString()
-                .arg(m_cookiesModel.rowCount()));*/
 
     ui->nameEdit->setText(task->name());
     ui->urlEdt->setText(task->request()->url);

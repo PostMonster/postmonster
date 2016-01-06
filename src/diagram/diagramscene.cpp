@@ -135,8 +135,13 @@ void DiagramScene::insertItem(DiagramItem *item)
 
         menu->addAction(tr("Delete"), this, SLOT(destroySelected()));
 
-        connect(static_cast<TaskItem *>(item)->task(), SIGNAL(dataChanged()),
-                this, SLOT(update()));
+        connect(static_cast<TaskItem *>(item)->task(), &PostMonster::TaskInterface::dataChanged,
+                [this, item]() {
+                    static_cast<TaskItem *>(item)->updatePixmap();
+                    update();
+                }
+        );
+
         break;
 
     case DiagramItem::TypeStart:

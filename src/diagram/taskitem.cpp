@@ -42,8 +42,12 @@ QPainterPath TaskItem::shape() const
     return m_task->itemShape();
 }
 
-void TaskItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void TaskItem::updatePixmap()
 {
     setPixmap(m_task->itemPixmap());
+}
+
+void TaskItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
     QGraphicsPixmapItem::paint(painter, option, widget);
 }

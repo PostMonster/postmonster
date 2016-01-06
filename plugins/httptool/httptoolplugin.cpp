@@ -156,6 +156,24 @@ HttpToolPlugin::~HttpToolPlugin()
 
 QPixmap HttpTask::itemPixmap() const
 {
+    auto chopToWidth = [](const QString &text, const QFont &font, int width) -> QString
+    {
+        QFontMetrics fm = QFontMetrics(font);
+
+        QString result = text;
+        int textWidth = fm.width(text);
+
+        if (textWidth > width) {
+            do {
+                result.chop(1);
+                textWidth = fm.width(result + "...");
+            } while (textWidth > width);
+            result += "...";
+        }
+
+        return result;
+    };
+
     QSvgRenderer renderer(QLatin1String(":/icons/httpitem"));
     const qreal s = m_api.screenScale();
 
@@ -163,24 +181,92 @@ QPixmap HttpTask::itemPixmap() const
     pixmap.fill(Qt::transparent);
 
     QPainter painter(&pixmap);
+
+    // Render SVG on pixmap
     renderer.render(&painter);
 
     painter.setPen(QPen(Qt::black));
     painter.setFont(QFont("sans", 10, QFont::Bold));
 
+    // Draw method
     QFontMetrics fm(painter.font());
-    int textWidth = fm.width(m_request.method);
-    int textHeight = fm.height();
+    int methodWidth = fm.width(QLatin1String(m_request.method));
+    painter.drawText(25 * s, s + fm.height(), QLatin1String(m_request.method));
 
-    painter.drawText(QRectF(25 * s, 5 * s, textWidth, textHeight),
-                     Qt::AlignLeft | Qt::AlignVCenter,
-                     m_request.method);
-
+    // Draw name
     painter.setFont(QFont("sans", 8));
-    painter.drawText(QRectF(30 * s + textWidth + 5 * s, 5 * s,
-                            pixmap.width() * s - textWidth - 45 * s, 18 * s),
-                     Qt::AlignLeft | Qt::AlignVCenter,
-                     QUrl(m_request.url).host());
+    fm = QFontMetrics(painter.font());
+
+    int nameMaxWidth = pixmap.width() - 37 * s - methodWidth;
+    painter.drawText(30 * s + methodWidth, 6 * s, nameMaxWidth, fm.height(),
+                     Qt::AlignRight, chopToWidth(name(), painter.font(), nameMaxWidth));
+
+    // Set label font
+    QPen labelPen(QColor("#333333"), 1, Qt::DotLine);
+    QPen valuePen(Qt::black);
+
+    QString labelName;
+    int labelX, labelY, labelWidth;
+    QUrl url(m_request.url);
+    QString headerCount = QString::number(m_request.headers.count());
+    QString cookieCount = QString::number(m_request.cookies.count());
+
+    // Draw domain label
+    labelName = QLatin1Literal("Domain:");
+    labelX = 10 * s;
+    labelY = 25 * s + (fm.height() + 3 * s);
+    labelWidth = fm.width(labelName);
+    painter.setPen(labelPen);
+    painter.drawLine(labelX, labelY + 2 * s, labelX + labelWidth - 3 * s, labelY + 2 * s);
+    painter.drawText(labelX, labelY, labelName);
+
+    // Draw domain value
+    painter.setPen(valuePen);
+    painter.drawText(labelX + labelWidth + 2 * s, labelY,
+                     chopToWidth(url.host().isEmpty() ? QLatin1Literal("...") : url.host(),
+                                 painter.font(), pixmap.width() - 20 * s - labelWidth));
+
+    // Draw path label
+    labelName = QLatin1Literal("Path:");
+    labelWidth = fm.width(labelName);
+    labelY = 25 * s + (fm.height() + 3 * s) * 2;
+
+    painter.setPen(labelPen);
+    painter.drawLine(labelX, labelY + 2 * s, labelX + labelWidth - 3 * s, labelY + 2 * s);
+    painter.drawText(labelX, labelY, labelName);
+
+    // Draw path value
+    painter.setPen(valuePen);
+    painter.drawText(labelX + labelWidth + 2 * s, labelY,
+                     chopToWidth(url.path().isEmpty() ? QLatin1Literal("/") : url.path(),
+                                 painter.font(), pixmap.width() - 20 * s - labelWidth));
+
+    // Draw headers label
+    labelName = QLatin1Literal("Headers:");
+    labelWidth = fm.width(labelName);
+    labelY = 25 * s + (fm.height() + 3 * s) * 3;
+
+    painter.setPen(labelPen);
+    painter.drawLine(labelX, labelY + 2 * s, labelX + labelWidth - 3 * s, labelY + 2 * s);
+    painter.drawText(labelX, labelY, labelName);
+
+    // Draw headers value
+    painter.setPen(Qt::black);
+    painter.drawText(labelX + labelWidth + 2 * s, labelY, headerCount + ";");
+
+    // Draw cookies label
+    labelName = QLatin1Literal("Cookies:");
+    labelX += labelWidth + fm.width(headerCount) + 10 * s;
+    labelWidth = fm.width(labelName);
+    labelY = 25 * s + (fm.height() + 3 * s) * 3;
+
+    painter.setPen(labelPen);
+    painter.drawLine(labelX, labelY + 2 * s, labelX + labelWidth - 3 * s, labelY + 2 * s);
+    painter.drawText(labelX, labelY, labelName);
+
+    // Draw cookies value
+    painter.setPen(Qt::black);
+    painter.drawText(labelX + labelWidth + 2 * s, labelY, cookieCount);
 
     return pixmap;
 }

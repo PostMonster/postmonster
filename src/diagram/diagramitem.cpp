@@ -82,6 +82,13 @@ void DiagramItem::removeArrow(Arrow *arrow)
     int index = m_arrows.indexOf(arrow);
     if (index < 0) return;
 
+    const QList<Arrow *> *endArrows = arrow->endItem()->arrows();
+    for (QList<Arrow *>::const_iterator i = endArrows->constBegin(),
+         end = endArrows->constEnd(); i != end; ++i) {
+        if ((*i)->status() == arrow->status())
+            (*i)->restorePen();
+    }
+
     m_arrows.removeAt(index);
     scene()->removeItem(arrow);
 
@@ -92,13 +99,6 @@ void DiagramItem::removeArrow(PostMonster::TaskStatus status)
 {
     foreach (Arrow *arrow, m_arrows) {
         if (arrow->status() == status) {
-            const QList<Arrow *> *endArrows = arrow->endItem()->arrows();
-            for (QList<Arrow *>::const_iterator i = endArrows->constBegin(),
-                 end = endArrows->constEnd(); i != end; ++i) {
-                if ((*i)->status() == arrow->status())
-                    (*i)->restorePen();
-            }
-
             removeArrow(arrow);
             break;
         }
@@ -123,12 +123,6 @@ const QList<Arrow *> *DiagramItem::arrows() const
 void DiagramItem::removeArrows()
 {
     foreach (Arrow *arrow, m_arrows) {
-        const QList<Arrow *> *endArrows = arrow->endItem()->arrows();
-        for (QList<Arrow *>::const_iterator i = endArrows->constBegin(),
-             end = endArrows->constEnd(); i != end; ++i) {
-            if ((*i)->status() == arrow->status())
-                (*i)->restorePen();
-        }
         removeArrow(arrow);
     }
 }

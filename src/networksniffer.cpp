@@ -58,7 +58,7 @@ QNetworkReply *NetworkSniffer::createRequest(
         requestData = outgoingData->peek(request.header(QNetworkRequest::ContentLengthHeader).toLongLong());
 
     QNetworkReply *reply = QNetworkAccessManager::createRequest(op, request, outgoingData);
-    connect(reply, SIGNAL(finished()), this, SLOT(requestFinished()));
+    connect(reply, SIGNAL(finished()), this, SLOT(requestFinished()), Qt::UniqueConnection);
     connect(reply, SIGNAL(readyRead()), this, SLOT(dataAvailable()), Qt::UniqueConnection);
 
     m_data[reply].first = requestData;
