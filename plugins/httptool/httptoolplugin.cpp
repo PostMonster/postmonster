@@ -208,6 +208,9 @@ QPixmap HttpTask::itemPixmap() const
     QString labelName;
     int labelX, labelY, labelWidth;
     QUrl url(m_request.url);
+    QString host = url.host().isEmpty() ? QLatin1Literal("...") : url.host();
+    QString path = (url.path().isEmpty() ? "/" : url.path()) +
+                   (url.query().isEmpty() ? "" : "?" + url.query());
     QString headerCount = QString::number(m_request.headers.count());
     QString cookieCount = QString::number(m_request.cookies.count());
 
@@ -223,8 +226,7 @@ QPixmap HttpTask::itemPixmap() const
     // Draw domain value
     painter.setPen(valuePen);
     painter.drawText(labelX + labelWidth + 2 * s, labelY,
-                     chopToWidth(url.host().isEmpty() ? QLatin1Literal("...") : url.host(),
-                                 painter.font(), pixmap.width() - 20 * s - labelWidth));
+                     chopToWidth(host, painter.font(), pixmap.width() - 20 * s - labelWidth));
 
     // Draw path label
     labelName = QLatin1Literal("Path:");
@@ -238,8 +240,7 @@ QPixmap HttpTask::itemPixmap() const
     // Draw path value
     painter.setPen(valuePen);
     painter.drawText(labelX + labelWidth + 2 * s, labelY,
-                     chopToWidth(url.path().isEmpty() ? QLatin1Literal("/") : url.path(),
-                                 painter.font(), pixmap.width() - 20 * s - labelWidth));
+                     chopToWidth(path, painter.font(), pixmap.width() - 20 * s - labelWidth));
 
     // Draw headers label
     labelName = QLatin1Literal("Headers:");

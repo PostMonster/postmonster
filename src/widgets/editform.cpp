@@ -94,6 +94,7 @@ void EditForm::initScene()
     m_scene->setMode(DiagramScene::MoveItem);
 
     ui->graphicsView->setScene(m_scene);
+    ui->tabWidget->setCurrentIndex(0);
 }
 
 void EditForm::resetEnvironment()
@@ -388,6 +389,9 @@ void EditForm::updateRequestParams()
 
 void EditForm::resetMode(QAction *except)
 {
+    if (m_scene->mode() == DiagramScene::InsertItem)
+        ui->tabWidget->setCurrentWidget(ui->taskTab);
+
     m_scene->setMode(DiagramScene::MoveItem);
 
     foreach (QAction *action, m_toolbar.actions()) {

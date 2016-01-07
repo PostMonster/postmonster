@@ -47,7 +47,7 @@ void Arrow::restorePen()
         break;
 
     default:
-        m_color = Qt::black;
+        m_color = QColor("#666666");
     }
 
     setPen(QPen(m_color, 1.2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));

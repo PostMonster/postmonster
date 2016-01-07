@@ -42,6 +42,11 @@ void DiagramScene::setMode(Mode mode, PostMonster::ToolPluginInterface *tool)
     m_tool = tool;
 }
 
+DiagramScene::Mode DiagramScene::mode()
+{
+    return m_mode;
+}
+
 void DiagramScene::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
 {
     event->acceptProposedAction();
