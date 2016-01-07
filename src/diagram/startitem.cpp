@@ -19,7 +19,6 @@
  
 #include "startitem.h"
 
-#include <QtDebug>
 #include <QPainter>
 
 StartItem::StartItem(QGraphicsItem *parent)

@@ -123,6 +123,7 @@ void DiagramScene::insertItem(DiagramItem *item)
 {
     QMenu *menu = new QMenu;
     QMenu *connectMenu, *disconnectMenu;
+    QAction *action;
 
     switch (item->diagramType()) {
     case DiagramItem::TypeTask:
@@ -143,7 +144,7 @@ void DiagramScene::insertItem(DiagramItem *item)
         connect(static_cast<TaskItem *>(item)->task(), &PostMonster::TaskInterface::dataChanged,
                 [this, item]() {
                     static_cast<TaskItem *>(item)->updatePixmap();
-                    update();
+                    item->update();
                 }
         );
 
@@ -158,17 +159,19 @@ void DiagramScene::insertItem(DiagramItem *item)
     menu->addSeparator();
     menu->addAction(tr("To front"), this, SLOT(selectedToFront()));
     menu->addAction(tr("To back"), this, SLOT(selectedToBack()));
+    menu->addSeparator();
+
+    action = menu->addAction(tr("Breakpoint"));
+    action->setCheckable(true);
+    connect(action, &QAction::triggered, [action, item]() {
+        item->setBreakpoint(action->isChecked());
+    });
+
+    connect(menu, &QMenu::aboutToShow, [action, item]() {
+        action->setChecked(item->hasBreakpoint());
+    });
 
     item->setMenu(menu);
-    /*item->hide();
-
-    QTimer::singleShot(0, [this, item, scenePos]() {
-        clearSelection();
-
-        item->setPos(scenePos);
-        item->show();
-        item->setSelected(true);
-    });*/
 
     addItem(item);
     emit itemInserted(item);
@@ -342,6 +345,16 @@ void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent)
 void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)
 {
     QGraphicsScene::mouseReleaseEvent(mouseEvent);
+}
+
+void DiagramScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
+{
+    DiagramItem *item = qgraphicsitem_cast<DiagramItem *>(itemAt(event->scenePos(), QTransform()));
+    if (!item)
+        return;
+
+    item->setBreakpoint(!item->hasBreakpoint());
+    item->update();
 }
 
 void DiagramScene::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)

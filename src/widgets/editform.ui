@@ -192,23 +192,6 @@
                 </property>
                </spacer>
               </item>
-              <item>
-               <widget class="QRadioButton" name="environmentRadio">
-                <property name="text">
-                 <string>Environment</string>
-                </property>
-                <property name="checked">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QRadioButton" name="cookiesRadio">
-                <property name="text">
-                 <string>Cookies</string>
-                </property>
-               </widget>
-              </item>
              </layout>
             </item>
             <item>

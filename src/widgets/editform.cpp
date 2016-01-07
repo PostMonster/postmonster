@@ -337,9 +337,6 @@ void EditForm::setRequestsModel(PostMonster::HttpToolPluginInterface *httpTool, 
 
     ui->requestsForm->setRequestsModel(model);
     ui->requestsForm->setHttpTool(httpTool);
-
-    connect(ui->environmentRadio, SIGNAL(toggled(bool)), this, SLOT(toggleDebugStackedWidget()));
-    connect(ui->cookiesRadio, SIGNAL(toggled(bool)), this, SLOT(toggleDebugStackedWidget()));
 }
 
 void EditForm::addToolToToolbar(QObject *plugin)

@@ -24,13 +24,14 @@
 #include <QGraphicsSceneContextMenuEvent>
 #include <QMenu>
 #include <QPainter>
+#include <QGraphicsDropShadowEffect>
 
 #include <QtDebug>
 
 #include "diagramscene.h"
 
 DiagramItem::DiagramItem(QGraphicsItem *parent)
-    : QGraphicsItem(parent), m_uuid(QUuid::createUuid()), m_menu(0)
+    : QGraphicsItem(parent), m_uuid(QUuid::createUuid()), m_menu(0), m_breakpoint(false)
 {
     setFlag(QGraphicsItem::ItemIsMovable, true);
     setFlag(QGraphicsItem::ItemIsSelectable, true);
@@ -154,4 +155,25 @@ QVariant DiagramItem::itemChange(GraphicsItemChange change, const QVariant &valu
     }
 
     return value;
+}
+
+void DiagramItem::setBreakpoint(bool flag)
+{
+    m_breakpoint = flag;
+
+    if (m_breakpoint) {
+        QGraphicsDropShadowEffect *glow = new QGraphicsDropShadowEffect;
+        glow->setBlurRadius(10);
+        glow->setColor(Qt::green);
+        glow->setXOffset(0);
+        glow->setYOffset(0);
+        setGraphicsEffect(glow);
+    } else {
+        setGraphicsEffect(nullptr);
+    }
+}
+
+bool DiagramItem::hasBreakpoint()
+{
+    return m_breakpoint;
 }

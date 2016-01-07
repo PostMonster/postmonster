@@ -47,6 +47,8 @@ public:
     int type() const { return Type; }
     virtual DiagramType diagramType() const = 0;
     void setUuid(const QUuid &uuid) { m_uuid = uuid; }
+    bool hasBreakpoint();
+    void setBreakpoint(bool flag);
 
 protected:
     void contextMenuEvent(QGraphicsSceneContextMenuEvent *event) Q_DECL_OVERRIDE;
@@ -61,6 +63,7 @@ private:
     QUuid m_uuid;
     QMenu *m_menu;
     QList<Arrow *> m_arrows;
+    bool m_breakpoint;
 };
 
 #endif // DIAGRAMITEM_H
