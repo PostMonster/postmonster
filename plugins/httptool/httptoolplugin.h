@@ -64,6 +64,12 @@ public:
     const HttpRequest *processedRequest() { return &m_processedRequest; }
     const HttpRequest *constRequest() const { return &m_request; }
 
+public slots:
+    void stop();
+
+signals:
+    void stopRequested();
+
 private:
     HttpRequest m_request;
     HttpRequest m_processedRequest;

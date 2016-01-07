@@ -17,6 +17,7 @@
  * along with PostMonster.  If not, see <http://www.gnu.org/licenses/>.
  */
  
+#include "common.h"
 #include "diagramitem.h"
 #include "arrow.h"
 
@@ -140,9 +141,6 @@ void DiagramItem::addArrow(Arrow *arrow)
 
 void DiagramItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
-    scene()->clearSelection();
-    setSelected(true);
-
     if (m_menu)
         m_menu->exec(event->screenPos());
 }
@@ -163,7 +161,7 @@ void DiagramItem::setBreakpoint(bool flag)
 
     if (m_breakpoint) {
         QGraphicsDropShadowEffect *glow = new QGraphicsDropShadowEffect;
-        glow->setBlurRadius(10);
+        glow->setBlurRadius(10 * Common::scale());
         glow->setColor(Qt::green);
         glow->setXOffset(0);
         glow->setYOffset(0);

@@ -41,11 +41,16 @@ public:
     const QJsonObject *environment();
     void setActiveItem(DiagramItem *item);
     DiagramItem *activeItem();
-    PostMonster::TaskStatus step();
     PostMonster::TaskInterface *task(const QString &toolId, const QString &taskId) const;
 
     static QString evalScript(const QString &input, const QJsonObject &environment,
                               QScriptEngine &engine);
+
+public slots:
+    void step();
+
+signals:
+    void ready(DiagramItem *item, PostMonster::TaskStatus result);
 
 private:
     DiagramItem *m_item;

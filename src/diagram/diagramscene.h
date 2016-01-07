@@ -33,7 +33,7 @@ class DiagramScene : public QGraphicsScene
     Q_OBJECT
 
 public:
-    enum Mode { InsertItem, InsertLine, MoveItem };
+    enum Mode { InsertItem, InsertLine, MoveItem, ViewOnly };
 
     explicit DiagramScene(QObject *parent = 0);
 
@@ -62,19 +62,22 @@ protected:
     void dragMoveEvent(QGraphicsSceneDragDropEvent *event) Q_DECL_OVERRIDE;
     void dropEvent(QGraphicsSceneDragDropEvent *event) Q_DECL_OVERRIDE;
     void contextMenuEvent(QGraphicsSceneContextMenuEvent *event) Q_DECL_OVERRIDE;
+    DiagramItem *itemFromAction(const QAction *action);
 
 protected slots:
-    void drawLine();
-    void drawOkLine();
-    void drawFailLine();
+    void removeLine(PostMonster::TaskStatus status);
 
-    void removeOkLine();
-    void removeFailLine();
+    void menuConnect();
+    void menuConnectOk();
+    void menuConnectFail();
 
-    void disconnectSelected();
-    void destroySelected();
-    void selectedToFront();
-    void selectedToBack();
+    void menuDisconnect();
+    void menuDisconnectOk();
+    void menuDisconnectFail();
+
+    void menuDelete();
+    void menuToFront();
+    void menuToBack();
 
 private:
     Mode m_mode, m_prevMode;

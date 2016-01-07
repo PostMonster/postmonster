@@ -272,6 +272,11 @@ QPixmap HttpTask::itemPixmap() const
     return pixmap;
 }
 
+void HttpTask::stop()
+{
+    emit stopRequested();
+}
+
 TaskStatus HttpTask::work(const QJsonObject &environment, QJsonObject &toolSection,
                           QScriptEngine &scriptEngine, TaskInterface **processed)
 {
@@ -356,8 +361,22 @@ TaskStatus HttpTask::work(const QJsonObject &environment, QJsonObject &toolSecti
 
     QNetworkReply *reply = nam.sendCustomRequest(networkRequest, request.method, &buffer);
     QEventLoop eventLoop;
-    QObject::connect(reply, SIGNAL(finished()), &eventLoop, SLOT(quit()));
-    eventLoop.exec();
+    connect(reply, SIGNAL(finished()), &eventLoop, SLOT(quit()));
+    connect(reply, &QNetworkReply::downloadProgress, [this](qint64 got, qint64 total) {
+        emit progress(100.0 * got / (total < 0 ? got * 2 : total));
+    });
+
+    bool taskStopped = false;
+    connect(this, &HttpTask::stopRequested, [&eventLoop, &taskStopped] {
+        eventLoop.exit();
+        taskStopped = true;
+    });
+    eventLoop.exec(QEventLoop::ExcludeUserInputEvents);
+
+    if (taskStopped) {
+        qDebug("STOPPED BABY!!");
+        return Fail;
+    }
 
     HttpResponse response;
     QJsonObject jsonHeaders, jsonCookies;

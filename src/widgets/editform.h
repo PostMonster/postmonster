@@ -59,19 +59,28 @@ protected slots:
     void itemSelected();
     void insertHttpItem(int requestRow, QPointF scenePos);
 
-    void environmentSelected(const QModelIndex &newIndex, const QModelIndex &oldIndex);
+    void envItemSelected(const QModelIndex &newIndex, const QModelIndex &oldIndex);
     void fitEnvColumns();
-    void resetEnvironment();
+    void resetWorker();
 
     void toggleDebugStackedWidget();
 
+    void handleInsertedItem(DiagramItem *item);
     void resetMode(QAction *except = 0);
     void actionTriggered();
+
+    void workerReady(DiagramItem *item, PostMonster::TaskStatus result);
+
+    void debugRun();
     void debugStep();
+    void debugPause();
+    void debugStop();
+
+protected:
+    void initScene();
+    bool eventFilter(QObject *object, QEvent *event) override;
 
 private:
-    void initScene();
-
     Ui::EditForm *ui;
     PluginRegistry &m_plugins;
     RequestsModel *m_requestsModel;
@@ -81,6 +90,8 @@ private:
     QString m_fileName;
     WorkEngine m_engine;
     PostMonster::HttpToolPluginInterface *m_httpTool;
+    QThread m_workerThread;
+    bool m_debugRunning;
 };
 
 #endif // EDITFORM_H

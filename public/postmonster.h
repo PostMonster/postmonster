@@ -93,4 +93,6 @@ public:
 
 }
 
+Q_DECLARE_METATYPE(PostMonster::TaskStatus)
+
 #endif // POSTMONSTER_H

@@ -81,40 +81,53 @@ QString WorkEngine::evalScript(const QString &input, const QJsonObject &environm
     return result;
 }
 
-PostMonster::TaskStatus WorkEngine::step() {
-    if (!m_item)
-        return PostMonster::Default;
+void WorkEngine::step() {
+    if (!m_item) {
+        emit ready(nullptr, PostMonster::Fail);
+        return;
+    }
 
     PostMonster::TaskStatus result = PostMonster::Default;
+    DiagramItem *item = m_item;
+
     if (m_item->diagramType() == DiagramItem::TypeStart) {
-        m_item = m_item->arrows()->first()->endItem();
+        const Arrow *arrow = m_item->arrow(PostMonster::Default);
+        if (arrow)
+            m_item = arrow->endItem();
+        else
+            m_item = nullptr;
     } else if (m_item->diagramType() == DiagramItem::TypeTask) {
         TaskItem *taskItem = static_cast<TaskItem *>(m_item);
 
         QString toolName = m_plugins.info(taskItem->task()->tool()).value("id").toString();
         QString taskName = taskItem->task()->name();
         QJsonObject jsonTool = m_env.contains(toolName) ? m_env.value(toolName).toObject() : QJsonObject();
+        jsonTool.remove(taskName);
 
-        PostMonster::TaskInterface *processedTask;
+        PostMonster::TaskInterface *processedTask = nullptr;
+        taskItem->task()->progress(0);
         result = taskItem->task()->work(m_env, jsonTool, m_scriptEngine, &processedTask);
-
-        m_env.insert(toolName, jsonTool);
 
         QPair<QString, QString> taskKey(toolName, taskName);
         if (m_tasks.contains(taskKey)) {
             delete m_tasks[taskKey];
             m_tasks.remove(taskKey);
         }
-        m_tasks.insert(taskKey, processedTask);
 
-        const Arrow *arrow = taskItem->arrow(result);
-        if (arrow)
-            m_item = arrow->endItem();
-        else
-            m_item = 0;
+        m_env.insert(toolName, jsonTool);
+
+        if (processedTask) {
+            m_tasks.insert(taskKey, processedTask);
+
+            const Arrow *arrow = taskItem->arrow(result);
+            if (arrow)
+                m_item = arrow->endItem();
+            else
+                m_item = nullptr;
+        }
     }
 
-    return result;
+    emit ready(item, result);
 }
 
 const QJsonObject *WorkEngine::environment()
@@ -144,7 +157,7 @@ PostMonster::TaskInterface *WorkEngine::task(const QString &toolId, const QStrin
 {
     QPair<QString, QString> pair(toolId, taskId);
     if (!m_tasks.contains(pair))
-        return 0;
-
+        return nullptr;
+qDebug() << "YES, I HAVE " << toolId << "->" << taskId;
     return m_tasks[pair];
 }

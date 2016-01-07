@@ -43,7 +43,7 @@ using namespace PostMonster;
 EditForm::EditForm(QWidget *parent) :
     QWidget(parent), ui(new Ui::EditForm),
     m_plugins(PluginRegistry::instance()),
-    m_requestsModel(0), m_scene(0)
+    m_requestsModel(0), m_scene(0), m_debugRunning(false)
 {
     ui->setupUi(this);
 
@@ -53,7 +53,10 @@ EditForm::EditForm(QWidget *parent) :
     QList<int> sizes = { int(width() * 0.65), int(width() * 0.35) };
     ui->debugSplitter->setSizes(sizes);
 
-    connect(ui->pushButton, SIGNAL(clicked()), this, SLOT(debugStep()));
+    connect(ui->runButton, SIGNAL(clicked()), this, SLOT(debugRun()));
+    connect(ui->stepButton, SIGNAL(clicked()), this, SLOT(debugStep()));
+    connect(ui->pauseButton, SIGNAL(clicked()), this, SLOT(debugPause()));
+    connect(ui->stopButton, SIGNAL(clicked()), this, SLOT(debugStop()));
 
     connect(ui->tabWidget, SIGNAL(currentChanged(int)), this, SLOT(updateRequestParams()));
 
@@ -66,9 +69,14 @@ EditForm::EditForm(QWidget *parent) :
     connect(ui->environmentTree, SIGNAL(expanded(QModelIndex)), this, SLOT(fitEnvColumns()));
     connect(ui->environmentTree, SIGNAL(collapsed(QModelIndex)), this, SLOT(fitEnvColumns()));
     connect(ui->environmentTree->selectionModel(), SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
-            this, SLOT(environmentSelected(QModelIndex, QModelIndex)));
+            this, SLOT(envItemSelected(QModelIndex, QModelIndex)));
 
     ui->graphicsView->scale(Common::scale(), Common::scale());
+
+    m_engine.moveToThread(&m_workerThread);
+    m_workerThread.start();
+
+    connect(&m_engine, &WorkEngine::ready, this, &EditForm::workerReady);
 
     newProject();
 }
@@ -88,17 +96,23 @@ void EditForm::initScene()
     m_scene = new DiagramScene(this);
 
     connect(m_scene, SIGNAL(itemInserted(DiagramItem *)), this, SLOT(resetMode()));
+    connect(m_scene, SIGNAL(itemInserted(DiagramItem *)), this, SLOT(handleInsertedItem(DiagramItem *)));
     connect(m_scene, SIGNAL(selectionChanged()), this, SLOT(itemSelected()));
     connect(m_scene, SIGNAL(requestDropped(int, QPointF)), this, SLOT(insertHttpItem(int, QPointF)));
 
     m_scene->setMode(DiagramScene::MoveItem);
+    //m_scene->installEventFilter(this);
 
     ui->graphicsView->setScene(m_scene);
     ui->tabWidget->setCurrentIndex(0);
 }
 
-void EditForm::resetEnvironment()
+void EditForm::resetWorker()
 {
+    disconnect(&m_engine, &WorkEngine::ready, this, &EditForm::resetWorker);
+
+    ui->taskProgressBar->setValue(0);
+
     for (int i = 1; i < ui->resultStackedWidget->count(); i++)
         ui->resultStackedWidget->removeWidget(ui->resultStackedWidget->widget(i));
 
@@ -130,7 +144,11 @@ void EditForm::newProject()
     if (m_requestsModel)
         m_requestsModel->clear();
 
-    resetEnvironment();
+    resetWorker();
+
+    ui->stepButton->setEnabled(false);
+    ui->runButton->setEnabled(false);
+    ui->pauseButton->setEnabled(false);
 }
 
 void EditForm::saveProject(const QString &fileName)
@@ -218,7 +236,7 @@ void EditForm::loadProject(const QString &fileName)
     m_fileName = fileName;
     initScene();
 
-    resetEnvironment();
+    resetWorker();
 
     QJsonArray items = project.value("items").toArray();
     QHash< QUuid, QHash<PostMonster::TaskStatus, QUuid> > parsedArrows;
@@ -359,11 +377,17 @@ void EditForm::itemSelected()
     for (int i = 1; i < ui->stackedWidget->count(); i++)
         ui->stackedWidget->removeWidget(ui->stackedWidget->widget(i));
 
-    if (!m_scene->selectedItems().count())
+    ui->stepButton->setEnabled(false);
+    ui->runButton->setEnabled(false);
+
+    if (m_scene->selectedItems().empty())
         return;
 
-    DiagramItem *item = qgraphicsitem_cast<DiagramItem *> (m_scene->selectedItems().at(0));
+    DiagramItem *item = qgraphicsitem_cast<DiagramItem *> (m_scene->selectedItems().first());
     if (!item) return;
+
+    ui->stepButton->setEnabled(true);
+    ui->runButton->setEnabled(true);
 
     if (item->diagramType() == DiagramItem::TypeTask) {
         TaskItem *taskItem = static_cast<TaskItem *> (item);
@@ -380,20 +404,29 @@ void EditForm::updateRequestParams()
     if (ui->tabWidget->currentWidget() == ui->requestsTab)
         ui->requestsForm->updateResponse();
     else if (ui->tabWidget->currentWidget() == ui->debugTab)
-        environmentSelected(ui->environmentTree->selectionModel()->currentIndex(),
+        envItemSelected(ui->environmentTree->selectionModel()->currentIndex(),
                         QModelIndex());
 }
 
 void EditForm::resetMode(QAction *except)
 {
-    if (m_scene->mode() == DiagramScene::InsertItem)
-        ui->tabWidget->setCurrentWidget(ui->taskTab);
-
     m_scene->setMode(DiagramScene::MoveItem);
 
     foreach (QAction *action, m_toolbar.actions()) {
         if (action != except)
             action->setChecked(false);
+    }
+}
+
+void EditForm::handleInsertedItem(DiagramItem *item)
+{
+    if (m_scene->mode() == DiagramScene::InsertItem)
+        ui->tabWidget->setCurrentWidget(ui->taskTab);
+
+    TaskItem *taskItem = dynamic_cast<TaskItem *>(item);
+    if (taskItem) {
+        connect(taskItem->task(), &PostMonster::TaskInterface::progress,
+                ui->taskProgressBar, &QProgressBar::setValue);
     }
 }
 
@@ -421,7 +454,7 @@ void EditForm::fitEnvColumns()
     ui->environmentTree->resizeColumnToContents(0);
 }
 
-void EditForm::environmentSelected(const QModelIndex &newIndex, const QModelIndex &oldIndex)
+void EditForm::envItemSelected(const QModelIndex &newIndex, const QModelIndex &oldIndex)
 {
     Q_UNUSED(oldIndex)
 
@@ -438,7 +471,7 @@ void EditForm::environmentSelected(const QModelIndex &newIndex, const QModelInde
     if (!m_plugins.tool(toolName)) return;
 
     PostMonster::TaskInterface *task = m_engine.task(toolName, taskName);
-    QWidget *widget = task ? task->resultWidget() : 0;
+    QWidget *widget = task ? task->resultWidget() : nullptr;
 
     if (widget/* && ui->resultStackedWidget->property("uuid").toUuid() != task->uuid()*/) {
         for (int i = 1; i < ui->resultStackedWidget->count(); i++)
@@ -451,6 +484,55 @@ void EditForm::environmentSelected(const QModelIndex &newIndex, const QModelInde
     }
 }
 
+bool EditForm::eventFilter(QObject *object, QEvent *event)
+{
+    if (object == m_scene && m_debugRunning) {
+        return true;
+    }
+
+    return QObject::eventFilter(object, event);
+}
+
+void EditForm::debugStop()
+{
+    if (m_debugRunning) {
+        connect(&m_engine, &WorkEngine::ready, this, &EditForm::resetWorker);
+        debugPause();
+
+        if (!m_scene->selectedItems().empty()) {
+            DiagramItem *item = qgraphicsitem_cast<DiagramItem *> (m_scene->selectedItems().first());
+            if (!item) return;
+
+            TaskItem *taskItem = dynamic_cast<TaskItem *>(item);
+            if (taskItem) {
+                QMetaObject::invokeMethod(taskItem->task(), "stop", Qt::QueuedConnection);
+            }
+        }
+    } else {
+        resetWorker();
+    }
+}
+
+void EditForm::debugPause()
+{
+    m_debugRunning = false;
+
+    if (!m_scene->selectedItems().empty()) {
+        ui->runButton->setEnabled(true);
+        ui->stepButton->setEnabled(true);
+    }
+    ui->pauseButton->setEnabled(false);
+
+    resetMode();
+    ui->tabWidget->setTabEnabled(1, true);
+}
+
+void EditForm::debugRun()
+{
+    m_debugRunning = true;
+    debugStep();
+}
+
 void EditForm::debugStep()
 {
     if (!m_scene->selectedItems().count())
@@ -459,8 +541,20 @@ void EditForm::debugStep()
     DiagramItem *item = qgraphicsitem_cast<DiagramItem *> (m_scene->selectedItems().at(0));
     if (!item) return;
 
+    ui->runButton->setEnabled(false);
+    ui->stepButton->setEnabled(false);
+    ui->pauseButton->setEnabled(true);
+    ui->tabWidget->setTabEnabled(1, false);
+
+    m_scene->setMode(DiagramScene::ViewOnly);
+
     m_engine.setActiveItem(item);
-    m_engine.step();
+    QMetaObject::invokeMethod(&m_engine, "step", Qt::QueuedConnection);
+}
+
+void EditForm::workerReady(DiagramItem *item, PostMonster::TaskStatus result)
+{
+    Q_UNUSED(result)
 
     m_scene->clearSelection();
     if (m_engine.activeItem())
@@ -477,18 +571,32 @@ void EditForm::debugStep()
             QModelIndex toolIndex = m_envModel.index(i, 0);
 
             if (m_envModel.data(toolIndex).toString() == toolName) {
+                bool found = false;
                 rowCount = m_envModel.rowCount(toolIndex);
+
                 for (i = 0; i < rowCount; ++i) {
                     QModelIndex taskIndex = m_envModel.index(i, 0, toolIndex);
                     if (m_envModel.data(taskIndex).toString() == taskItem->task()->name()) {
                         ui->environmentTree->setCurrentIndex(taskIndex);
                         ui->environmentTree->expand(taskIndex);
+                        found = true;
                         break;
                     }
                 }
+
+                if (!found) {
+                    ui->environmentTree->expand(toolIndex);
+                }
+
                 break;
             }
         }
+    }
+
+    if (m_debugRunning && m_engine.activeItem() && !m_engine.activeItem()->hasBreakpoint()) {
+        debugStep();
+    } else {
+        debugPause();
     }
 }
 

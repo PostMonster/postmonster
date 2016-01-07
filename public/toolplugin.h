@@ -117,8 +117,12 @@ public:
         return m_tool->setTaskName(this, name);
     }
 
+public slots:
+    virtual void stop() = 0;
+
 signals:
     void dataChanged();
+    void progress(int percentage);
 
 private:
     ToolPluginInterface *m_tool;
