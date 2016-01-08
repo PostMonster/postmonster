@@ -56,7 +56,7 @@ public:
     QPixmap itemPixmap() const;
     QPainterPath itemShape() const {
         QPainterPath path;
-        path.addRoundRect(itemPixmap().rect(), 10, 10);
+        path.addRoundRect(itemPixmap().rect(), 7, 14);
         return path;
     }
     HttpRequest *request() { return &m_request; }
@@ -99,7 +99,6 @@ public:
 
     const QString &taskName(const TaskInterface *task);
     bool setTaskName(const TaskInterface *task, const QString &name);
-    const QUuid &taskUuid(const TaskInterface *task);
 
     TaskInterface *createTask(const HttpRequest &request);
     QWidget *resultWidget(const HttpRequest *request,
@@ -117,7 +116,6 @@ private:
     RequestForm *m_requestForm;
     ResultForm *m_resultForm;
     QHash<const TaskInterface *, QString> m_names;
-    QHash<const TaskInterface *, QUuid> m_uuids;
     int m_maxnum;
 
     friend class HttpTask;

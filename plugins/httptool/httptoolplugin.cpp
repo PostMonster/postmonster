@@ -116,25 +116,7 @@ TaskInterface *HttpToolPlugin::createTask(const HttpRequest &request)
     TaskInterface *task = new HttpTask(this, m_api, request);
     m_names[task] = QString(TASKNAME_PREFIX) + QString::number(m_maxnum);
 
-    QUuid uuid;
-    bool unique = true;
-    do {
-        uuid = QUuid::createUuid();
-        foreach (const QUuid &u, m_uuids) {
-            if (uuid == u) {
-                unique = false;
-                break;
-            }
-        }
-    } while (!unique);
-    m_uuids[task] = uuid;
-
     return task;
-}
-
-const QUuid &HttpToolPlugin::taskUuid(const TaskInterface *task)
-{
-    return m_uuids[task];
 }
 
 void HttpToolPlugin::destroyTask(TaskInterface *task)
@@ -175,7 +157,7 @@ QPixmap HttpTask::itemPixmap() const
     };
 
     QSvgRenderer renderer(QLatin1String(":/icons/httpitem"));
-    const qreal s = m_api.screenScale();
+    const qreal s = m_api.dpiScaleFactor();
 
     QPixmap pixmap(renderer.viewBox().width() * s, renderer.viewBox().height() * s);
     pixmap.fill(Qt::transparent);

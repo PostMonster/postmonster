@@ -49,6 +49,10 @@ public:
     void setUuid(const QUuid &uuid) { m_uuid = uuid; }
     bool hasBreakpoint();
     void setBreakpoint(bool flag);
+    bool isCurrent();
+    void setCurrent(bool flag);
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+               QWidget *widget = 0);
 
 protected:
     void contextMenuEvent(QGraphicsSceneContextMenuEvent *event) Q_DECL_OVERRIDE;
@@ -64,6 +68,7 @@ private:
     QMenu *m_menu;
     QList<Arrow *> m_arrows;
     bool m_breakpoint;
+    bool m_current;
 };
 
 #endif // DIAGRAMITEM_H

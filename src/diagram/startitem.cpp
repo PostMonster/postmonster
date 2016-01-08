@@ -42,4 +42,5 @@ QPainterPath StartItem::shape() const
 void StartItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     QGraphicsSvgItem::paint(painter, option, widget);
+    DiagramItem::paint(painter, option, widget);
 }

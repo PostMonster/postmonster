@@ -78,7 +78,7 @@ struct APIFunctions
                           const QJsonObject &environment,
                           QScriptEngine &scriptEngine);
 
-    const qreal (*screenScale)();
+    const qreal (*dpiScaleFactor)();
     const QStringList &(*defaultEncodings)();
 };
 

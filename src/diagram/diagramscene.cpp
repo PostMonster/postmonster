@@ -31,7 +31,7 @@
 #include "taskitem.h"
 
 DiagramScene::DiagramScene(QObject *parent)
-    : QGraphicsScene(parent)
+    : QGraphicsScene(parent), m_currentItem(nullptr)
 {
     m_mode = InsertItem;
 }
@@ -45,6 +45,23 @@ void DiagramScene::setMode(Mode mode, PostMonster::ToolPluginInterface *tool)
 DiagramScene::Mode DiagramScene::mode()
 {
     return m_mode;
+}
+
+void DiagramScene::setCurrentItem(DiagramItem *item)
+{
+    if (m_currentItem)
+        m_currentItem->setCurrent(false);
+
+    if (item)
+        item->setCurrent(true);
+
+    m_currentItem = item;
+    emit currentItemChanged();
+}
+
+DiagramItem *DiagramScene::currentItem()
+{
+    return m_currentItem;
 }
 
 void DiagramScene::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
@@ -111,16 +128,16 @@ void DiagramScene::menuDisconnectFail()
 
 void DiagramScene::removeLine(PostMonster::TaskStatus status)
 {
-    DiagramItem *diagramItem = itemFromAction(qobject_cast<const QAction *>(sender()));
+    /*DiagramItem *diagramItem = itemFromAction(qobject_cast<const QAction *>(sender()));
     if (diagramItem && !diagramItem->isSelected()) {
         diagramItem->removeArrow(status);
-    } else {
+    } else {*/
         foreach (QGraphicsItem *item, selectedItems()) {
-            diagramItem = qgraphicsitem_cast<DiagramItem *>(item);
+            DiagramItem *diagramItem = qgraphicsitem_cast<DiagramItem *>(item);
             if (diagramItem)
                 diagramItem->removeArrow(status);
         }
-    }
+    //}
 }
 
 DiagramItem *DiagramScene::itemFromAction(const QAction *action)
@@ -162,8 +179,6 @@ void DiagramScene::insertItem(DiagramItem *item)
     QMenu *menu = new QMenu;
     QMenu *connectMenu, *disconnectMenu;
     QAction *action;
-
-    menu->setProperty("itemUUID", item->uuid());
 
     switch (item->diagramType()) {
     case DiagramItem::TypeTask:
@@ -252,29 +267,31 @@ void DiagramScene::destroyItem(QGraphicsItem *item)
 
 void DiagramScene::menuDelete()
 {
-    DiagramItem *diagramItem = itemFromAction(qobject_cast<const QAction *>(sender()));
+    /*DiagramItem *diagramItem = itemFromAction(qobject_cast<const QAction *>(sender()));
     if (diagramItem && !diagramItem->isSelected()) {
         destroyItem(diagramItem);
-    } else {
-        clearSelection();
-        foreach (QGraphicsItem *item, selectedItems())
-            destroyItem(item);
-    }
+    } else {*/
+    QList<QGraphicsItem *> selected = selectedItems();
+    clearSelection();
+
+    foreach (QGraphicsItem *item, selected)
+        destroyItem(item);
+    //}
 }
 
 void DiagramScene::menuDisconnect()
 {
-    DiagramItem *diagramItem = itemFromAction(qobject_cast<const QAction *>(sender()));
+    /*DiagramItem *diagramItem = itemFromAction(qobject_cast<const QAction *>(sender()));
 
     if (diagramItem && !diagramItem->isSelected()) {
         diagramItem->removeArrows();
-    } else {
+    } else {*/
         foreach (QGraphicsItem *item, selectedItems()) {
-            diagramItem = qgraphicsitem_cast<DiagramItem *>(item);
+            DiagramItem *diagramItem = qgraphicsitem_cast<DiagramItem *>(item);
             if (diagramItem)
                 diagramItem->removeArrows();
         }
-    }
+    //}
 }
 
 void DiagramScene::destroyItems()
@@ -285,30 +302,30 @@ void DiagramScene::destroyItems()
 
 void DiagramScene::menuToFront()
 {
-    DiagramItem *diagramItem = itemFromAction(qobject_cast<const QAction *>(sender()));
+    /*DiagramItem *diagramItem = itemFromAction(qobject_cast<const QAction *>(sender()));
     if (diagramItem && !diagramItem->isSelected()) {
         diagramItem->toFront();
-    } else {
+    } else {*/
         foreach (QGraphicsItem *item, selectedItems()) {
-            diagramItem = qgraphicsitem_cast<DiagramItem *>(item);
+            DiagramItem *diagramItem = qgraphicsitem_cast<DiagramItem *>(item);
             if (diagramItem)
                 diagramItem->toFront();
         }
-    }
+    //}
 }
 
 void DiagramScene::menuToBack()
 {
-    DiagramItem *diagramItem = itemFromAction(qobject_cast<const QAction *>(sender()));
+    /*DiagramItem *diagramItem = itemFromAction(qobject_cast<const QAction *>(sender()));
     if (diagramItem && !diagramItem->isSelected()) {
         diagramItem->toBack();
-    } else {
+    } else {*/
         foreach (QGraphicsItem *item, selectedItems()) {
-            diagramItem = qgraphicsitem_cast<DiagramItem *>(item);
+            DiagramItem *diagramItem = qgraphicsitem_cast<DiagramItem *>(item);
             if (diagramItem)
                 diagramItem->toBack();
         }
-    }
+    //}
 }
 
 void DiagramScene::insertArrow(DiagramItem *start, DiagramItem *end)
@@ -341,7 +358,7 @@ void DiagramScene::insertArrow(PostMonster::TaskStatus status, DiagramItem *star
 void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     m_clickPos = event->scenePos();
-    if (event->button() != Qt::LeftButton || m_mode == ViewOnly)
+    if (event->button() != Qt::LeftButton)
         return;
 
     DiagramItem *item;
@@ -410,16 +427,15 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)
 void DiagramScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 {
     DiagramItem *item = qgraphicsitem_cast<DiagramItem *>(itemAt(event->scenePos(), QTransform()));
-    if (!item || m_mode == ViewOnly)
+    if (!item)
         return;
 
-    item->setBreakpoint(!item->hasBreakpoint());
-    item->update();
+    setCurrentItem(item->isCurrent() ? nullptr : item);
 }
 
 void DiagramScene::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
-    if (m_mode != InsertLine && m_mode != ViewOnly) {
+    if (m_mode != InsertLine) {
         QGraphicsScene::contextMenuEvent(event);
     }
 }

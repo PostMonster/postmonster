@@ -32,7 +32,8 @@
 #include "diagramscene.h"
 
 DiagramItem::DiagramItem(QGraphicsItem *parent)
-    : QGraphicsItem(parent), m_uuid(QUuid::createUuid()), m_menu(0), m_breakpoint(false)
+    : QGraphicsItem(parent), m_uuid(QUuid::createUuid()), m_menu(0),
+      m_breakpoint(false), m_current(false)
 {
     setFlag(QGraphicsItem::ItemIsMovable, true);
     setFlag(QGraphicsItem::ItemIsSelectable, true);
@@ -141,6 +142,8 @@ void DiagramItem::addArrow(Arrow *arrow)
 
 void DiagramItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
+    setSelected(true);
+
     if (m_menu)
         m_menu->exec(event->screenPos());
 }
@@ -158,11 +161,22 @@ QVariant DiagramItem::itemChange(GraphicsItemChange change, const QVariant &valu
 void DiagramItem::setBreakpoint(bool flag)
 {
     m_breakpoint = flag;
+    update();
+}
 
-    if (m_breakpoint) {
+bool DiagramItem::hasBreakpoint()
+{
+    return m_breakpoint;
+}
+
+void DiagramItem::setCurrent(bool flag)
+{
+    m_current = flag;
+
+    if (m_current) {
         QGraphicsDropShadowEffect *glow = new QGraphicsDropShadowEffect;
-        glow->setBlurRadius(10 * Common::scale());
-        glow->setColor(Qt::green);
+        glow->setBlurRadius(15 * Common::dpiScaleFactor());
+        glow->setColor(Qt::darkGreen);
         glow->setXOffset(0);
         glow->setYOffset(0);
         setGraphicsEffect(glow);
@@ -171,7 +185,22 @@ void DiagramItem::setBreakpoint(bool flag)
     }
 }
 
-bool DiagramItem::hasBreakpoint()
+bool DiagramItem::isCurrent()
 {
-    return m_breakpoint;
+    return m_current;
 }
+
+void DiagramItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    if (m_breakpoint) {
+        const qreal width = 1 * Common::dpiScaleFactor();
+        const qreal scaleX = (shape().boundingRect().width() - width * 2) / shape().boundingRect().width();
+        const qreal scaleY = (shape().boundingRect().height() - width * 2) / shape().boundingRect().height();
+
+        painter->translate(width, width);
+        painter->scale(scaleX, scaleY);
+        painter->setPen(QPen(QColor("#D9283D"), width));
+        painter->drawPath(shape());
+    }
+}
+

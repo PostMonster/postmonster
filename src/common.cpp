@@ -229,7 +229,7 @@ PostMonster::HttpResponse Common::deserializeResponse(const QJsonObject &jsonRes
     return response;
 }
 
-const qreal Common::scale()
+const qreal Common::dpiScaleFactor()
 {
     return qApp->primaryScreen()->logicalDotsPerInch() / 96;
 }

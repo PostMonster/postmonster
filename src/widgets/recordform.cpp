@@ -25,6 +25,8 @@
 #include <QTimer>
 #include <QTextCodec>
 
+#include "common.h"
+
 using namespace PostMonster;
 
 RecordForm::RecordForm(QWidget *parent) :

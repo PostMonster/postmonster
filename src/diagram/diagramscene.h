@@ -33,13 +33,16 @@ class DiagramScene : public QGraphicsScene
     Q_OBJECT
 
 public:
-    enum Mode { InsertItem, InsertLine, MoveItem, ViewOnly };
+    enum Mode { InsertItem, InsertLine, MoveItem };
 
     explicit DiagramScene(QObject *parent = 0);
 
     void insertItem(DiagramItem *item);
     void insertArrow(DiagramItem *start, DiagramItem *end);
     void insertArrow(PostMonster::TaskStatus status, DiagramItem *start, DiagramItem *end);
+
+    void setCurrentItem(DiagramItem *item);
+    DiagramItem *currentItem();
 
 public slots:
     void destroyItems();
@@ -52,6 +55,7 @@ signals:
     void itemInserted(DiagramItem *item);
     void clickedOnBackground();
     void requestDropped(int requestRow, QPointF scenePos);
+    void currentItemChanged();
 
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *event) Q_DECL_OVERRIDE;
@@ -86,6 +90,7 @@ private:
     QGraphicsLineItem *m_line;
     QPointF m_clickPos;
     PostMonster::ToolPluginInterface *m_tool;
+    DiagramItem *m_currentItem;
 };
 
 #endif // DIAGRAMSCENE_H

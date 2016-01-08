@@ -71,7 +71,7 @@ EditForm::EditForm(QWidget *parent) :
     connect(ui->environmentTree->selectionModel(), SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
             this, SLOT(envItemSelected(QModelIndex, QModelIndex)));
 
-    ui->graphicsView->scale(Common::scale(), Common::scale());
+    ui->graphicsView->scale(Common::dpiScaleFactor(), Common::dpiScaleFactor());
 
     m_engine.moveToThread(&m_workerThread);
     m_workerThread.start();
@@ -97,7 +97,8 @@ void EditForm::initScene()
 
     connect(m_scene, SIGNAL(itemInserted(DiagramItem *)), this, SLOT(resetMode()));
     connect(m_scene, SIGNAL(itemInserted(DiagramItem *)), this, SLOT(handleInsertedItem(DiagramItem *)));
-    connect(m_scene, SIGNAL(selectionChanged()), this, SLOT(itemSelected()));
+    connect(m_scene, SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
+    connect(m_scene, SIGNAL(currentItemChanged()), this, SLOT(currentItemChanged()));
     connect(m_scene, SIGNAL(requestDropped(int, QPointF)), this, SLOT(insertHttpItem(int, QPointF)));
 
     m_scene->setMode(DiagramScene::MoveItem);
@@ -135,8 +136,8 @@ void EditForm::newProject()
     QTimer::singleShot(0, [this, item]() {
         QPointF pos = QPointF(ui->graphicsView->width() / 2.0 - item->boundingRect().width() / 2.0,
                               ui->graphicsView->height() / 2.0 - item->boundingRect().height() / 2.0);
-        pos.setX(pos.x() / Common::scale());
-        pos.setY(pos.y() / Common::scale());
+        pos.setX(pos.x() / Common::dpiScaleFactor());
+        pos.setY(pos.y() / Common::dpiScaleFactor());
 
         item->setPos(pos);
     });
@@ -371,23 +372,17 @@ void EditForm::addToolToToolbar(QObject *plugin)
     m_toolbar.addAction(action);
 }
 
-void EditForm::itemSelected()
+void EditForm::selectionChanged()
 {
     ui->stackedWidget->setCurrentIndex(0);
     for (int i = 1; i < ui->stackedWidget->count(); i++)
         ui->stackedWidget->removeWidget(ui->stackedWidget->widget(i));
-
-    ui->stepButton->setEnabled(false);
-    ui->runButton->setEnabled(false);
 
     if (m_scene->selectedItems().empty())
         return;
 
     DiagramItem *item = qgraphicsitem_cast<DiagramItem *> (m_scene->selectedItems().first());
     if (!item) return;
-
-    ui->stepButton->setEnabled(true);
-    ui->runButton->setEnabled(true);
 
     if (item->diagramType() == DiagramItem::TypeTask) {
         TaskItem *taskItem = static_cast<TaskItem *> (item);
@@ -396,6 +391,17 @@ void EditForm::itemSelected()
         ui->stackedWidget->addWidget(widget);
         ui->stackedWidget->setCurrentWidget(widget);
         ui->stackedWidget->currentWidget()->layout()->setContentsMargins(0, 0, 0, 0);
+    }
+}
+
+void EditForm::currentItemChanged()
+{
+    if (m_scene->currentItem()) {
+        ui->stepButton->setEnabled(true);
+        ui->runButton->setEnabled(true);
+    } else {
+        ui->stepButton->setEnabled(false);
+        ui->runButton->setEnabled(false);
     }
 }
 
@@ -499,13 +505,12 @@ void EditForm::debugStop()
         connect(&m_engine, &WorkEngine::ready, this, &EditForm::resetWorker);
         debugPause();
 
-        if (!m_scene->selectedItems().empty()) {
-            DiagramItem *item = qgraphicsitem_cast<DiagramItem *> (m_scene->selectedItems().first());
-            if (!item) return;
+        DiagramItem *item = qgraphicsitem_cast<DiagramItem *> (m_scene->currentItem());
+        if (item) {
 
             TaskItem *taskItem = dynamic_cast<TaskItem *>(item);
             if (taskItem) {
-                QMetaObject::invokeMethod(taskItem->task(), "stop", Qt::QueuedConnection);
+                QMetaObject::invokeMethod(taskItem->task(), "stop", Qt::DirectConnection);
             }
         }
     } else {
@@ -517,13 +522,13 @@ void EditForm::debugPause()
 {
     m_debugRunning = false;
 
-    if (!m_scene->selectedItems().empty()) {
+    if (m_scene->currentItem()) {
         ui->runButton->setEnabled(true);
         ui->stepButton->setEnabled(true);
     }
     ui->pauseButton->setEnabled(false);
 
-    resetMode();
+    ui->graphicsView->setInteractive(true);
     ui->tabWidget->setTabEnabled(1, true);
 }
 
@@ -535,10 +540,7 @@ void EditForm::debugRun()
 
 void EditForm::debugStep()
 {
-    if (!m_scene->selectedItems().count())
-        return;
-
-    DiagramItem *item = qgraphicsitem_cast<DiagramItem *> (m_scene->selectedItems().at(0));
+    DiagramItem *item = qgraphicsitem_cast<DiagramItem *> (m_scene->currentItem());
     if (!item) return;
 
     ui->runButton->setEnabled(false);
@@ -546,7 +548,7 @@ void EditForm::debugStep()
     ui->pauseButton->setEnabled(true);
     ui->tabWidget->setTabEnabled(1, false);
 
-    m_scene->setMode(DiagramScene::ViewOnly);
+    ui->graphicsView->setInteractive(false);
 
     m_engine.setActiveItem(item);
     QMetaObject::invokeMethod(&m_engine, "step", Qt::QueuedConnection);
@@ -556,9 +558,7 @@ void EditForm::workerReady(DiagramItem *item, PostMonster::TaskStatus result)
 {
     Q_UNUSED(result)
 
-    m_scene->clearSelection();
-    if (m_engine.activeItem())
-        m_engine.activeItem()->setSelected(true);
+    m_scene->setCurrentItem(m_engine.activeItem());
 
     m_envModel.loadJson(*m_engine.environment());
 
@@ -608,6 +608,9 @@ void EditForm::toggleDebugStackedWidget()
 EditForm::~EditForm()
 {
     //TODO UNLOAD PLUGINS?
+    if (m_debugRunning)
+        debugStop();
+    m_workerThread.exit();
     m_scene->destroyItems();
     delete m_scene;
     delete ui;

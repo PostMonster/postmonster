@@ -87,6 +87,8 @@ void WorkEngine::step() {
         return;
     }
 
+    //TODO mutex locker?
+
     PostMonster::TaskStatus result = PostMonster::Default;
     DiagramItem *item = m_item;
 

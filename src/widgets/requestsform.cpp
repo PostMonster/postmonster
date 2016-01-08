@@ -159,7 +159,7 @@ void RequestsForm::setRequestsModel(RequestsModel *model)
             this, SLOT(updateFilters()), Qt::UniqueConnection);
 
     ui->requestsTable->resizeColumnsToContents();
-    ui->requestsTable->setColumnWidth(RequestsModel::Type, 110 * Common::scale());
+    ui->requestsTable->setColumnWidth(RequestsModel::Type, 110 * Common::dpiScaleFactor());
     ui->requestsTable->horizontalHeader()->setSectionResizeMode(RequestsModel::URL,
                                                                 QHeaderView::Stretch);
 

@@ -29,7 +29,7 @@ TaskItem::TaskItem(PostMonster::TaskInterface *task, QGraphicsItem *parent)
     : DiagramItem(parent), QGraphicsPixmapItem(task->itemPixmap(), parent),
       m_task(task)
 {
-    DiagramItem::setScale(1 / Common::scale());
+    DiagramItem::setScale(1 / Common::dpiScaleFactor());
 }
 
 QRectF TaskItem::boundingRect() const
@@ -50,4 +50,5 @@ void TaskItem::updatePixmap()
 void TaskItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     QGraphicsPixmapItem::paint(painter, option, widget);
+    DiagramItem::paint(painter, option, widget);
 }

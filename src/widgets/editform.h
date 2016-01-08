@@ -56,19 +56,18 @@ public slots:
     void updateRequestParams();
 
 protected slots:
-    void itemSelected();
+    void selectionChanged();
+    void currentItemChanged();
     void insertHttpItem(int requestRow, QPointF scenePos);
+    void handleInsertedItem(DiagramItem *item);
 
     void envItemSelected(const QModelIndex &newIndex, const QModelIndex &oldIndex);
     void fitEnvColumns();
-    void resetWorker();
-
     void toggleDebugStackedWidget();
-
-    void handleInsertedItem(DiagramItem *item);
     void resetMode(QAction *except = 0);
     void actionTriggered();
 
+    void resetWorker();
     void workerReady(DiagramItem *item, PostMonster::TaskStatus result);
 
     void debugRun();

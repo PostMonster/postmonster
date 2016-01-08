@@ -52,7 +52,6 @@ public:
 
     virtual QList<TaskStatus> statuses() = 0;
 
-    virtual const QUuid &taskUuid(const TaskInterface *task) = 0;
     virtual const QString &taskName(const TaskInterface *task) = 0;
     virtual bool setTaskName(const TaskInterface *task, const QString &name) = 0;
 };
@@ -81,11 +80,6 @@ public:
 
     virtual QPixmap itemPixmap() const = 0;
     virtual QPainterPath itemShape() const = 0;
-
-    const QUuid &uuid() const
-    {
-        return m_tool->taskUuid(this);
-    }
 
     QWidget *widget()
     {

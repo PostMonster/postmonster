@@ -34,7 +34,7 @@ public:
 
     static const QStringList &encodings();
 
-    static const qreal scale();
+    static const qreal dpiScaleFactor();
 
 private:
     static const QStringList m_encodings;

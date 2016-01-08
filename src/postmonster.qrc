@@ -4,9 +4,9 @@
         <file alias="record-dim">icons/record-dim.svg</file>
         <file alias="forward">icons/forward.svg</file>
         <file alias="back">icons/back.svg</file>
-        <file alias="refresh">icons/refresh.svg</file>
         <file alias="debug">icons/debug.svg</file>
         <file alias="debug-step">icons/debug-step.svg</file>
         <file alias="startitem">startitem.svg</file>
+        <file alias="refresh">icons/refresh.svg</file>
     </qresource>
 </RCC>
