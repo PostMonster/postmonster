@@ -34,8 +34,6 @@ int main(int argc, char *argv[])
 
     QNetworkProxyFactory::setUseSystemConfiguration(true);
 
-    qRegisterMetaType<PostMonster::TaskStatus>();
-
     MainWindow mainWin;
     mainWin.show();
 

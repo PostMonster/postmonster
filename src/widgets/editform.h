@@ -68,7 +68,7 @@ protected slots:
     void actionTriggered();
 
     void resetWorker();
-    void workerReady(DiagramItem *item, PostMonster::TaskStatus result);
+    void workerReady(DiagramItem *item);
 
     void debugRun();
     void debugStep();

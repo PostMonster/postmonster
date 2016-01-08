@@ -50,7 +50,7 @@ public slots:
     void step();
 
 signals:
-    void ready(DiagramItem *item, PostMonster::TaskStatus result);
+    void ready(DiagramItem *item);
 
 private:
     DiagramItem *m_item;

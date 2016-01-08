@@ -83,7 +83,7 @@ QString WorkEngine::evalScript(const QString &input, const QJsonObject &environm
 
 void WorkEngine::step() {
     if (!m_item) {
-        emit ready(nullptr, PostMonster::Fail);
+        emit ready(nullptr);
         return;
     }
 
@@ -129,7 +129,7 @@ void WorkEngine::step() {
         }
     }
 
-    emit ready(item, result);
+    emit ready(item);
 }
 
 const QJsonObject *WorkEngine::environment()

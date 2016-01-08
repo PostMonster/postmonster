@@ -554,10 +554,8 @@ void EditForm::debugStep()
     QMetaObject::invokeMethod(&m_engine, "step", Qt::QueuedConnection);
 }
 
-void EditForm::workerReady(DiagramItem *item, PostMonster::TaskStatus result)
+void EditForm::workerReady(DiagramItem *item)
 {
-    Q_UNUSED(result)
-
     m_scene->setCurrentItem(m_engine.activeItem());
 
     m_envModel.loadJson(*m_engine.environment());
