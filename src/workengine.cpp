@@ -160,6 +160,6 @@ PostMonster::TaskInterface *WorkEngine::task(const QString &toolId, const QStrin
     QPair<QString, QString> pair(toolId, taskId);
     if (!m_tasks.contains(pair))
         return nullptr;
-qDebug() << "YES, I HAVE " << toolId << "->" << taskId;
+
     return m_tasks[pair];
 }

@@ -176,7 +176,7 @@ void DiagramItem::setCurrent(bool flag)
     if (m_current) {
         QGraphicsDropShadowEffect *glow = new QGraphicsDropShadowEffect;
         glow->setBlurRadius(15 * Common::dpiScaleFactor());
-        glow->setColor(Qt::darkGreen);
+        glow->setColor(Qt::black);
         glow->setXOffset(0);
         glow->setYOffset(0);
         setGraphicsEffect(glow);

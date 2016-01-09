@@ -56,7 +56,7 @@ public:
     QPixmap itemPixmap() const;
     QPainterPath itemShape() const {
         QPainterPath path;
-        path.addRoundRect(itemPixmap().rect(), 7, 14);
+        path.addRoundRect(itemPixmap().rect(), 6, 12);
         return path;
     }
     HttpRequest *request() { return &m_request; }
