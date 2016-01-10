@@ -128,51 +128,12 @@ void DiagramScene::menuDisconnectFail()
 
 void DiagramScene::removeLine(PostMonster::TaskStatus status)
 {
-    /*DiagramItem *diagramItem = itemFromAction(qobject_cast<const QAction *>(sender()));
-    if (diagramItem && !diagramItem->isSelected()) {
-        diagramItem->removeArrow(status);
-    } else {*/
-        foreach (QGraphicsItem *item, selectedItems()) {
-            DiagramItem *diagramItem = qgraphicsitem_cast<DiagramItem *>(item);
-            if (diagramItem)
-                diagramItem->removeArrow(status);
-        }
-    //}
-}
-
-DiagramItem *DiagramScene::itemFromAction(const QAction *action)
-{
-    DiagramItem *result = nullptr;
-
-    if (action) {
-        std::function<QUuid (const QWidget *widget)> findUUID = [&findUUID](const QWidget *widget) -> QUuid {
-            QUuid uuid = widget->property("itemUUID").toUuid();
-            QWidget *parent = widget->parentWidget();
-
-            if (uuid.isNull())
-                return findUUID(parent);
-
-            return uuid;
-        };
-
-        QUuid uuid;
-        foreach (const QWidget *widget, action->associatedWidgets()) {
-            uuid = findUUID(widget);
-            if (!uuid.isNull())
-                break;
-        }
-
-        foreach (QGraphicsItem *item, items()) {
-            DiagramItem *diagramItem = qgraphicsitem_cast<DiagramItem *>(item);
-
-            if (diagramItem && diagramItem->uuid() == uuid)
-               result = diagramItem;
-        }
+    foreach (QGraphicsItem *item, selectedItems()) {
+        DiagramItem *diagramItem = qgraphicsitem_cast<DiagramItem *>(item);
+        if (diagramItem)
+            diagramItem->removeArrow(status);
     }
-
-    return result;
 }
-
 
 void DiagramScene::insertItem(DiagramItem *item)
 {
@@ -267,31 +228,20 @@ void DiagramScene::destroyItem(QGraphicsItem *item)
 
 void DiagramScene::menuDelete()
 {
-    /*DiagramItem *diagramItem = itemFromAction(qobject_cast<const QAction *>(sender()));
-    if (diagramItem && !diagramItem->isSelected()) {
-        destroyItem(diagramItem);
-    } else {*/
     QList<QGraphicsItem *> selected = selectedItems();
     clearSelection();
 
     foreach (QGraphicsItem *item, selected)
         destroyItem(item);
-    //}
 }
 
 void DiagramScene::menuDisconnect()
 {
-    /*DiagramItem *diagramItem = itemFromAction(qobject_cast<const QAction *>(sender()));
-
-    if (diagramItem && !diagramItem->isSelected()) {
-        diagramItem->removeArrows();
-    } else {*/
-        foreach (QGraphicsItem *item, selectedItems()) {
-            DiagramItem *diagramItem = qgraphicsitem_cast<DiagramItem *>(item);
-            if (diagramItem)
-                diagramItem->removeArrows();
-        }
-    //}
+    foreach (QGraphicsItem *item, selectedItems()) {
+        DiagramItem *diagramItem = qgraphicsitem_cast<DiagramItem *>(item);
+        if (diagramItem)
+            diagramItem->removeArrows();
+    }
 }
 
 void DiagramScene::destroyItems()
@@ -302,30 +252,20 @@ void DiagramScene::destroyItems()
 
 void DiagramScene::menuToFront()
 {
-    /*DiagramItem *diagramItem = itemFromAction(qobject_cast<const QAction *>(sender()));
-    if (diagramItem && !diagramItem->isSelected()) {
-        diagramItem->toFront();
-    } else {*/
-        foreach (QGraphicsItem *item, selectedItems()) {
-            DiagramItem *diagramItem = qgraphicsitem_cast<DiagramItem *>(item);
-            if (diagramItem)
-                diagramItem->toFront();
-        }
-    //}
+    foreach (QGraphicsItem *item, selectedItems()) {
+        DiagramItem *diagramItem = qgraphicsitem_cast<DiagramItem *>(item);
+        if (diagramItem)
+            diagramItem->toFront();
+    }
 }
 
 void DiagramScene::menuToBack()
 {
-    /*DiagramItem *diagramItem = itemFromAction(qobject_cast<const QAction *>(sender()));
-    if (diagramItem && !diagramItem->isSelected()) {
-        diagramItem->toBack();
-    } else {*/
-        foreach (QGraphicsItem *item, selectedItems()) {
-            DiagramItem *diagramItem = qgraphicsitem_cast<DiagramItem *>(item);
-            if (diagramItem)
-                diagramItem->toBack();
-        }
-    //}
+    foreach (QGraphicsItem *item, selectedItems()) {
+        DiagramItem *diagramItem = qgraphicsitem_cast<DiagramItem *>(item);
+        if (diagramItem)
+            diagramItem->toBack();
+    }
 }
 
 void DiagramScene::insertArrow(DiagramItem *start, DiagramItem *end)

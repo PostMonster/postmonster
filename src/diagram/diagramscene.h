@@ -66,7 +66,6 @@ protected:
     void dragMoveEvent(QGraphicsSceneDragDropEvent *event) Q_DECL_OVERRIDE;
     void dropEvent(QGraphicsSceneDragDropEvent *event) Q_DECL_OVERRIDE;
     void contextMenuEvent(QGraphicsSceneContextMenuEvent *event) Q_DECL_OVERRIDE;
-    DiagramItem *itemFromAction(const QAction *action);
 
 protected slots:
     void removeLine(PostMonster::TaskStatus status);
