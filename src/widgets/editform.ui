@@ -65,7 +65,7 @@
      </widget>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>3</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="requestsTab">
        <attribute name="title">
@@ -171,59 +171,161 @@
              <number>4</number>
             </property>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_2">
+             <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0,0,0">
               <property name="spacing">
                <number>4</number>
               </property>
               <item>
-               <widget class="QPushButton" name="runButton">
+               <widget class="QToolButton" name="runButton">
                 <property name="text">
                  <string>Run</string>
                 </property>
+                <property name="icon">
+                 <iconset resource="../postmonster.qrc">
+                  <normaloff>:/icons/debug-run</normaloff>:/icons/debug-run</iconset>
+                </property>
+                <property name="toolButtonStyle">
+                 <enum>Qt::ToolButtonTextBesideIcon</enum>
+                </property>
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="stepButton">
+               <widget class="QToolButton" name="stepButton">
                 <property name="text">
                  <string>Step</string>
                 </property>
+                <property name="icon">
+                 <iconset resource="../postmonster.qrc">
+                  <normaloff>:/icons/debug-step</normaloff>:/icons/debug-step</iconset>
+                </property>
+                <property name="toolButtonStyle">
+                 <enum>Qt::ToolButtonTextBesideIcon</enum>
+                </property>
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="pauseButton">
+               <widget class="QToolButton" name="pauseButton">
                 <property name="text">
                  <string>Pause</string>
                 </property>
+                <property name="icon">
+                 <iconset resource="../postmonster.qrc">
+                  <normaloff>:/icons/debug-pause</normaloff>:/icons/debug-pause</iconset>
+                </property>
+                <property name="toolButtonStyle">
+                 <enum>Qt::ToolButtonTextBesideIcon</enum>
+                </property>
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="stopButton">
+               <widget class="QToolButton" name="stopButton">
                 <property name="text">
                  <string>Stop</string>
                 </property>
+                <property name="icon">
+                 <iconset resource="../postmonster.qrc">
+                  <normaloff>:/icons/debug-stop</normaloff>:/icons/debug-stop</iconset>
+                </property>
+                <property name="toolButtonStyle">
+                 <enum>Qt::ToolButtonTextBesideIcon</enum>
+                </property>
                </widget>
               </item>
               <item>
-               <spacer name="horizontalSpacer">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
+               <widget class="QStackedWidget" name="progressBarContainer">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
                 </property>
-                <property name="sizeType">
-                 <enum>QSizePolicy::Fixed</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>2</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QProgressBar" name="taskProgressBar">
-                <property name="value">
+                <property name="currentIndex">
                  <number>0</number>
                 </property>
+                <widget class="QWidget" name="progressBarPage" native="true">
+                 <layout class="QHBoxLayout" name="horizontalLayout_3">
+                  <property name="spacing">
+                   <number>0</number>
+                  </property>
+                  <property name="leftMargin">
+                   <number>2</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QProgressBar" name="taskProgressBar">
+                    <property name="value">
+                     <number>0</number>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+                <widget class="QWidget" name="noActiveItemPage">
+                 <layout class="QHBoxLayout" name="horizontalLayout_4">
+                  <property name="spacing">
+                   <number>0</number>
+                  </property>
+                  <property name="leftMargin">
+                   <number>2</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QLabel" name="label_3">
+                    <property name="text">
+                     <string>To select item for debugging, double-click on it</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+                <widget class="QWidget" name="activeItemPage">
+                 <layout class="QHBoxLayout" name="horizontalLayout_5">
+                  <property name="spacing">
+                   <number>0</number>
+                  </property>
+                  <property name="leftMargin">
+                   <number>2</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QLabel" name="activeItemLabel">
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
                </widget>
               </item>
              </layout>
@@ -316,6 +418,8 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../postmonster.qrc"/>
+ </resources>
  <connections/>
 </ui>

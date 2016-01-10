@@ -78,6 +78,14 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->editPage->setRequestsModel(httpTool, &m_requestsModel);
         ui->recordPage->setRequestsModel(httpTool, &m_requestsModel);
     }
+
+    connect(ui->editPage, &EditForm::debugStatusChanged, ui->actionNew, &QAction::setDisabled);
+    connect(ui->editPage, &EditForm::debugStatusChanged, ui->actionOpen, &QAction::setDisabled);
+    connect(ui->editPage, &EditForm::debugStatusChanged, ui->actionRecord, &QAction::setDisabled);
+
+    foreach (QToolBar *toolBar, findChildren<QToolBar *>()) {
+        toolBar->setIconSize(toolBar->iconSize() * Common::dpiScaleFactor());
+    }
 }
 
 void MainWindow::updateOpenMenu()

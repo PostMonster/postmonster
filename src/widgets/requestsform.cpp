@@ -20,6 +20,8 @@
 #include "requestsform.h"
 #include "ui_requestsform.h"
 
+#include <QPainter>
+
 #include "common.h"
 #include "checkboxheader.h"
 #include "checkboxdelegate.h"
@@ -188,7 +190,15 @@ void RequestsForm::setHttpTool(PostMonster::HttpToolPluginInterface *httpTool)
 {
     m_httpTool = httpTool;
 
-    ui->requestsTable->setDragPixmap(httpTool->icon());
+    QPixmap pixmap(34 * Common::dpiScaleFactor(), 34 * Common::dpiScaleFactor());
+
+    QPainter painter(&pixmap);
+    painter.drawPixmap(1, 1, httpTool->icon().pixmap(32 * Common::dpiScaleFactor(),
+                                                     32 * Common::dpiScaleFactor()));
+    painter.setPen(QPen(Qt::DashLine));
+    painter.drawRect(0, 0, pixmap.width() - 1, pixmap.height() - 1);
+
+    ui->requestsTable->setDragPixmap(pixmap);
 }
 
 void RequestsForm::updateResponse()
@@ -225,9 +235,9 @@ void RequestsForm::toggleAllRequests(bool used)
 
 void RequestsForm::removeRequests(const QModelIndexList &indexes)
 {
-    QModelIndexList::const_iterator i = indexes.constEnd();
-    while (i != indexes.constBegin()) {
-        --i;
+
+    for (QModelIndexList::const_iterator i = indexes.constEnd(),
+         end = indexes.constEnd(); i != end; --i) {
         m_proxyModel.removeRow((*i).row());
     }
 }

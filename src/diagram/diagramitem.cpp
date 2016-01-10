@@ -142,6 +142,8 @@ void DiagramItem::addArrow(Arrow *arrow)
 
 void DiagramItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
+    if (!isSelected())
+        scene()->clearSelection();
     setSelected(true);
 
     if (m_menu)

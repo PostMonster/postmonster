@@ -40,12 +40,6 @@
         <iconset resource="../postmonster.qrc">
          <normaloff>:/icons/back</normaloff>:/icons/back</iconset>
        </property>
-       <property name="iconSize">
-        <size>
-         <width>22</width>
-         <height>22</height>
-        </size>
-       </property>
        <property name="autoRaise">
         <bool>true</bool>
        </property>
@@ -60,12 +54,6 @@
         <iconset resource="../postmonster.qrc">
          <normaloff>:/icons/forward</normaloff>:/icons/forward</iconset>
        </property>
-       <property name="iconSize">
-        <size>
-         <width>22</width>
-         <height>22</height>
-        </size>
-       </property>
        <property name="autoRaise">
         <bool>true</bool>
        </property>
@@ -78,13 +66,7 @@
        </property>
        <property name="icon">
         <iconset resource="../postmonster.qrc">
-         <normaloff>:/icons/refresh</normaloff>:/icons/refresh</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>22</width>
-         <height>22</height>
-        </size>
+         <normaloff>:/icons/reload</normaloff>:/icons/reload</iconset>
        </property>
        <property name="autoRaise">
         <bool>true</bool>
@@ -134,12 +116,6 @@
        <property name="icon">
         <iconset resource="../postmonster.qrc">
          <normaloff>:/icons/record</normaloff>:/icons/record</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>16</width>
-         <height>16</height>
-        </size>
        </property>
        <property name="checkable">
         <bool>true</bool>

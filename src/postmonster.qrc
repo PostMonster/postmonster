@@ -1,12 +1,27 @@
 <RCC>
     <qresource prefix="/icons">
         <file alias="record">icons/record.svg</file>
-        <file alias="record-dim">icons/record-dim.svg</file>
         <file alias="forward">icons/forward.svg</file>
         <file alias="back">icons/back.svg</file>
-        <file alias="debug">icons/debug.svg</file>
-        <file alias="debug-step">icons/debug-step.svg</file>
         <file alias="startitem">startitem.svg</file>
-        <file alias="refresh">icons/refresh.svg</file>
+        <file alias="reload">icons/reload.svg</file>
+        <file alias="record-dim">icons/record-dim.svg</file>
+        <file alias="debug-pause">icons/debug-pause.svg</file>
+        <file alias="debug-run">icons/debug-run.svg</file>
+        <file alias="debug-step">icons/debug-step.svg</file>
+        <file alias="debug-stop">icons/debug-stop.svg</file>
+        <file alias="file-new">icons/file-new.svg</file>
+        <file alias="file-open">icons/file-open.svg</file>
+        <file alias="file-save">icons/file-save.svg</file>
+        <file alias="file-saveas">icons/file-saveas.svg</file>
+        <file alias="diagram">icons/diagram.svg</file>
+        <file alias="star">icons/star.svg</file>
+        <file alias="to-back">icons/to-back.svg</file>
+        <file alias="to-front">icons/to-front.svg</file>
+        <file alias="connect">icons/connect.svg</file>
+        <file alias="disconnect">icons/disconnect.svg</file>
+        <file alias="flag-green">icons/flag-green.svg</file>
+        <file alias="flag-red">icons/flag-red.svg</file>
+        <file alias="remove">icons/remove.svg</file>
     </qresource>
 </RCC>

@@ -40,7 +40,7 @@ public:
     ToolPluginInterface(): PluginInterface() {}
     virtual ~ToolPluginInterface() {}
 
-    virtual const QPixmap &icon() const = 0;
+    virtual const QIcon &icon() const = 0;
 
     virtual QWidget *widget(TaskInterface *task) = 0;
     virtual QWidget *resultWidget(TaskInterface *task) = 0;

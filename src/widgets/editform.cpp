@@ -61,7 +61,7 @@ EditForm::EditForm(QWidget *parent) :
     connect(ui->tabWidget, SIGNAL(currentChanged(int)), this, SLOT(updateRequestParams()));
 
     m_toolbar.setOrientation(Qt::Vertical);
-    m_toolbar.setIconSize(QSize(32, 32));
+    m_toolbar.setIconSize(QSize(32, 32) * Common::dpiScaleFactor());
     ui->horizontalLayout->addWidget(&m_toolbar);
 
     m_envModel.setHeaderData(0, Qt::Horizontal, "Name", Qt::DisplayRole);
@@ -112,7 +112,8 @@ void EditForm::resetWorker()
 {
     disconnect(&m_engine, &WorkEngine::ready, this, &EditForm::resetWorker);
 
-    ui->taskProgressBar->setValue(0);
+    m_scene->setCurrentItem(nullptr);
+    ui->progressBarContainer->setCurrentWidget(ui->noActiveItemPage);
 
     for (int i = 1; i < ui->resultStackedWidget->count(); i++)
         ui->resultStackedWidget->removeWidget(ui->resultStackedWidget->widget(i));
@@ -150,6 +151,7 @@ void EditForm::newProject()
     ui->stepButton->setEnabled(false);
     ui->runButton->setEnabled(false);
     ui->pauseButton->setEnabled(false);
+    ui->stopButton->setEnabled(false);
 }
 
 void EditForm::saveProject(const QString &fileName)
@@ -399,9 +401,24 @@ void EditForm::currentItemChanged()
     if (m_scene->currentItem()) {
         ui->stepButton->setEnabled(true);
         ui->runButton->setEnabled(true);
+
+        QString activeItemString = tr("Debugging item: %1");
+        if (m_scene->currentItem()->diagramType() == DiagramItem::TypeStart)
+            activeItemString = activeItemString.arg("<b>start</b>");
+        else if (m_scene->currentItem()->diagramType() == DiagramItem::TypeTask) {
+            TaskInterface *task = static_cast<TaskItem *>(m_scene->currentItem())->task();
+            activeItemString = activeItemString.arg(m_plugins.info(task->tool())
+                                                    .value("id").toString() + "." + task->name());
+        }
+        ui->activeItemLabel->setText(activeItemString);
+
+        if (!m_debugRunning)
+            ui->progressBarContainer->setCurrentWidget(ui->activeItemPage);
     } else {
         ui->stepButton->setEnabled(false);
         ui->runButton->setEnabled(false);
+
+        ui->progressBarContainer->setCurrentWidget(ui->noActiveItemPage);
     }
 }
 
@@ -516,6 +533,8 @@ void EditForm::debugStop()
     } else {
         resetWorker();
     }
+
+    ui->stopButton->setEnabled(false);
 }
 
 void EditForm::debugPause()
@@ -530,6 +549,13 @@ void EditForm::debugPause()
 
     ui->graphicsView->setInteractive(true);
     ui->tabWidget->setTabEnabled(1, true);
+
+    if (m_scene->currentItem())
+        ui->progressBarContainer->setCurrentWidget(ui->activeItemPage);
+    else
+        ui->progressBarContainer->setCurrentWidget(ui->noActiveItemPage);
+
+    emit debugStatusChanged(false);
 }
 
 void EditForm::debugRun()
@@ -546,12 +572,16 @@ void EditForm::debugStep()
     ui->runButton->setEnabled(false);
     ui->stepButton->setEnabled(false);
     ui->pauseButton->setEnabled(true);
+    ui->stopButton->setEnabled(true);
     ui->tabWidget->setTabEnabled(1, false);
 
+    ui->progressBarContainer->setCurrentWidget(ui->progressBarPage);
     ui->graphicsView->setInteractive(false);
 
     m_engine.setActiveItem(item);
     QMetaObject::invokeMethod(&m_engine, "step", Qt::QueuedConnection);
+
+    emit debugStatusChanged(true);
 }
 
 void EditForm::workerReady(DiagramItem *item)
@@ -595,6 +625,9 @@ void EditForm::workerReady(DiagramItem *item)
         debugStep();
     } else {
         debugPause();
+
+        if (m_envModel.rowCount() == 0)
+            ui->stopButton->setEnabled(false);
     }
 }
 

@@ -47,7 +47,7 @@ HttpToolPlugin::HttpToolPlugin()
     m_requestForm = new RequestForm(0);
     m_resultForm = new ResultForm(0);
 
-    m_icon = QPixmap(":/icons/httptool");
+    m_icon = QIcon(":/icons/httptool");
 }
 
 void HttpToolPlugin::load(const APIFunctions &api)
@@ -55,7 +55,7 @@ void HttpToolPlugin::load(const APIFunctions &api)
     m_api = api;
 }
 
-const QPixmap &HttpToolPlugin::icon() const
+const QIcon &HttpToolPlugin::icon() const
 {
     return m_icon;
 }

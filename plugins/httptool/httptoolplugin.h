@@ -21,13 +21,13 @@
 #define HTTPTOOLPLUGIN_H
 
 #include <QtPlugin>
+#include <QPixmap>
+#include <QIcon>
+#include <QPainterPath>
 #include <QtScript/QScriptEngine>
-#include <QNetworkCookieJar>
 
 #include <postmonster.h>
 #include <toolplugin.h>
-
-#include "publiccookiejar.h"
 
 using namespace PostMonster;
 
@@ -88,7 +88,7 @@ public:
 
     void load(const APIFunctions &api);
 
-    const QPixmap &icon() const;
+    const QIcon &icon() const;
     QWidget *widget(TaskInterface *task);
     QWidget *resultWidget(TaskInterface *task);
     TaskInterface *createTask();
@@ -112,7 +112,7 @@ protected:
 private:    
     APIFunctions m_api;
 
-    QPixmap m_icon;
+    QIcon m_icon;
     RequestForm *m_requestForm;
     ResultForm *m_resultForm;
     QHash<const TaskInterface *, QString> m_names;

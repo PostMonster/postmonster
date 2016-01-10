@@ -37,11 +37,7 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-private:
-    Ui::MainWindow *ui;
-    PluginRegistry &m_plugins;
-    RequestsModel m_requestsModel;
-
+protected:
     void selectAction(QAction *except);
     void updateOpenMenu();
 
@@ -55,6 +51,11 @@ private slots:
     void openPlugins();
     void openEdit();
     void openRecord();
+
+private:
+    Ui::MainWindow *ui;
+    PluginRegistry &m_plugins;
+    RequestsModel m_requestsModel;
 };
 
 #endif // MAINWINDOW_H

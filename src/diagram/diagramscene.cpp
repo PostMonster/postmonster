@@ -182,20 +182,20 @@ void DiagramScene::insertItem(DiagramItem *item)
 
     switch (item->diagramType()) {
     case DiagramItem::TypeTask:
-        connectMenu = menu->addMenu(tr("Connnect"));
-        disconnectMenu = menu->addMenu(tr("Disconnect"));
+        connectMenu = menu->addMenu(QIcon(":/icons/connect"), tr("Connnect"));
+        disconnectMenu = menu->addMenu(QIcon(":/icons/disconnect"), tr("Disconnect"));
 
         foreach (PostMonster::TaskStatus status, static_cast<TaskItem *>(item)->tool()->statuses()) {
             if (status == PostMonster::Ok) {
-                connectMenu->addAction(tr("Success"), this, SLOT(menuConnectOk()));
-                disconnectMenu->addAction(tr("Success"), this, SLOT(menuDisconnectOk()));
+                connectMenu->addAction(QIcon(":/icons/flag-green"), tr("Success"), this, SLOT(menuConnectOk()));
+                disconnectMenu->addAction(QIcon(":/icons/flag-green"), tr("Success"), this, SLOT(menuDisconnectOk()));
             } else if (status == PostMonster::Fail) {
-                connectMenu->addAction(tr("Failure"), this, SLOT(menuConnectFail()));
-                disconnectMenu->addAction(tr("Failure"), this, SLOT(menuDisconnectFail()));
+                connectMenu->addAction(QIcon(":/icons/flag-red"), tr("Failure"), this, SLOT(menuConnectFail()));
+                disconnectMenu->addAction(QIcon(":/icons/flag-red"), tr("Failure"), this, SLOT(menuDisconnectFail()));
             }
         }
 
-        menu->addAction(tr("Delete"), this, SLOT(menuDelete()));
+        menu->addAction(QIcon(":/icons/remove"), tr("Delete"), this, SLOT(menuDelete()));
 
         connect(static_cast<TaskItem *>(item)->task(), &PostMonster::TaskInterface::dataChanged,
                 [this, item]() {
@@ -207,14 +207,14 @@ void DiagramScene::insertItem(DiagramItem *item)
         break;
 
     case DiagramItem::TypeStart:
-        menu->addAction(tr("Connect"), this, SLOT(menuConnect()));
-        menu->addAction(tr("Disconnect"), this, SLOT(menuDisconnect()));
+        menu->addAction(QIcon(":/icons/connect"), tr("Connect"), this, SLOT(menuConnect()));
+        menu->addAction(QIcon(":/icons/disconnect"), tr("Disconnect"), this, SLOT(menuDisconnect()));
         break;
     }
 
     menu->addSeparator();
-    menu->addAction(tr("To front"), this, SLOT(menuToFront()));
-    menu->addAction(tr("To back"), this, SLOT(menuToBack()));
+    menu->addAction(QIcon(":/icons/to-front"), tr("To front"), this, SLOT(menuToFront()));
+    menu->addAction(QIcon(":/icons/to-back"), tr("To back"), this, SLOT(menuToBack()));
     menu->addSeparator();
 
     action = menu->addAction(tr("Breakpoint"));

@@ -47,6 +47,9 @@ public:
     void setRequestsModel(PostMonster::HttpToolPluginInterface *httpTool, RequestsModel *model);
     const QString &projectFile() { return m_fileName; }
 
+signals:
+    void debugStatusChanged(bool busy);
+
 public slots:
     void addToolToToolbar(QObject *plugin);
     void newProject();
