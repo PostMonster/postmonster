@@ -40,6 +40,11 @@ enum TaskStatus {
     False
 };
 
+enum PluginType {
+    All  = 0xFF,
+    Tool = 0x01
+};
+
 struct HttpRequest
 {
     HttpRequest(): method("GET") {}
@@ -92,7 +97,5 @@ public:
 };
 
 }
-
-Q_DECLARE_METATYPE(PostMonster::TaskStatus)
 
 #endif // POSTMONSTER_H

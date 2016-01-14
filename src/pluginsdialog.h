@@ -22,6 +22,8 @@
 
 #include <QDialog>
 
+#include "models/pluginsmodel.h"
+
 namespace Ui {
 class PluginsDialog;
 }
@@ -34,21 +36,12 @@ public:
     explicit PluginsDialog(QWidget *parent = 0);
     ~PluginsDialog();
 
+protected slots:
+    void save();
+
 private:
     Ui::PluginsDialog *ui;
-
-    enum Columns
-    {
-        Library,
-        Name,
-        Description,
-        Version
-    };
-
-    void populateTable(const QString &file, const QString &name, const QString &descr, const QString &ver);
-
-private slots:
-    void save();
+    PluginsModel m_model;
 };
 
 #endif // PLUGINSDIALOG_H

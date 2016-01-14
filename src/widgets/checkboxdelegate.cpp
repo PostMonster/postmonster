@@ -57,7 +57,12 @@ void CheckBoxDelegate::paint(
         QStyledItemDelegate::paint(painter, option, QModelIndex());
 
     QStyleOptionButton checkBoxOption;
-    checkBoxOption.state |= QStyle::State_Enabled;
+    if (index.flags() & Qt::ItemIsEnabled) {
+        checkBoxOption.state |= QStyle::State_Enabled;
+    } else {
+        checkBoxOption.state &= ~QStyle::State_Enabled;
+        checkBoxOption.palette.setCurrentColorGroup(QPalette::Disabled);
+    }
     checkBoxOption.rect = checkBoxRect(option);
 
     QVariant value = index.model()->data(index, Qt::CheckStateRole);

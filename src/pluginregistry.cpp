@@ -38,48 +38,79 @@ void PluginRegistry::loadPlugins(const PostMonster::APIFunctions &api)
     int size = settings.beginReadArray("Plugins");
 
     // Load static plugins
-    QMap<QObject *, QJsonObject> plugins;
-    foreach (const QStaticPlugin &plugin, QPluginLoader::staticPlugins())
-        plugins[plugin.instance()] = plugin.metaData();
+    QHash<QObject *, QPair<QJsonObject, QPluginLoader *> > plugins;
+    foreach (const QStaticPlugin &plugin, QPluginLoader::staticPlugins()) {
+        QObject *pluginInstance = plugin.instance();
+
+        plugins[pluginInstance] = QPair<QJsonObject, QPluginLoader *>(plugin.metaData(), nullptr);
+    }
 
     // Load dynamic plugins
     for (int i = 0; i < size; ++i) {
         settings.setArrayIndex(i);
 
-        QPluginLoader loader(pluginsDir.absoluteFilePath(settings.value("filename").toString()));
-        plugins[loader.instance()] = loader.metaData();
+        QPluginLoader *loader = new QPluginLoader(pluginsDir.absoluteFilePath(settings.value("filename").toString()));
+        QObject *pluginInstance = loader->instance();
+
+        plugins[pluginInstance] = QPair<QJsonObject, QPluginLoader *>(loader->metaData(), loader);
     }
 
     // Activate plugins
-    QMapIterator<QObject *, QJsonObject> i(plugins);
+    QHashIterator<QObject *, QPair<QJsonObject, QPluginLoader *>> i(plugins);
     while (i.hasNext()) {
         i.next();
-        QObject *plugin = i.key();
-        QJsonObject metaData = i.value().value("MetaData").toObject();
 
-        // Add tool plugins to toolbar
-        PostMonster::ToolPluginInterface *tool = qobject_cast<PostMonster::ToolPluginInterface *>(plugin);
+        QObject *instance = i.key();
+
+        QJsonObject metaData = i.value().first.value("MetaData").toObject();
+        QPluginLoader *loader = i.value().second;
+
+        PostMonster::ToolPluginInterface *tool = qobject_cast<PostMonster::ToolPluginInterface *>(instance);
         if (tool) {
-            //TODO Check for existent plugins with the same id
-            m_tools[metaData.value("id").toString()] = tool;
-            m_metaData[tool] = metaData;
+            PluginData *pluginData = new PluginData;
+            pluginData->type = PostMonster::Tool;
+            pluginData->instance = tool;
+            pluginData->loader = loader;
+            pluginData->info = metaData;
 
+            //TODO Check for existent plugins with the same id
+            m_plugins[metaData.value("id").toString()] = pluginData;
+            m_info[tool] = &pluginData->info;
+
+            // Add tool plugins to toolbar
             tool->load(api);
 
-            emit toolPluginLoaded(plugin);
+            emit toolPluginLoaded(instance);
         }
     }
 }
 
 PostMonster::ToolPluginInterface *PluginRegistry::tool(const QString &name)
 {
-    if (m_tools.contains(name))
-        return m_tools[name];
+    if (m_plugins.contains(name) && m_plugins[name]->type == PostMonster::Tool) {
+        return dynamic_cast<PostMonster::ToolPluginInterface *>(m_plugins[name]->instance);
+    }
 
-    return 0;
+    return nullptr;
 }
 
 const QJsonObject &PluginRegistry::info(const PostMonster::PluginInterface *plugin)
 {
-    return m_metaData[const_cast<PostMonster::PluginInterface *>(plugin)];
+    return *m_info[plugin];
+}
+
+const QList<PluginRegistry::PluginData *> PluginRegistry::plugins(PostMonster::PluginType type)
+{
+    QList<PluginData *> result;
+    foreach (PluginData *plugin, m_plugins.values()) {
+        if (plugin->type & type)
+            result << plugin;
+    }
+
+    return result;
+}
+
+PluginRegistry::~PluginRegistry()
+{
+    qDeleteAll(m_plugins.values());
 }

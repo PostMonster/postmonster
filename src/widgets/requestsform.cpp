@@ -44,6 +44,9 @@ RequestsForm::RequestsForm(QWidget *parent) :
     ui->requestsTable->setDragEnabled(false);
     ui->requestsTable->installEventFilter(this);
 
+    CheckBoxDelegate *delegate = new CheckBoxDelegate(ui->requestsTable);
+    ui->requestsTable->setItemDelegateForColumn(RequestsModel::Used, delegate);
+
     connect(header, SIGNAL(checkBoxClicked(bool)), this, SLOT(toggleAllRequests(bool)));
 
     connect(ui->typesCBox,    SIGNAL(currentTextChanged(QString)), this, SLOT(applyFilters()));
@@ -164,9 +167,6 @@ void RequestsForm::setRequestsModel(RequestsModel *model)
     ui->requestsTable->setColumnWidth(RequestsModel::Type, 110 * Common::dpiScaleFactor());
     ui->requestsTable->horizontalHeader()->setSectionResizeMode(RequestsModel::URL,
                                                                 QHeaderView::Stretch);
-
-    CheckBoxDelegate *delegate = new CheckBoxDelegate(ui->requestsTable);
-    ui->requestsTable->setItemDelegateForColumn(RequestsModel::Used, delegate);
 }
 
 QTableView *RequestsForm::requestsTable()

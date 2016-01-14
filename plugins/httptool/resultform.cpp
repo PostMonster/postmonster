@@ -104,7 +104,7 @@ void ResultForm::renderData()
         QString html = "<table align='center'>";
         foreach (const QNetworkReply::RawHeaderPair &header, *headers) {
             html += QString("<tr><td align='right' nowrap><u>%1</u>:</td><td>%2</td></tr>").
-                    arg(QString(header.first)).arg(QString(header.second));
+                    arg(QString(header.first)).arg(QUrl::fromPercentEncoding(header.second));
         }
         html += "</table>";
         ui->headersText->setHtml(html);
@@ -122,7 +122,7 @@ void ResultForm::renderData()
             QString name(cookie.name());
             QString value(cookie.toRawForm().mid(name.length() + 1));
             html += QString("<tr><td align='right' nowrap><u>%1</u>:</td><td>%2</td></tr>").
-                    arg(name).arg(value);
+                    arg(name).arg(QUrl::fromPercentEncoding(value.toLatin1()));
         }
         html += "</table>";
         ui->cookiesText->setHtml(html);

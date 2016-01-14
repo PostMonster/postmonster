@@ -25,6 +25,9 @@
 #include <QPluginLoader>
 #include <QSettings>
 
+#include "pluginregistry.h"
+#include "widgets/checkboxdelegate.h"
+
 PluginsDialog::PluginsDialog(QWidget *parent) :
     QDialog(parent, Qt::WindowSystemMenuHint | Qt::WindowTitleHint),
     ui(new Ui::PluginsDialog)
@@ -35,28 +38,40 @@ PluginsDialog::PluginsDialog(QWidget *parent) :
     pluginsDir.cd("plugins");
 
     int i = 0;
-    foreach (const QString &fileName, pluginsDir.entryList(QDir::Files)) {
-        QPluginLoader loader(pluginsDir.absoluteFilePath(fileName));
-        QJsonObject info = loader.metaData().value("MetaData").toObject();
+    PluginRegistry &plugins = PluginRegistry::instance();
 
-        if (!info.isEmpty()) {
-            QTableWidgetItem *library = new QTableWidgetItem(fileName);
-            QTableWidgetItem *name    = new QTableWidgetItem(info.value("name").toString());
-            QTableWidgetItem *descr   = new QTableWidgetItem(info.value("description").toString());
-            QTableWidgetItem *version = new QTableWidgetItem(info.value("version").toString());
-
-            library->setCheckState(Qt::Checked);
-
-            ui->tableWidget->setRowCount(++i);
-            ui->tableWidget->setItem(i - 1, Library, library);
-            ui->tableWidget->setItem(i - 1, Name, name);
-            ui->tableWidget->setItem(i - 1, Description, descr);
-            ui->tableWidget->setItem(i - 1, Version, version);
-        }
+    foreach (const PluginRegistry::PluginData *plugin, plugins.plugins()) {
+        m_model.add(plugin, true);
     }
 
+    //ui->pluginsTree->set
+    /*foreach (const PluginRegistry::PluginData<PostMonster::ToolPluginInterface> *tool, plugins.tools()) {
+        QTableWidgetItem *id      = new QTableWidgetItem(tool->info.value("id").toString());
+        QTableWidgetItem *name    = new QTableWidgetItem(tool->info.value("name").toString());
+        QTableWidgetItem *descr   = new QTableWidgetItem(tool->info.value("description").toString());
+        QTableWidgetItem *version = new QTableWidgetItem(tool->info.value("version").toString());
+
+        name->setCheckState(Qt::Checked);
+        version->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
+
+        ui->tableWidget->setRowCount(++i);
+        ui->tableWidget->setItem(i - 1, Id, id);
+        ui->tableWidget->setItem(i - 1, Name, name);
+        ui->tableWidget->setItem(i - 1, Description, descr);
+        ui->tableWidget->setItem(i - 1, Version, version);
+    }
+
+    ui->tableWidget->hideColumn(Id);
     ui->tableWidget->resizeColumnsToContents();
-    ui->tableWidget->horizontalHeader()->setSectionResizeMode(Description, QHeaderView::Stretch);
+    ui->tableWidget->horizontalHeader()->setSectionResizeMode(Description, QHeaderView::Stretch);*/
+
+    ui->pluginsTable->setModel(&m_model);
+    ui->pluginsTable->resizeColumnsToContents();
+    ui->pluginsTable->horizontalHeader()->setSectionResizeMode(PluginsModel::Description,
+                                                               QHeaderView::Stretch);
+
+    CheckBoxDelegate *delegate = new CheckBoxDelegate(ui->pluginsTable);
+    ui->pluginsTable->setItemDelegateForColumn(PluginsModel::Enabled, delegate);
 
     connect(this, SIGNAL(accepted()), this, SLOT(save()));
 }
@@ -65,14 +80,15 @@ void PluginsDialog::save()
 {
     QSettings settings;
     settings.beginWriteArray("Plugins");
-    for (int i = 0; i < ui->tableWidget->rowCount(); ++i) {
-        QTableWidgetItem *library = ui->tableWidget->item(i, Library);
+    /*for (int i = 0; i < ui->tableWidget->rowCount(); ++i) {
+        QTableWidgetItem *name = ui->tableWidget->item(i, Name);
+        QTableWidgetItem *id = ui->tableWidget->item(i, Id);
 
         settings.setArrayIndex(i);
-        settings.setValue("filename", library->text());
-        settings.setValue("enabled", (library->checkState() == Qt::Checked)
+        settings.setValue("filename", name->text());
+        settings.setValue("enabled", (name->checkState() == Qt::Checked)
                           ? "true" : "false");
-    }
+    }*/
     settings.endArray();
 }
 

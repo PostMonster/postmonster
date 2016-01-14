@@ -45,7 +45,7 @@ QVariant RequestsModel::data(const QModelIndex &index, int role) const
     const HttpRequest *request = m_requests[index.row()].first;
     const HttpResponse *response = m_requests[index.row()].second;
 
-    if (role == Qt::TextAlignmentRole)
+    if (role == Qt::TextAlignmentRole) {
         switch (index.column()) {
         case Method:
         case Code:
@@ -53,6 +53,7 @@ QVariant RequestsModel::data(const QModelIndex &index, int role) const
         default:
             return QVariant(Qt::AlignLeft | Qt::AlignVCenter);
         }
+    }
 
     if (role == Qt::BackgroundColorRole && index.column() == Code) {
         int code = response->status;
@@ -104,11 +105,8 @@ QVariant RequestsModel::data(const QModelIndex &index, int role) const
 
 bool RequestsModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if (!index.isValid() ||
+    if (role != Qt::EditRole || !index.isValid() ||
             index.row() > rowCount() - 1 || index.column() >= _columnCount)
-        return false;
-
-    if (role != Qt::EditRole)
         return false;
 
     switch (index.column()) {

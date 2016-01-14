@@ -20,7 +20,10 @@
 #ifndef PLUGINREGISTRY_H
 #define PLUGINREGISTRY_H
 
-#include <QMap>
+#include <type_traits>
+
+#include <QHash>
+#include <QPluginLoader>
 
 #include "postmonster.h"
 #include "toolplugin.h"
@@ -30,25 +33,32 @@ class PluginRegistry: public QObject
     Q_OBJECT
 
 public:
+    struct PluginData
+    {
+        PostMonster::PluginType type;
+        PostMonster::PluginInterface *instance;
+        QPluginLoader *loader;
+        QJsonObject info;
+    };
+
     static PluginRegistry &instance();
+    ~PluginRegistry();
 
     void loadPlugins(const PostMonster::APIFunctions &api);
     PostMonster::ToolPluginInterface *tool(const QString &name);
     const QJsonObject &info(const PostMonster::PluginInterface *plugin);
+    const QList<PluginData *> plugins(PostMonster::PluginType type = PostMonster::All);
 
 signals:
     void toolPluginLoaded(QObject *plugin);
 
-protected:
-    QHash<QString, PostMonster::ToolPluginInterface *> m_tools;
-    QMap<PostMonster::PluginInterface *, QJsonObject> m_metaData;
-
 private:
     PluginRegistry() {}
-    ~PluginRegistry() {}
     PluginRegistry(const PluginRegistry &);
-
     PluginRegistry &operator=(const PluginRegistry &);
+
+    QHash<QString, PluginData *> m_plugins;
+    QHash<const PostMonster::PluginInterface *, const QJsonObject *> m_info;
 };
 
 #endif // PLUGINREGISTRY_H
