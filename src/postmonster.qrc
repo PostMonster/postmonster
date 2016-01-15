@@ -3,7 +3,7 @@
         <file alias="record">icons/record.svg</file>
         <file alias="forward">icons/forward.svg</file>
         <file alias="back">icons/back.svg</file>
-        <file alias="startitem">startitem.svg</file>
+        <file alias="startitem">icons/startitem.svg</file>
         <file alias="reload">icons/reload.svg</file>
         <file alias="record-dim">icons/record-dim.svg</file>
         <file alias="debug-pause">icons/debug-pause.svg</file>
