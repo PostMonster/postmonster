@@ -44,6 +44,10 @@ RecordForm::RecordForm(QWidget *parent) :
     connect(ui->forwardButton, SIGNAL(clicked()), ui->webView, SLOT(forward()));
     connect(ui->reloadButton, SIGNAL(clicked()), ui->webView, SLOT(reload()));
 
+    ui->webView->settings()->setAttribute(QWebSettings::PrivateBrowsingEnabled, false);
+    ui->webView->settings()->setAttribute(QWebSettings::JavascriptCanOpenWindows, true);
+    ui->webView->settings()->setAttribute(QWebSettings::JavascriptCanCloseWindows, true);
+
     ui->webView->page()->setNetworkAccessManager(&m_networkSniffer);
     connect(&m_networkSniffer, SIGNAL(replyReceived(QNetworkReply *, QByteArray, QByteArray)),
             this, SLOT(requestFinished(QNetworkReply *, QByteArray, QByteArray)));
@@ -152,7 +156,9 @@ void RecordForm::requestFinished(QNetworkReply *reply, const QByteArray &request
     }
 
     response->mimeType = reply->header(QNetworkRequest::ContentTypeHeader).toByteArray();
-    response->mimeType = response->mimeType.left(response->mimeType.indexOf(';'));
+    const int semicolonPos = response->mimeType.indexOf(';');
+    if (semicolonPos != -1)
+        response->mimeType.truncate(semicolonPos);
 
     response->cookies = reply->header(QNetworkRequest::SetCookieHeader).
             value< QList<QNetworkCookie> >();
@@ -175,10 +181,9 @@ void RecordForm::requestFinished(QNetworkReply *reply, const QByteArray &request
         request->headers << pair;
     }
 
-    /*request->cookies = reply->request().header(QNetworkRequest::CookieHeader).
-            value< QList<QNetworkCookie> >();*/
-
     ui->requestsForm->add(request, response);
+
+    reply->deleteLater();
 }
 
 void RecordForm::browserLoad()

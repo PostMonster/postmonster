@@ -34,17 +34,20 @@ void NetworkSniffer::dataAvailable()
         responseData = reply->peek(reply->bytesAvailable());
 
     if (m_data.contains(reply))
-        m_data[reply].second = responseData;
+        m_data[reply].second.append(responseData);
 }
 
 void NetworkSniffer::requestFinished()
 {
-    QNetworkReply *reply = static_cast<QNetworkReply *> (sender());
+    QNetworkReply *reply = qobject_cast<QNetworkReply *> (sender());
+    if (!reply) return;
 
     QByteArray requestData, responseData;
     if (m_data.contains(reply)) {
         requestData = m_data[reply].first;
         responseData = m_data[reply].second;
+
+        m_data.remove(reply);
     }
 
     emit replyReceived(reply, requestData, responseData);
@@ -58,8 +61,8 @@ QNetworkReply *NetworkSniffer::createRequest(
         requestData = outgoingData->peek(request.header(QNetworkRequest::ContentLengthHeader).toLongLong());
 
     QNetworkReply *reply = QNetworkAccessManager::createRequest(op, request, outgoingData);
-    connect(reply, SIGNAL(finished()), this, SLOT(requestFinished()), Qt::UniqueConnection);
-    connect(reply, SIGNAL(readyRead()), this, SLOT(dataAvailable()), Qt::UniqueConnection);
+    connect(reply, SIGNAL(finished()), this, SLOT(requestFinished()));
+    connect(reply, SIGNAL(readyRead()), this, SLOT(dataAvailable()));
 
     m_data[reply].first = requestData;
 
