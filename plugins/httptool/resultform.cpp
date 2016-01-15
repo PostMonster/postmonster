@@ -145,6 +145,11 @@ void ResultForm::renderData()
                 QString contentType = headerValue.left(headerValue.indexOf(";"));
                 const QMimeType mimeType = mimeDatabase.mimeTypeForName(contentType);
 
+                qDebug() << contentType << " " << mimeType;
+
+                ui->stackedWidget->setCurrentWidget(ui->unknownDataPage);
+                ui->encodingCBox->setHidden(true);
+
                 if (mimeType.inherits("text/plain") ||
                     contentType == "application/x-www-form-urlencoded" ||
                     contentType == "multipart/form-data") {
@@ -166,15 +171,11 @@ void ResultForm::renderData()
                            contentType == "image/jpeg" ||
                            contentType == "image/gif" ||
                            contentType == "image/bmp") {
-                    ui->stackedWidget->setCurrentWidget(ui->imageDataPage);
-                    ui->encodingCBox->setHidden(true);
-
                     QPixmap preview;
                     if (preview.loadFromData(*body)) {
+                        ui->stackedWidget->setCurrentWidget(ui->imageDataPage);
                         ui->imagePreviewLabel->setPixmap(preview);
                     }
-                } else if (!mimeType.isValid()) {
-                    contentType = "";
                 }
 
                 ui->mimeType->setText(contentType);
