@@ -48,6 +48,10 @@ RecordForm::RecordForm(QWidget *parent) :
     ui->webView->settings()->setAttribute(QWebSettings::JavascriptCanOpenWindows, true);
     ui->webView->settings()->setAttribute(QWebSettings::JavascriptCanCloseWindows, true);
 
+    // Disable caching
+    ui->webView->settings()->setMaximumPagesInCache(0);
+    ui->webView->settings()->setObjectCacheCapacities(0, 0, 0);
+
     ui->webView->page()->setNetworkAccessManager(&m_networkSniffer);
     connect(&m_networkSniffer, SIGNAL(replyReceived(QNetworkReply *, QByteArray, QByteArray)),
             this, SLOT(requestFinished(QNetworkReply *, QByteArray, QByteArray)));

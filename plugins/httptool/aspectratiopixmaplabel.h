@@ -4,6 +4,7 @@
 #include <QLabel>
 #include <QPixmap>
 #include <QResizeEvent>
+#include <QPen>
 
 class AspectRatioPixmapLabel : public QLabel
 {
@@ -11,15 +12,17 @@ class AspectRatioPixmapLabel : public QLabel
 
 public:
     explicit AspectRatioPixmapLabel(QWidget *parent = 0);
-    virtual int heightForWidth(int width) const;
-    virtual QSize sizeHint() const;
+    int heightForWidth(int width) const;
+    QSize sizeHint() const;
+    void setBorder(QPen pen);
 
 public slots:
-    void setPixmap (const QPixmap &pixmap);
+    void setPixmap(const QPixmap &pixmap, QPen borderPen = QPen(Qt::black, 0));
     void resizeEvent(QResizeEvent *event);
 
 private:
-    QPixmap pix;
+    QPixmap m_pix;
+    QPen m_borderPen;
 };
 
 #endif // ASPECTRATIOPIXMAPLABEL_H

@@ -93,7 +93,7 @@ JsonTreeItem *JsonTreeItem::load(const QJsonValue &value, JsonTreeItem *parent)
     rootItem->setKey("root");
 
     if (value.isObject()) {
-        //Get all QJsonValue children
+        // Get all QJsonValue children
         foreach (const QString &key, value.toObject().keys()) {
             QJsonValue v = value.toObject().value(key);
             JsonTreeItem *child = load(v,rootItem);
@@ -103,10 +103,10 @@ JsonTreeItem *JsonTreeItem::load(const QJsonValue &value, JsonTreeItem *parent)
             rootItem->appendChild(child);
         }
     } else if (value.isArray()) {
-        //Get all QJsonValue children
+        // Get all QJsonValue children
         int index = 0;
         foreach (const QJsonValue &v, value.toArray()){
-            JsonTreeItem *child = load(v,rootItem);
+            JsonTreeItem *child = load(v, rootItem);
 
             child->setKey(QString::number(index));
             child->setType(v.type());

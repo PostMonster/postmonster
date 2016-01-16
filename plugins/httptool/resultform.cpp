@@ -22,6 +22,8 @@
 
 #include <QTextCodec>
 #include <QMimeDatabase>
+#include <QSvgRenderer>
+#include <QPainter>
 
 ResultForm::ResultForm(QWidget *parent) :
     QWidget(parent),
@@ -145,38 +147,49 @@ void ResultForm::renderData()
                 QString contentType = headerValue.left(headerValue.indexOf(";"));
                 const QMimeType mimeType = mimeDatabase.mimeTypeForName(contentType);
 
-                qDebug() << contentType << " " << mimeType;
-
                 ui->stackedWidget->setCurrentWidget(ui->unknownDataPage);
                 ui->encodingCBox->setHidden(true);
 
-                if (mimeType.inherits("text/plain") ||
-                    contentType == "application/x-www-form-urlencoded" ||
-                    contentType == "multipart/form-data") {
-                    ui->stackedWidget->setCurrentWidget(ui->textDataPage);
-                    ui->encodingCBox->setHidden(false);
-
-                    QRegExp charsetRx("charset\\=([^;]+)", Qt::CaseInsensitive);
-                    if (charsetRx.indexIn(headerValue) != -1) {
-                        QByteArray charset = charsetRx.cap(1).toLatin1();
-
-                        QRegExp encodingRx(charset, Qt::CaseInsensitive, QRegExp::Wildcard);
-                        int encodingIdx = m_encodings->indexOf(encodingRx);
-                        if (encodingIdx != -1)
-                            encoding = m_encodings->at(encodingIdx).toLatin1();
-                        else// if (QTextCodec::codecForName(charset))
-                            encoding = charset;
-                    }
-                } else if (contentType == "image/png" ||
-                           contentType == "image/jpeg" ||
-                           contentType == "image/gif" ||
-                           contentType == "image/bmp") {
+                if (contentType == "image/png" || contentType == "image/jpeg"
+                        || contentType == "image/gif" || contentType == "image/bmp") {
                     QPixmap preview;
                     if (preview.loadFromData(*body)) {
                         ui->stackedWidget->setCurrentWidget(ui->imageDataPage);
-                        ui->imagePreviewLabel->setPixmap(preview);
+                        ui->imagePreviewLabel->setPixmap(preview, QPen(Qt::gray, 1));
                     }
-                }
+                } else if (contentType == "image/svg+xml") {
+                    QSvgRenderer svg(*body);
+
+                    if (svg.isValid()) {
+                        QPixmap preview(svg.viewBox().width(), svg.viewBox().height());
+                        preview.fill(Qt::transparent);
+
+                        QPainter painter;
+                        painter.begin(&preview);
+                        svg.render(&painter);
+                        painter.end();
+
+                        ui->stackedWidget->setCurrentWidget(ui->imageDataPage);
+                        ui->imagePreviewLabel->setPixmap(preview, QPen(Qt::gray, 1));
+                    }
+                } else if (mimeType.inherits("text/plain") ||
+                      contentType == "application/x-www-form-urlencoded" ||
+                      contentType == "multipart/form-data") {
+                      ui->stackedWidget->setCurrentWidget(ui->textDataPage);
+                      ui->encodingCBox->setHidden(false);
+
+                      QRegExp charsetRx("charset\\=([^;]+)", Qt::CaseInsensitive);
+                      if (charsetRx.indexIn(headerValue) != -1) {
+                          QByteArray charset = charsetRx.cap(1).toLatin1();
+
+                          QRegExp encodingRx(charset, Qt::CaseInsensitive, QRegExp::Wildcard);
+                          int encodingIdx = m_encodings->indexOf(encodingRx);
+                          if (encodingIdx != -1)
+                              encoding = m_encodings->at(encodingIdx).toLatin1();
+                          else// if (QTextCodec::codecForName(charset))
+                              encoding = charset;
+                      }
+                  }
 
                 ui->mimeType->setText(contentType);
                 ui->mimeType->setCursorPosition(0);
