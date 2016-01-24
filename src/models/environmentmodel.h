@@ -43,17 +43,17 @@ public:
     ~EnvironmentModel();
 
     void clear();
-    bool load(const QString& fileName);
+    bool load(const QString &fileName);
     bool load(QIODevice *device);
-    bool loadJson(const QByteArray& json);
-    bool loadJson(const QJsonObject& json);
+    bool loadJson(const QByteArray &json);
+    bool loadJson(const QJsonObject &json);
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     QModelIndex index(int row, int column,const QModelIndex &parent = QModelIndex()) const;
     QModelIndex parent(const QModelIndex &index) const;
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    void setIcon(const QJsonValue::Type& type, const QIcon& icon);
+    void setIcon(const QJsonValue::Type &type, const QIcon &icon);
     void setColor(const QModelIndex &index, const QColor &color);
 
 private:

@@ -103,12 +103,20 @@ void WorkEngine::step() {
 
         QString toolName = m_plugins.info(taskItem->task()->tool()).value("id").toString();
         QString taskName = taskItem->task()->name();
-        QJsonObject jsonTool = m_env.contains(toolName) ? m_env.value(toolName).toObject() : QJsonObject();
-        jsonTool.remove(taskName);
+        QJsonObject jsonTool;
+        if (m_env.contains(toolName)) {
+            jsonTool = QJsonObject(m_env.value(toolName).toObject());
+            //jsonTool.remove(taskName);
+        }
 
         PostMonster::TaskInterface *processedTask = nullptr;
         taskItem->task()->progress(0);
+
+        qDebug() << "WORKER WAS " << jsonTool.value("_cookies").toObject();
+
         result = taskItem->task()->work(m_env, jsonTool, m_scriptEngine, &processedTask);
+
+        qDebug() << "WORKER NOW " << jsonTool.value("_cookies").toObject();
 
         QPair<QString, QString> taskKey(toolName, taskName);
         if (m_tasks.contains(taskKey)) {
@@ -120,13 +128,13 @@ void WorkEngine::step() {
 
         if (processedTask) {
             m_tasks.insert(taskKey, processedTask);
-
-            const Arrow *arrow = taskItem->arrow(result);
-            if (arrow)
-                m_item = arrow->endItem();
-            else
-                m_item = nullptr;
         }
+
+        const Arrow *arrow = taskItem->arrow(result);
+        if (arrow)
+            m_item = arrow->endItem();
+        else
+            m_item = nullptr;
     }
 
     emit ready(item);

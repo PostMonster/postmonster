@@ -80,7 +80,6 @@ bool EnvironmentModel::loadJson(const QJsonObject &json)
     beginResetModel();
     delete m_rootItem;
 
-    qDebug() << json;
     m_rootItem = JsonTreeItem::load(QJsonValue(json));
     endResetModel();
 

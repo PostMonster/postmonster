@@ -156,7 +156,7 @@ QPixmap HttpTask::itemPixmap() const
         return result;
     };
 
-    QSvgRenderer renderer(QLatin1String(":/icons/httpitem"));
+    QSvgRenderer renderer(QStringLiteral(":/icons/httpitem"));
     const qreal s = m_api.dpiScaleFactor();
 
     QPixmap pixmap(renderer.viewBox().width() * s, renderer.viewBox().height() * s);
@@ -264,47 +264,36 @@ TaskStatus HttpTask::work(const QJsonObject &environment, QJsonObject &toolSecti
 {
     const APIFunctions &api = m_api;
 
-    HttpRequest request;
-    request.method = m_request.method;
-    request.url = api.evalScript(m_request.url, environment, scriptEngine);
+    QNetworkRequest networkRequest;
+    networkRequest.setUrl(api.evalScript(m_request.url, environment, scriptEngine));
 
-    QTextCodec *codec = QTextCodec::codecForName(m_request.encoding);
-    if (!codec) {
-        codec = QTextCodec::codecForName("ISO-8859-1");
-    }
-
-    request.body = codec->fromUnicode(api.evalScript(codec->toUnicode(m_request.body),
-                                                     environment, scriptEngine));
+    HttpRequest processedRequest;
+    processedRequest.method = m_request.method;
+    processedRequest.body = m_request.body;
+    processedRequest.encoding = m_request.encoding;
+    processedRequest.url = networkRequest.url().toString();
 
     for (QList<QNetworkReply::RawHeaderPair>::iterator i = m_request.headers.begin(),
          end = m_request.headers.end(); i != end; ++i) {
         QNetworkReply::RawHeaderPair header = *i;
-        header.second = api.evalScript(QLatin1String(header.second), environment,
-                                       scriptEngine).toLatin1();
+        header.second = api.evalScript(header.second, environment, scriptEngine).toLatin1();
 
-        request.headers << header;
-    }
-
-    for (QList<QNetworkCookie>::iterator i = m_request.cookies.begin(),
-         end = m_request.cookies.end(); i != end; ++i) {
-        QNetworkCookie cookie = *i;
-        cookie.setValue(api.evalScript(QLatin1String(cookie.value()), environment,
-                                       scriptEngine).toLatin1());
-
-        request.cookies << cookie;
-    }
-
-    QNetworkRequest networkRequest;
-    networkRequest.setUrl(m_request.url);
-    foreach (QNetworkReply::RawHeaderPair header, m_request.headers)
         networkRequest.setRawHeader(header.first, header.second);
+        processedRequest.headers << header;
+    }
 
-    QBuffer buffer(&request.body);
-    buffer.open(QIODevice::ReadOnly);
+    foreach (QNetworkCookie cookie, m_request.cookies) {
+        QString value = api.evalScript(QUrl::fromPercentEncoding(cookie.value()),
+                                       environment, scriptEngine);
+
+        cookie.setValue(QUrl::toPercentEncoding(value));
+        processedRequest.cookies << cookie;
+    }
 
     QJsonObject jsonCookieJar;
-    if (toolSection.contains("_cookies"))
-        jsonCookieJar = toolSection.value("_cookies").toObject();
+    if (toolSection.contains("_cookies")) {
+        jsonCookieJar = toolSection["_cookies"].toObject();
+    }
 
     QList<QNetworkCookie> cookies;
     foreach (const QString &domain, jsonCookieJar.keys()) {
@@ -316,16 +305,17 @@ TaskStatus HttpTask::work(const QJsonObject &environment, QJsonObject &toolSecti
             QJsonObject jsonCookie = jsonDomain.value(name).toObject();
 
             if (jsonCookie.contains("expire"))
-                cookie.setExpirationDate(QDateTime::fromString(jsonCookie.value("expire").toString(), Qt::ISODate));
-            if (jsonCookie.value("httpOnly").toBool())
+                cookie.setExpirationDate(QDateTime::fromString(
+                                             jsonCookie["expire"].toString(), Qt::ISODate));
+            if (jsonCookie["httpOnly"].toBool())
                 cookie.setHttpOnly(true);
-            if (jsonCookie.value("secure").toBool())
+            if (jsonCookie["secure"].toBool())
                 cookie.setSecure(true);
             if (jsonCookie.contains("path"))
-                cookie.setPath(jsonCookie.value("path").toString());
+                cookie.setPath(jsonCookie["path"].toString());
 
             cookie.setName(name.toLatin1());
-            cookie.setValue(jsonCookie.value("value").toString().toLatin1());
+            cookie.setValue(jsonCookie["value"].toString().toLatin1());
 
             cookies << cookie;
         }
@@ -333,15 +323,15 @@ TaskStatus HttpTask::work(const QJsonObject &environment, QJsonObject &toolSecti
 
     QNetworkCookieJar cookieJar;
     cookieJar.setCookiesFromUrl(cookies, networkRequest.url());
-    cookieJar.setCookiesFromUrl(request.cookies, networkRequest.url());
+    cookieJar.setCookiesFromUrl(processedRequest.cookies, networkRequest.url());
 
-    request.cookies = cookieJar.cookiesForUrl(networkRequest.url());
+    processedRequest.cookies = cookieJar.cookiesForUrl(networkRequest.url());
 
     QNetworkAccessManager nam;
     nam.setCookieJar(&cookieJar);
     cookieJar.setParent(nullptr);
 
-    QNetworkReply *reply = nam.sendCustomRequest(networkRequest, request.method, &buffer);
+    QNetworkReply *reply = nam.sendCustomRequest(networkRequest, m_request.method);
     QEventLoop eventLoop;
     connect(reply, SIGNAL(finished()), &eventLoop, SLOT(quit()));
     connect(reply, &QNetworkReply::downloadProgress, [this](qint64 got, qint64 total) {
@@ -356,7 +346,6 @@ TaskStatus HttpTask::work(const QJsonObject &environment, QJsonObject &toolSecti
     eventLoop.exec(QEventLoop::ExcludeUserInputEvents);
 
     if (taskStopped) {
-        qDebug("STOPPED BABY!!");
         return Fail;
     }
 
@@ -367,8 +356,9 @@ TaskStatus HttpTask::work(const QJsonObject &environment, QJsonObject &toolSecti
             QList<QNetworkCookie> cookies = QNetworkCookie::parseCookies(header.second);
 
             foreach (const QNetworkCookie &cookie, cookies) {
-                QJsonObject jsonCookie;
+                if (cookie.domain().isEmpty()) continue;
 
+                QJsonObject jsonCookie;
                 if (cookie.expirationDate().isValid())
                     jsonCookie.insert("expire", cookie.expirationDate().toString(Qt::ISODate));
                 if (cookie.isHttpOnly())
@@ -378,9 +368,14 @@ TaskStatus HttpTask::work(const QJsonObject &environment, QJsonObject &toolSecti
                 if (!cookie.path().isEmpty())
                     jsonCookie.insert("path", cookie.path());
 
+                QJsonObject jsonCookieDomain;
+                if (jsonCookieJar.contains(cookie.domain()))
+                    jsonCookieDomain = jsonCookieJar[cookie.domain()].toObject();
+                jsonCookieDomain.insert(cookie.name(), jsonCookie);
+                jsonCookieJar.insert(cookie.domain(), jsonCookieDomain);
+
                 jsonCookie.insert("domain", cookie.domain());
                 jsonCookie.insert("value", QString(cookie.value()));
-
                 jsonCookies.insert(cookie.name(), jsonCookie);
             }
 
@@ -410,39 +405,16 @@ TaskStatus HttpTask::work(const QJsonObject &environment, QJsonObject &toolSecti
         jsonResult.insert("cookies", jsonCookies);
     if (!jsonHeaders.isEmpty())
         jsonResult.insert("headers", jsonHeaders);
+
     toolSection.insert(name(), jsonResult);
-
-    foreach (const QNetworkCookie &cookie, cookieJar.cookiesForUrl(networkRequest.url())) {
-        QJsonObject jsonCookie;
-
-        if (cookie.expirationDate().isValid())
-            jsonCookie.insert("expire", cookie.expirationDate().toString(Qt::ISODate));
-        if (cookie.isHttpOnly())
-            jsonCookie.insert("httpOnly", true);
-        if (cookie.isSecure())
-            jsonCookie.insert("secure", true);
-        if (!cookie.path().isEmpty())
-            jsonCookie.insert("path", cookie.path());
-
-        jsonCookie.insert("value", QString(cookie.value()));
-
-        QJsonObject jsonCookieDomain;
-        if (jsonCookieJar.contains(cookie.domain()))
-            jsonCookieDomain = jsonCookieJar.value(cookie.domain()).toObject();
-
-        jsonCookieDomain.insert(cookie.name(), jsonCookie);
-        jsonCookieJar.insert(cookie.domain(), jsonCookieDomain);
-    }
-    toolSection.insert("_cookies", jsonCookieJar);
+    if (!jsonCookieJar.isEmpty())
+        toolSection.insert("_cookies", jsonCookieJar);
 
     if (processed) {
-        *processed = new HttpTask(tool(), m_api, request, response);
+        *processed = new HttpTask(tool(), m_api, processedRequest, response);
     }
 
-    if (status == 200)
-        return Ok;
-    else
-        return Fail;
+    return (status == 200) ? Ok : Fail;
 }
 
 QJsonObject HttpToolPlugin::serializeTask(const TaskInterface *task)

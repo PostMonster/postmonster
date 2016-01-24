@@ -96,7 +96,7 @@ JsonTreeItem *JsonTreeItem::load(const QJsonValue &value, JsonTreeItem *parent)
         // Get all QJsonValue children
         foreach (const QString &key, value.toObject().keys()) {
             QJsonValue v = value.toObject().value(key);
-            JsonTreeItem *child = load(v,rootItem);
+            JsonTreeItem *child = load(v, rootItem);
 
             child->setKey(key);
             child->setType(v.type());
