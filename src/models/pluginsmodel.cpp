@@ -53,13 +53,13 @@ QVariant PluginsModel::data(const QModelIndex &index, int role) const
             return m_enabled.contains(row) ? 1 : 0;
 
         case Name:
-            return plugin->info.value("name");
+            return plugin->info["name"];
 
         case Description:
-            return plugin->info.value("description");
+            return plugin->info["description"];
 
         case Version:
-            return plugin->info.value("version");
+            return plugin->info["version"];
         }
     } else if (role == Qt::CheckStateRole && index.column() == Enabled) {
         return (m_enabled.contains(row)) ? Qt::Checked : Qt::Unchecked;

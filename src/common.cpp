@@ -108,37 +108,37 @@ PostMonster::HttpRequest Common::deserializeRequest(const QJsonObject &jsonReque
 {
     PostMonster::HttpRequest request;
 
-    request.url = jsonRequest.value("url").toString();
-    request.method = jsonRequest.value("method").toString().toLatin1();
-    request.encoding = jsonRequest.value("encoding").toString().toLatin1();
-    request.body = QByteArray::fromBase64(jsonRequest.value("body").toString().toLatin1());
+    request.url = jsonRequest["url"].toString();
+    request.method = jsonRequest["method"].toString().toLatin1();
+    request.encoding = jsonRequest["encoding"].toString().toLatin1();
+    request.body = QByteArray::fromBase64(jsonRequest["body"].toString().toLatin1());
 
-    foreach (const QJsonValue &value, jsonRequest.value("headers").toArray()) {
+    foreach (const QJsonValue &value, jsonRequest["headers"].toArray()) {
         const QJsonObject &jsonHeader = value.toObject();
         QNetworkReply::RawHeaderPair header;
 
-        header.first = jsonHeader.value("name").toString().toLatin1();
-        header.second = jsonHeader.value("value").toString().toLatin1();
+        header.first = jsonHeader["name"].toString().toLatin1();
+        header.second = jsonHeader["value"].toString().toLatin1();
 
         request.headers << header;
     }
 
-    foreach (const QJsonValue &value, jsonRequest.value("cookies").toArray()) {
+    foreach (const QJsonValue &value, jsonRequest["cookies"].toArray()) {
         const QJsonObject &jsonCookie = value.toObject();
         QNetworkCookie cookie;
 
         if (jsonCookie.contains("expire"))
-            cookie.setExpirationDate(QDateTime::fromString(jsonCookie.value("expire").toString(),
+            cookie.setExpirationDate(QDateTime::fromString(jsonCookie["expire"].toString(),
                                                            Qt::ISODate));
-        if (jsonCookie.value("httpOnly").toBool())
+        if (jsonCookie["httpOnly"].toBool())
             cookie.setHttpOnly(true);
-        if (jsonCookie.value("secure").toBool())
+        if (jsonCookie["secure"].toBool())
             cookie.setSecure(true);
         if (jsonCookie.contains("path"))
-            cookie.setPath(jsonCookie.value("path").toString());
+            cookie.setPath(jsonCookie["path"].toString());
 
-        cookie.setName(jsonCookie.value("name").toString().toLatin1());
-        cookie.setValue(jsonCookie.value("value").toString().toLatin1());
+        cookie.setName(jsonCookie["name"].toString().toLatin1());
+        cookie.setValue(jsonCookie["value"].toString().toLatin1());
 
         request.cookies << cookie;
     }
@@ -191,37 +191,37 @@ PostMonster::HttpResponse Common::deserializeResponse(const QJsonObject &jsonRes
 {
     PostMonster::HttpResponse response;
 
-    response.mimeType = jsonResponse.value("mimeType").toString().toLatin1();
-    response.status = jsonResponse.value("status").toInt();
+    response.mimeType = jsonResponse["mimeType"].toString().toLatin1();
+    response.status = jsonResponse["status"].toInt();
 
     QByteArray body;
-    body.append(jsonResponse.value("body").toString());
+    body.append(jsonResponse["body"].toString());
     response.body.append(QByteArray::fromBase64(body));
 
-    foreach (const QJsonValue &jsonHeader, jsonResponse.value("headers").toArray()) {
+    foreach (const QJsonValue &jsonHeader, jsonResponse["headers"].toArray()) {
         QNetworkReply::RawHeaderPair header;
-        header.first.append(jsonHeader.toObject().value("name").toString());
-        header.second.append(jsonHeader.toObject().value("value").toString());
+        header.first.append(jsonHeader.toObject()["name"].toString());
+        header.second.append(jsonHeader.toObject()["value"].toString());
 
         response.headers << header;
     }
 
-    foreach (const QJsonValue &value, jsonResponse.value("cookies").toArray()) {
+    foreach (const QJsonValue &value, jsonResponse["cookies"].toArray()) {
         const QJsonObject &jsonCookie = value.toObject();
         QNetworkCookie cookie;
 
         if (jsonCookie.contains("expire"))
-            cookie.setExpirationDate(QDateTime::fromString(jsonCookie.value("expire").toString(),
+            cookie.setExpirationDate(QDateTime::fromString(jsonCookie["expire"].toString(),
                                                            Qt::ISODate));
-        if (jsonCookie.value("httpOnly").toBool())
+        if (jsonCookie["httpOnly"].toBool())
             cookie.setHttpOnly(true);
-        if (jsonCookie.value("secure").toBool())
+        if (jsonCookie["secure"].toBool())
             cookie.setSecure(true);
         if (jsonCookie.contains("path"))
-            cookie.setPath(jsonCookie.value("path").toString());
+            cookie.setPath(jsonCookie["path"].toString());
 
-        cookie.setName(jsonCookie.value("name").toString().toLatin1());
-        cookie.setValue(jsonCookie.value("value").toString().toLatin1());
+        cookie.setName(jsonCookie["name"].toString().toLatin1());
+        cookie.setValue(jsonCookie["value"].toString().toLatin1());
 
         response.cookies << cookie;
     }

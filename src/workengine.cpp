@@ -101,7 +101,7 @@ void WorkEngine::step() {
     } else if (m_item->diagramType() == DiagramItem::TypeTask) {
         TaskItem *taskItem = static_cast<TaskItem *>(m_item);
 
-        QString toolName = m_plugins.info(taskItem->task()->tool()).value("id").toString();
+        QString toolName = m_plugins.info(taskItem->task()->tool())["id"].toString();
         QString taskName = taskItem->task()->name();
         QJsonObject jsonTool;
         if (m_env.contains(toolName)) {
@@ -112,11 +112,11 @@ void WorkEngine::step() {
         PostMonster::TaskInterface *processedTask = nullptr;
         taskItem->task()->progress(0);
 
-        qDebug() << "WORKER WAS " << jsonTool.value("_cookies").toObject();
+        qDebug() << "WORKER WAS " << jsonTool["_cookies"].toObject();
 
         result = taskItem->task()->work(m_env, jsonTool, m_scriptEngine, &processedTask);
 
-        qDebug() << "WORKER NOW " << jsonTool.value("_cookies").toObject();
+        qDebug() << "WORKER NOW " << jsonTool["_cookies"].toObject();
 
         QPair<QString, QString> taskKey(toolName, taskName);
         if (m_tasks.contains(taskKey)) {

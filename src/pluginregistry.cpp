@@ -49,7 +49,8 @@ void PluginRegistry::loadPlugins(const PostMonster::APIFunctions &api)
     for (int i = 0; i < size; ++i) {
         settings.setArrayIndex(i);
 
-        QPluginLoader *loader = new QPluginLoader(pluginsDir.absoluteFilePath(settings.value("filename").toString()));
+        QPluginLoader *loader = new QPluginLoader(pluginsDir.absoluteFilePath(
+                                                      settings.value("filename").toString()));
         QObject *pluginInstance = loader->instance();
 
         plugins[pluginInstance] = QPair<QJsonObject, QPluginLoader *>(loader->metaData(), loader);
@@ -62,7 +63,7 @@ void PluginRegistry::loadPlugins(const PostMonster::APIFunctions &api)
 
         QObject *instance = i.key();
 
-        QJsonObject metaData = i.value().first.value("MetaData").toObject();
+        QJsonObject metaData = i.value().first["MetaData"].toObject();
         QPluginLoader *loader = i.value().second;
 
         PostMonster::ToolPluginInterface *tool = qobject_cast<PostMonster::ToolPluginInterface *>(instance);
@@ -74,7 +75,7 @@ void PluginRegistry::loadPlugins(const PostMonster::APIFunctions &api)
             pluginData->info = metaData;
 
             //TODO Check for existent plugins with the same id
-            m_plugins[metaData.value("id").toString()] = pluginData;
+            m_plugins[metaData["id"].toString()] = pluginData;
             m_info[tool] = &pluginData->info;
 
             // Add tool plugins to toolbar

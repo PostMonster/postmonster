@@ -431,8 +431,8 @@ QJsonObject HttpToolPlugin::serializeTask(const TaskInterface *task)
 
 TaskInterface *HttpToolPlugin::deserializeTask(const QJsonObject &data)
 {
-    QJsonObject jsonRequest = data.value("request").toObject();
-    QString name = data.value("name").toString();
+    QJsonObject jsonRequest = data["request"].toObject();
+    QString name = data["name"].toString();
 
     if (m_names.values().contains(name))
         return 0;

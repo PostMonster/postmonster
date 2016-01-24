@@ -46,10 +46,10 @@ PluginsDialog::PluginsDialog(QWidget *parent) :
 
     //ui->pluginsTree->set
     /*foreach (const PluginRegistry::PluginData<PostMonster::ToolPluginInterface> *tool, plugins.tools()) {
-        QTableWidgetItem *id      = new QTableWidgetItem(tool->info.value("id").toString());
-        QTableWidgetItem *name    = new QTableWidgetItem(tool->info.value("name").toString());
-        QTableWidgetItem *descr   = new QTableWidgetItem(tool->info.value("description").toString());
-        QTableWidgetItem *version = new QTableWidgetItem(tool->info.value("version").toString());
+        QTableWidgetItem *id      = new QTableWidgetItem(tool->info["id"].toString());
+        QTableWidgetItem *name    = new QTableWidgetItem(tool->info["name"].toString());
+        QTableWidgetItem *descr   = new QTableWidgetItem(tool->info["description"].toString());
+        QTableWidgetItem *version = new QTableWidgetItem(tool->info["version"].toString());
 
         name->setCheckState(Qt::Checked);
         version->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
