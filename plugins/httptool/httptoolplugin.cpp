@@ -86,7 +86,7 @@ void HttpToolPlugin::updateMaxnum()
     foreach (const QString &name, m_names) {
         if (name.startsWith(TASKNAME_PREFIX)) {
             bool ok = false;
-            int num = name.mid(QString(TASKNAME_PREFIX).length()).toInt(&ok);
+            int num = name.mid(QStringLiteral(TASKNAME_PREFIX).length()).toInt(&ok);
             if (ok && num > m_maxnum)
                 m_maxnum = num;
         }
@@ -114,7 +114,7 @@ TaskInterface *HttpToolPlugin::createTask(const HttpRequest &request)
     updateMaxnum();
 
     TaskInterface *task = new HttpTask(this, m_api, request);
-    m_names[task] = QString(TASKNAME_PREFIX) + QString::number(m_maxnum);
+    m_names[task] = QStringLiteral(TASKNAME_PREFIX) + QString::number(m_maxnum);
 
     return task;
 }
@@ -352,7 +352,7 @@ TaskStatus HttpTask::work(const QJsonObject &environment, QJsonObject &toolSecti
     HttpResponse response;
     QJsonObject jsonHeaders, jsonCookies;
     foreach (const QNetworkReply::RawHeaderPair &header, reply->rawHeaderPairs()) {
-        if (!QString(header.first).compare("set-cookie", Qt::CaseInsensitive)) {
+        if (!QString::fromLatin1(header.first).compare("set-cookie", Qt::CaseInsensitive)) {
             QList<QNetworkCookie> cookies = QNetworkCookie::parseCookies(header.second);
 
             foreach (const QNetworkCookie &cookie, cookies) {
@@ -375,14 +375,14 @@ TaskStatus HttpTask::work(const QJsonObject &environment, QJsonObject &toolSecti
                 jsonCookieJar.insert(cookie.domain(), jsonCookieDomain);
 
                 jsonCookie.insert("domain", cookie.domain());
-                jsonCookie.insert("value", QString(cookie.value()));
+                jsonCookie.insert("value", QLatin1String(cookie.value()));
                 jsonCookies.insert(cookie.name(), jsonCookie);
             }
 
             continue;
         }
 
-        jsonHeaders.insert(QString(header.first), QString(header.second));
+        jsonHeaders.insert(QLatin1String(header.first), QLatin1String(header.second));
         response.headers << header;
     }
 
@@ -400,7 +400,7 @@ TaskStatus HttpTask::work(const QJsonObject &environment, QJsonObject &toolSecti
     QJsonObject jsonResult;
     jsonResult.insert("status", status);
     if (!body.isEmpty())
-        jsonResult.insert("body", QString("base64:") + body.toBase64());
+        jsonResult.insert("body", QLatin1String("base64:") + body.toBase64());
     if (!jsonCookies.isEmpty())
         jsonResult.insert("cookies", jsonCookies);
     if (!jsonHeaders.isEmpty())

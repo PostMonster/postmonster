@@ -154,7 +154,7 @@ Qt::ItemFlags HeadersModel::flags(const QModelIndex &index) const
 void HeadersModel::add(const QNetworkReply::RawHeaderPair &header)
 {
     foreach (const QNetworkReply::RawHeaderPair &pair, *m_headers)
-        if (!QString(pair.first).compare(header.first, Qt::CaseInsensitive))
+        if (!QString::fromLatin1(pair.first).compare(header.first, Qt::CaseInsensitive))
             return;
 
     emit beginInsertRows(QModelIndex(), rowCount(), rowCount());

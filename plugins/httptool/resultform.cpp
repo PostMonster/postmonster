@@ -103,12 +103,12 @@ void ResultForm::renderData()
         ui->tabWidget->setTabEnabled(0, true);
 
     if (ui->tabWidget->currentWidget() == ui->headersTab) {
-        QString html = "<table align='center'>";
+        QString html = QStringLiteral("<table align='center'>");
         foreach (const QNetworkReply::RawHeaderPair &header, *headers) {
-            html += QString("<tr><td align='right' nowrap><u>%1</u>:</td><td>%2</td></tr>").
-                    arg(QString(header.first)).arg(QUrl::fromPercentEncoding(header.second));
+            html += QStringLiteral("<tr><td align='right' nowrap><u>%1</u>:</td><td>%2</td></tr>").
+                    arg(QString::fromLatin1(header.first)).arg(QUrl::fromPercentEncoding(header.second));
         }
-        html += "</table>";
+        html += QLatin1String("</table>");
         ui->headersText->setHtml(html);
     }
 
@@ -121,12 +121,12 @@ void ResultForm::renderData()
     if (ui->tabWidget->currentWidget() == ui->cookiesTab) {
         QString html = "<table align='center'>";
         foreach (const QNetworkCookie &cookie, *cookies) {
-            QString name(cookie.name());
-            QString value(cookie.toRawForm().mid(name.length() + 1));
-            html += QString("<tr><td align='right' nowrap><u>%1</u>:</td><td>%2</td></tr>").
-                    arg(name).arg(QUrl::fromPercentEncoding(value.toLatin1()));
+            QString name = QString::fromLatin1(cookie.name());
+            QByteArray value = cookie.toRawForm().mid(name.length() + 1);
+            html += QStringLiteral("<tr><td align='right' nowrap><u>%1</u>:</td><td>%2</td></tr>").
+                    arg(name).arg(QUrl::fromPercentEncoding(value));
         }
-        html += "</table>";
+        html += QStringLiteral("</table>");
         ui->cookiesText->setHtml(html);
     }
 
@@ -140,24 +140,26 @@ void ResultForm::renderData()
         QByteArray encoding;
 
         foreach (const QNetworkReply::RawHeaderPair &header, *headers) {
-            const QString &headerName = QString(header.first).toLower();
-            const QString &headerValue = QString(header.second).toLower();
+            const QString &headerName = QString::fromLatin1(header.first).toLower();
+            const QString &headerValue = QString::fromLatin1(header.second).toLower();
 
-            if (headerName == "content-type") {
+            if (headerName == QLatin1String("content-type")) {
                 QString contentType = headerValue.left(headerValue.indexOf(";"));
                 const QMimeType mimeType = mimeDatabase.mimeTypeForName(contentType);
 
                 ui->stackedWidget->setCurrentWidget(ui->unknownDataPage);
                 ui->encodingCBox->setHidden(true);
 
-                if (contentType == "image/png" || contentType == "image/jpeg"
-                        || contentType == "image/gif" || contentType == "image/bmp") {
+                if (contentType == QLatin1String("image/png")
+                        || contentType == QLatin1String("image/jpeg")
+                        || contentType == QLatin1String("image/gif")
+                        || contentType == QLatin1String("image/bmp")) {
                     QPixmap preview;
                     if (preview.loadFromData(*body)) {
                         ui->stackedWidget->setCurrentWidget(ui->imageDataPage);
                         ui->imagePreviewLabel->setPixmap(preview, QPen(Qt::gray, 1));
                     }
-                } else if (contentType == "image/svg+xml") {
+                } else if (contentType == QLatin1String("image/svg+xml")) {
                     QSvgRenderer svg(*body);
 
                     if (svg.isValid()) {
@@ -172,9 +174,9 @@ void ResultForm::renderData()
                         ui->stackedWidget->setCurrentWidget(ui->imageDataPage);
                         ui->imagePreviewLabel->setPixmap(preview, QPen(Qt::gray, 1));
                     }
-                } else if (mimeType.inherits("text/plain") ||
-                      contentType == "application/x-www-form-urlencoded" ||
-                      contentType == "multipart/form-data") {
+                } else if (mimeType.inherits(QStringLiteral("text/plain"))
+                      || contentType == QLatin1String("application/x-www-form-urlencoded")
+                      || contentType == QLatin1String("multipart/form-data")) {
                       ui->stackedWidget->setCurrentWidget(ui->textDataPage);
                       ui->encodingCBox->setHidden(false);
 
@@ -202,7 +204,7 @@ void ResultForm::renderData()
         ui->encodingCBox->blockSignals(false);
 
         if (!QTextCodec::codecForName(encoding))
-            ui->encodingCBox->setCurrentText("ISO-8859-1");
+            ui->encodingCBox->setCurrentText(QStringLiteral("ISO-8859-1"));
         else
             ui->encodingCBox->setCurrentText(encoding);
     }

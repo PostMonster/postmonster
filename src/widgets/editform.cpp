@@ -181,7 +181,7 @@ void EditForm::saveProject(const QString &fileName)
             TaskItem *taskItem = static_cast<TaskItem *>(diagramItem);
             QJsonObject jsonTask;
 
-            jsonTask.insert("tool", m_plugins.info(taskItem->task()->tool()).value("id"));
+            jsonTask.insert("tool", m_plugins.info(taskItem->task()->tool())["id"]);
             jsonTask.insert("data", taskItem->task()->serialize());
 
             jsonItem.insert("type", "task");
@@ -241,29 +241,29 @@ void EditForm::loadProject(const QString &fileName)
 
     resetWorker();
 
-    QJsonArray items = project.value("items").toArray();
+    QJsonArray items = project["items"].toArray();
     QHash< QUuid, QHash<PostMonster::TaskStatus, QUuid> > parsedArrows;
     QHash< QUuid, DiagramItem * > parsedItems;
 
     foreach (const QJsonValue &value, items) {
         QJsonObject jsonItem = value.toObject();
 
-        QPointF pos(jsonItem.value("top").toDouble(),
-                    jsonItem.value("left").toDouble());
+        QPointF pos(jsonItem["top"].toDouble(),
+                    jsonItem["left"].toDouble());
 
-        QString type = jsonItem.value("type").toString();
-        qreal zValue = jsonItem.value("zvalue").toDouble();
+        QString type = jsonItem["type"].toString();
+        qreal zValue = jsonItem["zvalue"].toDouble();
 
-        QUuid uuid = jsonItem.value("uuid").toVariant().toUuid();
+        QUuid uuid = jsonItem["uuid"].toVariant().toUuid();
 
         DiagramItem *item = 0;
-        if (type == "start") {
+        if (type == QLatin1String("start")) {
             item = new StartItem;
-        } else if (type == "task") {
-            QJsonObject jsonTask = jsonItem.value("task").toObject();
-            QJsonObject jsonData = jsonTask.value("data").toObject();
+        } else if (type == QLatin1String("task")) {
+            QJsonObject jsonTask = jsonItem["task"].toObject();
+            QJsonObject jsonData = jsonTask["data"].toObject();
 
-            QString name = jsonTask.value("tool").toString();
+            QString name = jsonTask["tool"].toString();
             PostMonster::ToolPluginInterface *tool = m_plugins.tool(name);
             if (tool) {
                 PostMonster::TaskInterface *task = tool->deserializeTask(jsonData);
@@ -277,7 +277,7 @@ void EditForm::loadProject(const QString &fileName)
         if (!item)
             continue;
 
-        QVariantMap jsonArrows = jsonItem.value("out").toObject().toVariantMap();
+        QVariantMap jsonArrows = jsonItem["out"].toObject().toVariantMap();
         QHash<PostMonster::TaskStatus, QUuid> arrow;
         for (QVariantMap::iterator i = jsonArrows.begin(),
              end = jsonArrows.end(); i != end; ++i) {
@@ -320,15 +320,15 @@ void EditForm::loadProject(const QString &fileName)
         }
     }
 
-    QJsonArray requests = project.value("requests").toArray();
+    QJsonArray requests = project["requests"].toArray();
     PostMonster::HttpToolPluginInterface *tool = m_httpTool;
 
     if (m_requestsModel) {
         m_requestsModel->clear();
         if (tool && !requests.isEmpty()) {
             foreach (const QJsonValue &value, requests) {
-                QJsonObject jsonRequest = value.toObject().value("request").toObject();
-                QJsonObject jsonResponse = value.toObject().value("response").toObject();
+                QJsonObject jsonRequest = value.toObject()["request"].toObject();
+                QJsonObject jsonResponse = value.toObject()["response"].toObject();
 
                 HttpRequest *request = new HttpRequest(Common::deserializeRequest(jsonRequest));
                 HttpResponse *response = new HttpResponse(Common::deserializeResponse(jsonResponse));
@@ -365,7 +365,7 @@ void EditForm::addToolToToolbar(QObject *plugin)
     PostMonster::ToolPluginInterface *tool = qobject_cast<PostMonster::ToolPluginInterface *>(plugin);
     if (!tool) return;
 
-    QString name = m_plugins.info(tool).value("name").toString();
+    QString name = m_plugins.info(tool)["name"].toString();
     QAction *action = new QAction(tool->icon(), name, plugin);
 
     action->setCheckable(true);
@@ -408,7 +408,7 @@ void EditForm::currentItemChanged()
         else if (m_scene->currentItem()->diagramType() == DiagramItem::TypeTask) {
             TaskInterface *task = static_cast<TaskItem *>(m_scene->currentItem())->task();
             activeItemString = activeItemString.arg(m_plugins.info(task->tool())
-                                                    .value("id").toString() + "." + task->name());
+                                                    ["id"].toString() + "." + task->name());
         }
         ui->activeItemLabel->setText(activeItemString);
 
@@ -592,7 +592,7 @@ void EditForm::workerReady(DiagramItem *item)
 
     if (item->diagramType() == DiagramItem::TypeTask) {
         TaskItem *taskItem = static_cast<TaskItem *>(item);
-        QString toolName = m_plugins.info(taskItem->task()->tool()).value("id").toString();
+        QString toolName = m_plugins.info(taskItem->task()->tool())["id"].toString();
 
         int rowCount = m_envModel.rowCount();
         for (int i = 0; i < rowCount; ++i) {

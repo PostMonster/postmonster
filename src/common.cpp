@@ -73,8 +73,8 @@ QJsonObject Common::serializeRequest(const PostMonster::HttpRequest *request)
 
     foreach (const QNetworkReply::RawHeaderPair &header, request->headers) {
         QJsonObject tmp;
-        tmp.insert("name", QString(header.first));
-        tmp.insert("value", QString(header.second));
+        tmp.insert("name", QLatin1String(header.first));
+        tmp.insert("value", QLatin1String(header.second));
 
         jsonHeaders << tmp;
     }

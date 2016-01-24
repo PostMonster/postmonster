@@ -152,7 +152,7 @@ void RecordForm::requestFinished(QNetworkReply *reply, const QByteArray &request
     response->body = replyData;
 
     foreach (const QNetworkReply::RawHeaderPair &pair, reply->rawHeaderPairs()) {
-        const QString &headerName = QLatin1String(pair.first);
+        const QString &headerName = QString::fromLatin1(pair.first);
         if (!headerName.compare("cookie", Qt::CaseInsensitive))
             continue;
 
@@ -172,10 +172,10 @@ void RecordForm::requestFinished(QNetworkReply *reply, const QByteArray &request
         pair.first = name;
         pair.second = reply->request().rawHeader(name);
 
-        const QString &headerName = QString(pair.first).toLower();
-        if (headerName == "cookie") {
+        const QString &headerName = QString::fromLatin1(pair.first).toLower();
+        if (headerName == QLatin1String("cookie")) {
             continue;
-        } else if (headerName == "content-type") {
+        } else if (headerName == QLatin1String("content-type")) {
             QRegExp charsetRx("charset\\=([^;]+)", Qt::CaseInsensitive);
             if (charsetRx.indexIn(pair.second) != -1) {
                 request->encoding = charsetRx.cap(1).toLatin1();

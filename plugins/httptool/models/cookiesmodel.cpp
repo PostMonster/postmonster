@@ -161,7 +161,7 @@ void CookiesModel::clear()
 void CookiesModel::add(const QNetworkCookie &cookie)
 {
     foreach (const QNetworkCookie &c, *m_cookies)
-        if (!QString(c.name()).compare(cookie.name(), Qt::CaseInsensitive))
+        if (!QString::fromLatin1(c.name()).compare(cookie.name(), Qt::CaseInsensitive))
             return;
 
     emit beginInsertRows(QModelIndex(), rowCount(), rowCount());
