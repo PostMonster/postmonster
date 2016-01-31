@@ -33,8 +33,6 @@ Arrow::Arrow(PostMonster::TaskStatus status, DiagramItem *startItem, DiagramItem
 {
     setFlag(QGraphicsItem::ItemIsSelectable, true);
     restorePen();
-
-    qDebug() << "ARROW ADDED " << (void *) m_startItem << " -> " << (void *) m_endItem;
 }
 
 void Arrow::restorePen()
