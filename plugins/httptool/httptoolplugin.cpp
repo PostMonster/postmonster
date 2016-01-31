@@ -97,7 +97,7 @@ void HttpToolPlugin::updateMaxnum()
 
 bool HttpToolPlugin::setTaskName(const TaskInterface *task, const QString &name)
 {
-    if (name.startsWith("_") || !m_names.contains(task) || m_names.values().contains(name))
+    if (name.startsWith('_') || !m_names.contains(task) || m_names.values().contains(name))
         return false;
 
     m_names[task] = name;
@@ -190,14 +190,14 @@ QPixmap HttpTask::itemPixmap() const
     QString labelName;
     int labelX, labelY, labelWidth;
     QUrl url(m_request.url);
-    QString host = url.host().isEmpty() ? QLatin1Literal("...") : url.host();
+    QString host = url.host().isEmpty() ? QStringLiteral("...") : url.host();
     QString path = (url.path().isEmpty() ? "/" : url.path()) +
                    (url.query().isEmpty() ? "" : "?" + url.query());
     QString headerCount = QString::number(m_request.headers.count());
     QString cookieCount = QString::number(m_request.cookies.count());
 
     // Draw domain label
-    labelName = QLatin1Literal("Domain:");
+    labelName = QStringLiteral("Domain:");
     labelX = 10 * s;
     labelY = 25 * s + (fm.height() + 3 * s);
     labelWidth = fm.width(labelName);
@@ -211,7 +211,7 @@ QPixmap HttpTask::itemPixmap() const
                      chopToWidth(host, painter.font(), pixmap.width() - 20 * s - labelWidth));
 
     // Draw path label
-    labelName = QLatin1Literal("Path:");
+    labelName = QStringLiteral("Path:");
     labelWidth = fm.width(labelName);
     labelY = 25 * s + (fm.height() + 3 * s) * 2;
 
@@ -225,7 +225,7 @@ QPixmap HttpTask::itemPixmap() const
                      chopToWidth(path, painter.font(), pixmap.width() - 20 * s - labelWidth));
 
     // Draw headers label
-    labelName = QLatin1Literal("Headers:");
+    labelName = QStringLiteral("Headers:");
     labelWidth = fm.width(labelName);
     labelY = 25 * s + (fm.height() + 3 * s) * 3;
 
@@ -238,7 +238,7 @@ QPixmap HttpTask::itemPixmap() const
     painter.drawText(labelX + labelWidth + 2 * s, labelY, headerCount + ";");
 
     // Draw cookies label
-    labelName = QLatin1Literal("Cookies:");
+    labelName = QStringLiteral("Cookies:");
     labelX += labelWidth + fm.width(headerCount) + 10 * s;
     labelWidth = fm.width(labelName);
     labelY = 25 * s + (fm.height() + 3 * s) * 3;

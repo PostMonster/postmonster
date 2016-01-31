@@ -76,33 +76,34 @@ void DiagramItem::toBack()
         if (item->zValue() <= zValue)
             zValue = item->zValue() - 0.1;
     }
-    setZValue(zValue);
+
+    setZValue(zValue >= 0 ? zValue : 0);
 }
 
-
-void DiagramItem::removeArrow(Arrow *arrow)
+void DiagramItem::destroyArrow(Arrow *arrow)
 {
-    int index = m_arrows.indexOf(arrow);
-    if (index < 0) return;
+    arrow->startItem()->m_arrows.removeAll(arrow);
+    arrow->endItem()->m_arrows.removeAll(arrow);
 
-    const QList<Arrow *> *endArrows = arrow->endItem()->arrows();
-    for (QList<Arrow *>::const_iterator i = endArrows->constBegin(),
-         end = endArrows->constEnd(); i != end; ++i) {
-        if ((*i)->status() == arrow->status())
-            (*i)->restorePen();
-    }
-
-    m_arrows.removeAt(index);
     scene()->removeItem(arrow);
-
     delete arrow;
 }
 
 void DiagramItem::removeArrow(PostMonster::TaskStatus status)
 {
     foreach (Arrow *arrow, m_arrows) {
-        if (arrow->status() == status) {
-            removeArrow(arrow);
+        if (arrow->status() == status && arrow->startItem() == this) {
+            const QList<Arrow *> *endArrows = arrow->endItem()->arrows();
+            for (QList<Arrow *>::const_iterator i = endArrows->constBegin(),
+                 end = endArrows->constEnd(); i != end; ++i) {
+                if ((*i)->status() == arrow->status() && (*i)->startItem() == arrow->endItem()) {
+                    (*i)->restorePen();
+                    break;
+                }
+            }
+
+            destroyArrow(arrow);
+
             break;
         }
     }
@@ -111,7 +112,7 @@ void DiagramItem::removeArrow(PostMonster::TaskStatus status)
 const Arrow *DiagramItem::arrow(PostMonster::TaskStatus status)
 {
     foreach (const Arrow *arrow, m_arrows)
-        if (arrow->status() == status)
+        if (arrow->status() == status && arrow->startItem() == this)
             return arrow;
 
     return 0;
@@ -125,16 +126,15 @@ const QList<Arrow *> *DiagramItem::arrows() const
 
 void DiagramItem::removeArrows()
 {
-    foreach (Arrow *arrow, m_arrows) {
-        removeArrow(arrow);
-    }
+    while (!m_arrows.empty())
+        destroyArrow(m_arrows.first());
 }
 
 void DiagramItem::addArrow(Arrow *arrow)
 {
-    foreach (Arrow *a, m_arrows) {
-        if (a->status() == arrow->status())
-            removeArrow(a);
+    if (arrow->startItem() == this) {
+        removeArrow(arrow->status());
+        arrow->endItem()->addArrow(arrow);
     }
 
     m_arrows.append(arrow);

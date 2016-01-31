@@ -33,6 +33,8 @@ Arrow::Arrow(PostMonster::TaskStatus status, DiagramItem *startItem, DiagramItem
 {
     setFlag(QGraphicsItem::ItemIsSelectable, true);
     restorePen();
+
+    qDebug() << "ARROW ADDED " << (void *) m_startItem << " -> " << (void *) m_endItem;
 }
 
 void Arrow::restorePen()
@@ -72,24 +74,23 @@ QPainterPath Arrow::shape() const
 
 void Arrow::updatePosition()
 {
-    QLineF line(mapFromItem(m_startItem, 0, 0), mapFromItem(m_endItem, 0, 0));
-    setLine(line);
-}
+    //QLineF line(mapFromItem(m_startItem, 0, 0), mapFromItem(m_endItem, 0, 0));
+    //setLine(line);
 
-void Arrow::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
-{
-    if (m_startItem->collidesWithItem(m_endItem))
-        return;
+    const QPointF startPos = m_startItem->pos();
+    const QPointF endPos = m_endItem->pos();
 
-    painter->setBrush(m_color);
+    const qreal startScale = m_startItem->scale();
+    const qreal endScale = m_endItem->scale();
 
-    QLineF centerLine(m_startItem->pos() + m_startItem->boundingRect().center() * m_startItem->scale(),
-                      m_endItem->pos() + m_endItem->boundingRect().center() * m_endItem->scale());
+    const int deltaX = qAbs(startPos.x() - endPos.x());
+    const int deltaY = qAbs(startPos.y() - endPos.y());
+    const QPointF pointDeltaX = QPointF(m_startItem->boundingRect().width() / 4, 0) * startScale;
+    const QPointF pointDeltaY = QPointF(0, m_startItem->boundingRect().height() / 4) * startScale;
 
-    int deltaX = qAbs(m_startItem->pos().x() - m_endItem->pos().x());
-    int deltaY = qAbs(m_startItem->pos().y() - m_endItem->pos().y());
-    QPointF pointDeltaX = QPointF(m_startItem->boundingRect().width() / 4, 0) * m_startItem->scale();
-    QPointF pointDeltaY = QPointF(0, m_startItem->boundingRect().height() / 4) * m_startItem->scale();
+    QLineF centerLine(startPos + m_startItem->boundingRect().center() * startScale,
+                      endPos + m_endItem->boundingRect().center() * endScale);
+
     switch (m_status) {
     case PostMonster::Ok:
     case PostMonster::True:
@@ -112,12 +113,12 @@ void Arrow::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *
     }
 
     QPolygonF itemPolygon = m_endItem->shape().toFillPolygon();
-    QPointF p1 = itemPolygon.first() + m_endItem->pos();
+    QPointF p1 = itemPolygon.first() + endPos;
     QPointF p2;
     QPointF startPoint, endPoint;
     QLineF polyLine;
     for (int i = 1; i < itemPolygon.count(); ++i) {
-        p2 = itemPolygon.at(i) * m_endItem->scale() + m_endItem->pos();
+        p2 = itemPolygon.at(i) * endScale + endPos;
         polyLine = QLineF(p1, p2);
         QLineF::IntersectType intersectType =
             polyLine.intersect(centerLine, &endPoint);
@@ -127,9 +128,9 @@ void Arrow::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *
     }
 
     itemPolygon = m_startItem->shape().toFillPolygon();
-    p1 = itemPolygon.first() + m_startItem->pos();
+    p1 = itemPolygon.first() + startPos;
     for (int i = 1; i < itemPolygon.count(); ++i) {
-        p2 = itemPolygon.at(i) * m_startItem->scale() + m_startItem->pos();
+        p2 = itemPolygon.at(i) * startScale + startPos;
         polyLine = QLineF(p1, p2);
         QLineF::IntersectType intersectType =
             polyLine.intersect(centerLine, &startPoint);
@@ -138,7 +139,15 @@ void Arrow::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *
         p1 = p2;
     }
 
-    setLine(QLineF(endPoint, centerLine.p1()));
+    setLine(QLineF(endPoint, startPoint));
+}
+
+void Arrow::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
+{
+    if (m_startItem->collidesWithItem(m_endItem))
+        return;
+
+    painter->setBrush(m_color);
 
     qreal arrowSize = 12;
     double angle = ::acos(line().dx() / line().length());
@@ -159,14 +168,14 @@ void Arrow::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *
     painter->drawPolygon(arrowHead);
     painter->setPen(pen());
 
-    QString text = "";
+    QString text;
     switch (m_status) {
     case PostMonster::Ok:
-        text = "OK";
+        text = QStringLiteral("OK");
         break;
 
     case PostMonster::Fail:
-        text = "FAIL";
+        text = QStringLiteral("FAIL");
         break;
 
     default:
@@ -178,13 +187,13 @@ void Arrow::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *
     QFontMetrics fm(painter->font());
     int textWidth = fm.width(text);
 
-    if (textWidth * 3 > QLineF(startPoint, endPoint).length())
+    if (textWidth * 3 > line().length())
         return;
 
     if (angle > Pi / 2 && angle < 3 * Pi / 2)
         angle += Pi;
 
-    QPointF textP = (endPoint + startPoint) / 2;
+    QPointF textP = (line().p1() + line().p2()) / 2;
     painter->save();
     painter->translate(textP);
     painter->rotate(-angle * 180 / Pi);

@@ -194,35 +194,16 @@ void DiagramScene::insertItem(DiagramItem *item)
     emit itemInserted(item);
 }
 
-void DiagramScene::destroyItem(QGraphicsItem *item)
+void DiagramScene::destroyItem(DiagramItem *item)
 {
-    DiagramItem *diagramItem = qgraphicsitem_cast<DiagramItem *>(item);
-    if (diagramItem) {
-        diagramItem->removeArrows();
+    item->removeArrows();
+    removeItem(item);
 
-        QHash<Arrow *, DiagramItem *> arrows;
-        foreach (QGraphicsItem *i, items()) {
-            DiagramItem *di = qgraphicsitem_cast<DiagramItem *>(i);
-            if (!di) continue;
-
-            for (QList<Arrow *>::const_iterator j = di->arrows()->constBegin(),
-                 end = di->arrows()->constEnd(); j != end; ++j)
-                if ((*j)->endItem() == item)
-                    arrows[(*j)] = di;
-
-        }
-
-        for (QHash<Arrow *, DiagramItem *>::iterator i = arrows.begin(),
-             end = arrows.end(); i != end; ++i)
-            (*i)->removeArrow(i.key());
-
-        if (diagramItem->diagramType() == DiagramItem::TypeTask) {
-            TaskItem *taskItem = static_cast<TaskItem *>(diagramItem);
-            taskItem->tool()->destroyTask(taskItem->task());
-        }
+    if (item->diagramType() == DiagramItem::TypeTask) {
+        TaskItem *taskItem = static_cast<TaskItem *>(item);
+        taskItem->tool()->destroyTask(taskItem->task());
     }
 
-    removeItem(item);
     delete item;
 }
 
@@ -231,8 +212,11 @@ void DiagramScene::menuDelete()
     QList<QGraphicsItem *> selected = selectedItems();
     clearSelection();
 
-    foreach (QGraphicsItem *item, selected)
-        destroyItem(item);
+    foreach (QGraphicsItem *item, selected) {
+        DiagramItem *diagramItem = qgraphicsitem_cast<DiagramItem *>(item);
+        if (diagramItem)
+            destroyItem(diagramItem);
+    }
 }
 
 void DiagramScene::menuDisconnect()
@@ -246,8 +230,11 @@ void DiagramScene::menuDisconnect()
 
 void DiagramScene::destroyItems()
 {
-    while (!items().empty())
-        destroyItem(items().first());
+    foreach (QGraphicsItem *item, items()) {
+        DiagramItem *diagramItem = qgraphicsitem_cast<DiagramItem *>(item);
+        if (diagramItem)
+            destroyItem(diagramItem);
+    }
 }
 
 void DiagramScene::menuToFront()

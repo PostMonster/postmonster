@@ -46,7 +46,7 @@ public:
 
 public slots:
     void destroyItems();
-    void destroyItem(QGraphicsItem *item);
+    void destroyItem(DiagramItem *item);
     Mode mode();
     void setMode(Mode mode, PostMonster::ToolPluginInterface *tool = 0);
     DiagramItem *drawStart();

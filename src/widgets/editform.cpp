@@ -301,7 +301,8 @@ void EditForm::loadProject(const QString &fileName)
         item->setUuid(uuid);
         m_scene->insertItem(item);
 
-        QTimer::singleShot(0, [item, pos]() { item->setPos(pos); });
+        //QTimer::singleShot(0, [item, pos]() { item->setPos(pos); });
+        item->setPos(pos);
     }
 
     for (QHash< QUuid, QHash<PostMonster::TaskStatus, QUuid> >::iterator i = parsedArrows.begin(),

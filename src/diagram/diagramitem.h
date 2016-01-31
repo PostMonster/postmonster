@@ -33,13 +33,13 @@ class DiagramItem : public QGraphicsItem
 public:
     enum { Type = UserType + 1 };
     enum DiagramType { TypeStart, TypeTask };
+    enum ArrowDirection { In, Out };
 
     DiagramItem(QGraphicsItem *parent = 0);
     ~DiagramItem();
 
     void setMenu(QMenu *menu);
     const Arrow *arrow(PostMonster::TaskStatus status);
-    void removeArrow(Arrow *arrow);
     void removeArrow(PostMonster::TaskStatus status);
     void addArrow(Arrow *arrow);
     const QList<Arrow *> *arrows() const;
@@ -55,6 +55,7 @@ public:
                QWidget *widget = 0);
 
 protected:
+    void destroyArrow(Arrow *arrow);
     void contextMenuEvent(QGraphicsSceneContextMenuEvent *event) Q_DECL_OVERRIDE;
     QVariant itemChange(GraphicsItemChange change, const QVariant &value) Q_DECL_OVERRIDE;
 
