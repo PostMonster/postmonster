@@ -230,8 +230,8 @@ void DiagramScene::menuDisconnect()
 
 void DiagramScene::destroyItems()
 {
-    foreach (QGraphicsItem *item, items()) {
-        DiagramItem *diagramItem = qgraphicsitem_cast<DiagramItem *>(item);
+    while (!items().empty()) {
+        DiagramItem *diagramItem = qgraphicsitem_cast<DiagramItem *>(items().first());
         if (diagramItem)
             destroyItem(diagramItem);
     }

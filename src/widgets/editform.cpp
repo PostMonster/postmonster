@@ -191,8 +191,12 @@ void EditForm::saveProject(const QString &fileName)
 
         QJsonObject jsonArrows;
         for (QList<Arrow *>::const_iterator i = diagramItem->arrows()->constBegin(),
-             end = diagramItem->arrows()->end(); i != end; ++i)
+             end = diagramItem->arrows()->end(); i != end; ++i) {
+            if ((*i)->startItem() != diagramItem)
+                continue;
+
             jsonArrows.insert(QString::number((*i)->status()), (*i)->endItem()->uuid().toString());
+        }
         jsonItem.insert("out", jsonArrows);
 
         items << jsonItem;

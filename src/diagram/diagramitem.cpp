@@ -132,11 +132,9 @@ void DiagramItem::removeArrows()
 
 void DiagramItem::addArrow(Arrow *arrow)
 {
-    if (arrow->startItem() == this) {
-        removeArrow(arrow->status());
-        arrow->endItem()->addArrow(arrow);
-    }
+    removeArrow(arrow->status());
 
+    arrow->endItem()->m_arrows.append(arrow);
     m_arrows.append(arrow);
 }
 
