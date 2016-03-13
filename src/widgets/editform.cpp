@@ -623,8 +623,12 @@ EditForm::~EditForm()
     //TODO UNLOAD PLUGINS?
     if (m_debugRunning)
         debugStop();
-    m_workerThread.exit();
+
     m_scene->destroyItems();
+
+    m_workerThread.quit();
+    m_workerThread.wait();
+
     delete m_scene;
     delete ui;
 }
