@@ -364,9 +364,6 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
                 DiagramItem *endItem = qgraphicsitem_cast<DiagramItem *>(endItems.first());
 
                 if (startItem && endItem) {
-                    if (startItem->diagramType() == DiagramItem::TypeStart)
-                        startItem->removeArrows();
-
                     insertArrow(startItem, endItem);
                 }
             }
