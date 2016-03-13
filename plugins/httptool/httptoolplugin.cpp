@@ -170,7 +170,6 @@ QPixmap HttpTask::itemPixmap() const
     painter.setPen(QPen(Qt::black));
     painter.setFont(QFont(QStringLiteral("sans"), 10, QFont::Bold));
 
-    qDebug() << s;
     // Draw method
     QFontMetrics fm(painter.font());
     int methodWidth = fm.width(QLatin1String(m_request.method));
