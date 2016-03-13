@@ -148,14 +148,24 @@ void DiagramItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
         m_menu->exec(event->screenPos());
 }
 
-QVariant DiagramItem::itemChange(GraphicsItemChange change, const QVariant &value)
+void DiagramItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (change == QGraphicsItem::ItemPositionChange) {
-        foreach (Arrow *arrow, m_arrows)
-            arrow->updatePosition();
+    static bool busy = false;
+    if (busy) return;
+
+    busy = true;
+
+    QGraphicsItem::mouseMoveEvent(event);
+
+    foreach (Arrow *arrow, m_arrows)
+        arrow->updatePosition();
+
+    DiagramScene *diagramScene = qobject_cast<DiagramScene *>(scene());
+    if (diagramScene) {
+        diagramScene->updateCanvas();
     }
 
-    return value;
+    busy = false;
 }
 
 void DiagramItem::setBreakpoint(bool flag)

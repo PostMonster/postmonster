@@ -93,16 +93,14 @@ void EditForm::initScene()
         delete m_scene;
     }
 
-    m_scene = new DiagramScene(this);
+    m_scene = new DiagramScene(QSize(600, 300), this);
+    m_scene->setMode(DiagramScene::MoveItem);
 
     connect(m_scene, SIGNAL(itemInserted(DiagramItem *)), this, SLOT(resetMode()));
     connect(m_scene, SIGNAL(itemInserted(DiagramItem *)), this, SLOT(handleInsertedItem(DiagramItem *)));
     connect(m_scene, SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
     connect(m_scene, SIGNAL(currentItemChanged()), this, SLOT(currentItemChanged()));
     connect(m_scene, SIGNAL(requestDropped(int, QPointF)), this, SLOT(insertHttpItem(int, QPointF)));
-
-    m_scene->setMode(DiagramScene::MoveItem);
-    //m_scene->installEventFilter(this);
 
     ui->graphicsView->setScene(m_scene);
     ui->tabWidget->setCurrentIndex(0);
@@ -127,21 +125,9 @@ void EditForm::newProject()
     initScene();
 
     DiagramItem *item = new StartItem();
+    item->setPos(-item->boundingRect().width() / 2,
+                 -item->boundingRect().height() / 2);
     m_scene->insertItem(item);
-
-    // This is workaround for the QGraphicsScene behaviour when inserting the first item.
-    // If we set center position immediately, scene rect will just translate its
-    // coordinates to this position, and on the screen it will be at top left corner.
-    // So we insert item at default position (0, 0) and on next event loop iteration
-    // move it to the QGraphicsView center, so it will be displayed at viewport center.
-    QTimer::singleShot(0, [this, item]() {
-        QPointF pos = QPointF(ui->graphicsView->width() / 2.0 - item->boundingRect().width() / 2.0,
-                              ui->graphicsView->height() / 2.0 - item->boundingRect().height() / 2.0);
-        pos.setX(pos.x() / Common::dpiScaleFactor());
-        pos.setY(pos.y() / Common::dpiScaleFactor());
-
-        item->setPos(pos);
-    });
 
     if (m_requestsModel)
         m_requestsModel->clear();
@@ -303,10 +289,8 @@ void EditForm::loadProject(const QString &fileName)
         parsedItems[uuid] = item;
 
         item->setUuid(uuid);
-        m_scene->insertItem(item);
-
-        //QTimer::singleShot(0, [item, pos]() { item->setPos(pos); });
         item->setPos(pos);
+        m_scene->insertItem(item);
     }
 
     for (QHash< QUuid, QHash<PostMonster::TaskStatus, QUuid> >::iterator i = parsedArrows.begin(),
@@ -324,6 +308,8 @@ void EditForm::loadProject(const QString &fileName)
             m_scene->insertArrow(status, startItem, endItem);
         }
     }
+
+    m_scene->updateCanvas();
 
     QJsonArray requests = project["requests"].toArray();
     PostMonster::HttpToolPluginInterface *tool = m_httpTool;
@@ -510,15 +496,6 @@ void EditForm::envItemSelected(const QModelIndex &newIndex, const QModelIndex &o
         ui->resultStackedWidget->setCurrentWidget(widget);
         ui->resultStackedWidget->currentWidget()->layout()->setContentsMargins(0, 0, 0, 0);
     }
-}
-
-bool EditForm::eventFilter(QObject *object, QEvent *event)
-{
-    if (object == m_scene && m_debugRunning) {
-        return true;
-    }
-
-    return QObject::eventFilter(object, event);
 }
 
 void EditForm::debugStop()

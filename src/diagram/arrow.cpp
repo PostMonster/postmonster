@@ -74,9 +74,13 @@ void Arrow::updatePosition()
 {
     //QLineF line(mapFromItem(m_startItem, 0, 0), mapFromItem(m_endItem, 0, 0));
     //setLine(line);
-
     const QPointF startPos = m_startItem->pos();
     const QPointF endPos = m_endItem->pos();
+
+    if (m_startItem->collidesWithItem(m_endItem)) {
+        setLine(0, 0, 0, 0);
+        return;
+    }
 
     const qreal startScale = m_startItem->scale();
     const qreal endScale = m_endItem->scale();

@@ -35,7 +35,7 @@ class DiagramScene : public QGraphicsScene
 public:
     enum Mode { InsertItem, InsertLine, MoveItem };
 
-    explicit DiagramScene(QObject *parent = 0);
+    explicit DiagramScene(QSizeF canvasSize, QObject *parent = 0);
 
     void insertItem(DiagramItem *item);
     void insertArrow(DiagramItem *start, DiagramItem *end);
@@ -44,12 +44,16 @@ public:
     void setCurrentItem(DiagramItem *item);
     DiagramItem *currentItem();
 
+    void drawBackground(QPainter * painter, const QRectF & rect) override;
+    QSizeF canvasSize();
+
 public slots:
     void destroyItems();
     void destroyItem(DiagramItem *item);
     Mode mode();
     void setMode(Mode mode, PostMonster::ToolPluginInterface *tool = 0);
     DiagramItem *drawStart();
+    void updateCanvas();
 
 signals:
     void itemInserted(DiagramItem *item);
@@ -90,6 +94,7 @@ private:
     QPointF m_clickPos;
     PostMonster::ToolPluginInterface *m_tool;
     DiagramItem *m_currentItem;
+    QSizeF m_canvasSize;
 };
 
 #endif // DIAGRAMSCENE_H

@@ -30,16 +30,62 @@
 #include "startitem.h"
 #include "taskitem.h"
 
-DiagramScene::DiagramScene(QObject *parent)
-    : QGraphicsScene(parent), m_currentItem(nullptr)
+DiagramScene::DiagramScene(QSizeF canvasSize, QObject *parent)
+    : QGraphicsScene(parent), m_currentItem(nullptr), m_canvasSize(canvasSize)
 {
     m_mode = InsertItem;
+    setSceneRect(QRect(-canvasSize.width() / 2.0, -canvasSize.height() / 2.0,
+                       canvasSize.width(), canvasSize.height()));
 }
 
 void DiagramScene::setMode(Mode mode, PostMonster::ToolPluginInterface *tool)
 {
     m_mode = mode;
     m_tool = tool;
+}
+
+void DiagramScene::drawBackground(QPainter * painter, const QRectF & rect)
+{
+    painter->fillRect(rect, Qt::white);
+
+    painter->setPen(Qt::gray);
+
+    QRect canvas(sceneRect().x() - 10, sceneRect().y() - 10,
+                 sceneRect().width() + 20, sceneRect().height() + 20);
+    QRect shadow(canvas.x() + 5, canvas.y() + 5, canvas.width(), canvas.height());
+
+    painter->fillRect(shadow, Qt::gray);
+    painter->fillRect(canvas, Qt::white);
+    painter->fillRect(canvas, QBrush(QColor(204, 204, 204), Qt::Dense7Pattern));
+    painter->drawRect(canvas);
+}
+
+QSizeF DiagramScene::canvasSize()
+{
+    return m_canvasSize;
+}
+
+void DiagramScene::updateCanvas()
+{
+    QRectF boundingRect = itemsBoundingRect();
+
+    //qDebug() << boundingRect << " " << sceneRect();
+
+    qreal halfX = m_canvasSize.width() / 2;
+    qreal halfY = m_canvasSize.height() / 2;
+
+    QPointF bottomRight = boundingRect.bottomRight();
+
+    QPointF topLeft = boundingRect.topLeft();
+    if (topLeft.x() > -halfX) topLeft.setX(-halfX);
+    if (topLeft.y() > -halfY) topLeft.setY(-halfY);
+    boundingRect.setTopLeft(topLeft);
+
+    if (bottomRight.x() < halfX) bottomRight.setX(halfX);
+    if (bottomRight.y() < halfY) bottomRight.setY(halfY);
+    boundingRect.setBottomRight(bottomRight);
+
+    setSceneRect(boundingRect);
 }
 
 DiagramScene::Mode DiagramScene::mode()
@@ -191,6 +237,8 @@ void DiagramScene::insertItem(DiagramItem *item)
     item->setMenu(menu);
 
     addItem(item);
+    updateCanvas();
+
     emit itemInserted(item);
 }
 

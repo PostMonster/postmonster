@@ -80,7 +80,6 @@ protected slots:
 
 protected:
     void initScene();
-    bool eventFilter(QObject *object, QEvent *event) override;
 
 private:
     Ui::EditForm *ui;

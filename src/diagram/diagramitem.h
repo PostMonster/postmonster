@@ -57,7 +57,7 @@ public:
 protected:
     void destroyArrow(Arrow *arrow);
     void contextMenuEvent(QGraphicsSceneContextMenuEvent *event) Q_DECL_OVERRIDE;
-    QVariant itemChange(GraphicsItemChange change, const QVariant &value) Q_DECL_OVERRIDE;
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
 
 public slots:
     void removeArrows();

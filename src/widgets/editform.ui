@@ -44,18 +44,6 @@
          <property name="mouseTracking">
           <bool>true</bool>
          </property>
-         <property name="backgroundBrush">
-          <brush brushstyle="Dense7Pattern">
-           <color alpha="255">
-            <red>204</red>
-            <green>204</green>
-            <blue>204</blue>
-           </color>
-          </brush>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-         </property>
          <property name="renderHints">
           <set>QPainter::Antialiasing|QPainter::SmoothPixmapTransform|QPainter::TextAntialiasing</set>
          </property>
@@ -242,7 +230,7 @@
                 <property name="currentIndex">
                  <number>0</number>
                 </property>
-                <widget class="QWidget" name="progressBarPage" native="true">
+                <widget class="QWidget" name="progressBarPage">
                  <layout class="QHBoxLayout" name="horizontalLayout_3">
                   <property name="spacing">
                    <number>0</number>
