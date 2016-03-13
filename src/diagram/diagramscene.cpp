@@ -23,7 +23,6 @@
 #include <QtDebug>
 #include <QMimeData>
 #include <QPainter>
-#include <QTimer>
 
 #include "common.h"
 #include "arrow.h"

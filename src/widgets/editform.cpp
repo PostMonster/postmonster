@@ -36,7 +36,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QVariantMap>
-#include <QTimer>
+#include <QDesktopWidget>
 
 using namespace PostMonster;
 
@@ -47,7 +47,7 @@ EditForm::EditForm(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    ui->verticalSplitter->setStretchFactor(0, 5);
+    ui->verticalSplitter->setStretchFactor(0, 6);
     ui->verticalSplitter->setStretchFactor(1, 3);
 
     QList<int> sizes = { int(width() * 0.65), int(width() * 0.35) };
