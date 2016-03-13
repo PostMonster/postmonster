@@ -168,15 +168,16 @@ QPixmap HttpTask::itemPixmap() const
     renderer.render(&painter);
 
     painter.setPen(QPen(Qt::black));
-    painter.setFont(QFont("sans", 10, QFont::Bold));
+    painter.setFont(QFont(QStringLiteral("sans"), 11, QFont::Bold));
 
+    qDebug() << s;
     // Draw method
     QFontMetrics fm(painter.font());
     int methodWidth = fm.width(QLatin1String(m_request.method));
     painter.drawText(25 * s, s + fm.height(), QLatin1String(m_request.method));
 
     // Draw name
-    painter.setFont(QFont("sans", 8));
+    painter.setFont(QFont(QStringLiteral("sans"), 9));
     fm = QFontMetrics(painter.font());
 
     int nameMaxWidth = pixmap.width() - 37 * s - methodWidth;
@@ -184,7 +185,7 @@ QPixmap HttpTask::itemPixmap() const
                      Qt::AlignRight, chopToWidth(name(), painter.font(), nameMaxWidth));
 
     // Set label font
-    QPen labelPen(QColor("#333333"), 1, Qt::DotLine);
+    QPen labelPen(QColor(QStringLiteral("#333333")), 1, Qt::DotLine);
     QPen valuePen(Qt::black);
 
     QString labelName;
