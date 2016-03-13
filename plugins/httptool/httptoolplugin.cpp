@@ -176,7 +176,7 @@ QPixmap HttpTask::itemPixmap() const
     painter.drawText(25 * s, 2 * s + fm.height(), QLatin1String(m_request.method));
 
     // Draw name
-    painter.setFont(QFont(QStringLiteral("sans"), 8));
+    painter.setFont(QFont(QStringLiteral("sans"), 9));
     fm = QFontMetrics(painter.font());
 
     int nameMaxWidth = pixmap.width() - 37 * s - methodWidth;
@@ -199,7 +199,7 @@ QPixmap HttpTask::itemPixmap() const
     // Draw domain label
     labelName = QStringLiteral("Domain:");
     labelX = 10 * s;
-    labelY = 22 * s + (fm.height() + 5 * s);
+    labelY = 25 * s + (fm.height() + 2 * s);
     labelWidth = fm.width(labelName);
     painter.setPen(labelPen);
     painter.drawLine(labelX, labelY + 2 * s, labelX + labelWidth - 3 * s, labelY + 2 * s);
@@ -213,7 +213,7 @@ QPixmap HttpTask::itemPixmap() const
     // Draw path label
     labelName = QStringLiteral("Path:");
     labelWidth = fm.width(labelName);
-    labelY = 22 * s + (fm.height() + 5 * s) * 2;
+    labelY = 25 * s + (fm.height() + 2 * s) * 2;
 
     painter.setPen(labelPen);
     painter.drawLine(labelX, labelY + 2 * s, labelX + labelWidth - 3 * s, labelY + 2 * s);
@@ -227,7 +227,7 @@ QPixmap HttpTask::itemPixmap() const
     // Draw headers label
     labelName = QStringLiteral("Headers:");
     labelWidth = fm.width(labelName);
-    labelY = 22 * s + (fm.height() + 5 * s) * 3;
+    labelY = 25 * s + (fm.height() + 2 * s) * 3;
 
     painter.setPen(labelPen);
     painter.drawLine(labelX, labelY + 2 * s, labelX + labelWidth - 3 * s, labelY + 2 * s);
@@ -241,7 +241,7 @@ QPixmap HttpTask::itemPixmap() const
     labelName = QStringLiteral("Cookies:");
     labelX += labelWidth + fm.width(headerCount) + 10 * s;
     labelWidth = fm.width(labelName);
-    labelY = 22 * s + (fm.height() + 5 * s) * 3;
+    labelY = 25 * s + (fm.height() + 2 * s) * 3;
 
     painter.setPen(labelPen);
     painter.drawLine(labelX, labelY + 2 * s, labelX + labelWidth - 3 * s, labelY + 2 * s);
