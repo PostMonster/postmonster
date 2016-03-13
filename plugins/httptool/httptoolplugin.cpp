@@ -173,14 +173,14 @@ QPixmap HttpTask::itemPixmap() const
     // Draw method
     QFontMetrics fm(painter.font());
     int methodWidth = fm.width(QLatin1String(m_request.method));
-    painter.drawText(25 * s, qRound(2.3 * s) + fm.height(), QLatin1String(m_request.method));
+    painter.drawText(QPointF(25 * s, 2.2 * s + fm.height()), QLatin1String(m_request.method));
 
     // Draw name
     painter.setFont(QFont(QStringLiteral("sans"), 9));
     fm = QFontMetrics(painter.font());
 
-    int nameMaxWidth = pixmap.width() - 37 * s - methodWidth;
-    painter.drawText(30 * s + methodWidth, 6 * s, nameMaxWidth, fm.height(),
+    int nameMaxWidth = qRound(pixmap.width() - 37 * s - methodWidth);
+    painter.drawText(QRectF(30 * s + methodWidth, 6 * s, nameMaxWidth, fm.height()),
                      Qt::AlignRight, chopToWidth(name(), painter.font(), nameMaxWidth));
 
     // Set label font
@@ -188,7 +188,7 @@ QPixmap HttpTask::itemPixmap() const
     QPen valuePen(Qt::black);
 
     QString labelName;
-    int labelX, labelY, labelWidth;
+    qreal labelX, labelY, labelWidth;
     QUrl url(m_request.url);
     QString host = url.host().isEmpty() ? QStringLiteral("...") : url.host();
     QString path = (url.path().isEmpty() ? "/" : url.path()) +
@@ -202,12 +202,13 @@ QPixmap HttpTask::itemPixmap() const
     labelY = 25 * s + (fm.height() + 2 * s);
     labelWidth = fm.width(labelName);
     painter.setPen(labelPen);
-    painter.drawLine(labelX, labelY + 2 * s, labelX + labelWidth - 3 * s, labelY + 2 * s);
-    painter.drawText(labelX, labelY, labelName);
+    painter.drawLine(QPointF(labelX, labelY + 2 * s),
+                     QPointF(labelX + labelWidth - 3 * s, labelY + 2 * s));
+    painter.drawText(QPointF(labelX, labelY), labelName);
 
     // Draw domain value
     painter.setPen(valuePen);
-    painter.drawText(labelX + labelWidth + 2 * s, labelY,
+    painter.drawText(QPointF(labelX + labelWidth + 2 * s, labelY),
                      chopToWidth(host, painter.font(), pixmap.width() - 20 * s - labelWidth));
 
     // Draw path label
@@ -216,12 +217,13 @@ QPixmap HttpTask::itemPixmap() const
     labelY = 25 * s + (fm.height() + 2 * s) * 2;
 
     painter.setPen(labelPen);
-    painter.drawLine(labelX, labelY + 2 * s, labelX + labelWidth - 3 * s, labelY + 2 * s);
-    painter.drawText(labelX, labelY, labelName);
+    painter.drawLine(QPointF(labelX, labelY + 2 * s),
+                     QPointF(labelX + labelWidth - 3 * s, labelY + 2 * s));
+    painter.drawText(QPointF(labelX, labelY), labelName);
 
     // Draw path value
     painter.setPen(valuePen);
-    painter.drawText(labelX + labelWidth + 2 * s, labelY,
+    painter.drawText(QPointF(labelX + labelWidth + 2 * s, labelY),
                      chopToWidth(path, painter.font(), pixmap.width() - 20 * s - labelWidth));
 
     // Draw headers label
@@ -230,12 +232,13 @@ QPixmap HttpTask::itemPixmap() const
     labelY = 25 * s + (fm.height() + 2 * s) * 3;
 
     painter.setPen(labelPen);
-    painter.drawLine(labelX, labelY + 2 * s, labelX + labelWidth - 3 * s, labelY + 2 * s);
-    painter.drawText(labelX, labelY, labelName);
+    painter.drawLine(QPointF(labelX, labelY + 2 * s),
+                     QPointF(labelX + labelWidth - 3 * s, labelY + 2 * s));
+    painter.drawText(QPointF(labelX, labelY), labelName);
 
     // Draw headers value
     painter.setPen(Qt::black);
-    painter.drawText(labelX + labelWidth + 2 * s, labelY, headerCount + ";");
+    painter.drawText(QPointF(labelX + labelWidth + 2 * s, labelY), headerCount + ";");
 
     // Draw cookies label
     labelName = QStringLiteral("Cookies:");
@@ -244,12 +247,13 @@ QPixmap HttpTask::itemPixmap() const
     labelY = 25 * s + (fm.height() + 2 * s) * 3;
 
     painter.setPen(labelPen);
-    painter.drawLine(labelX, labelY + 2 * s, labelX + labelWidth - 3 * s, labelY + 2 * s);
-    painter.drawText(labelX, labelY, labelName);
+    painter.drawLine(QPointF(labelX, labelY + 2 * s),
+                     QPointF(labelX + labelWidth - 3 * s, labelY + 2 * s));
+    painter.drawText(QPointF(labelX, labelY), labelName);
 
     // Draw cookies value
     painter.setPen(Qt::black);
-    painter.drawText(labelX + labelWidth + 2 * s, labelY, cookieCount);
+    painter.drawText(QPointF(labelX + labelWidth + 2 * s, labelY), cookieCount);
 
     return pixmap;
 }
